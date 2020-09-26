@@ -1,47 +1,57 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-// @Disabled
+@Disabled
 
+// Register class as TeleOp and give it a name
 @TeleOp(name ="ExampleTeleOpMecanum")
 
-public class ExampleTeleOpMecanum extends LinearOpMode {
+// Define class and extend LinerOpMode
+public class Z_ExampleTeleOpMecanumLinearOpMode extends LinearOpMode {
 
+    // define global variables
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
 
+    // Override RunOpMode method from LinearOPMode class
     @Override
     public void runOpMode() {
 
+        // Map global variables to config file on Robot Controller
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
         frontRight = hardwareMap.dcMotor.get("frontRight");
         backLeft = hardwareMap.dcMotor.get("backLeft");
         backRight = hardwareMap.dcMotor.get("backRight");
 
+        // Reverse right side motors so they drive forward
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        double speed = 1;
-        double direction = 1;
-        boolean aButtonPad1 = false;
-        boolean bButtonPad1 = false;
-        double turnMultiple = 2.0;
-
+        // Wait for driver to press play
         waitForStart();
 
+        // Until driver presses Stop, run this code
         while (opModeIsActive()) {
 
+            // Define local variables for later
+            double speed = 1;
+            double direction = 1;
+            boolean aButtonPad1 = false;
+            boolean bButtonPad1 = false;
+            double turnMultiple = 2.0;
             double frontLeftClip;
             double frontRightClip;
             double backLeftClip;
             double backRightClip;
 
+            // Place the robot on blocks a correct these vectors.  They may be different based on gear ratios and motor orientation.
             /** Forward & Reverse Vectors
             frontLeft.setPower(frontLeftClip = (gamepad1.left_stick_y * speed * direction));
             frontRight.setPower(frontRightClip = (gamepad1.left_stick_y * speed * direction));
@@ -60,7 +70,7 @@ public class ExampleTeleOpMecanum extends LinearOpMode {
             backLeft.setPower(backLeftClip = -(gamepad1.right_stick_x * speed * turnMultiple));
             backRight.setPower(backRightClip = (gamepad1.right_stick_x * speed * turnMultiple));
 
-            *** Vector Addition ( from Physics) combining all three power settings for each motor
+            *** Vector Addition ( from Physics) combining all three power settings for each motor above
             frontLeft.setPower(frontLeftClip = (gamepad1.left_stick_y * speed * direction) + (gamepad1.left_stick_x * speed * direction) - (gamepad1.right_stick_x * speed * turnMultiple));
             frontRight.setPower(frontRightClip = (gamepad1.left_stick_y * speed * direction) - (gamepad1.left_stick_x * speed * direction) + (gamepad1.right_stick_x * speed * turnMultiple));
             backLeft.setPower(backLeftClip = (gamepad1.left_stick_y * speed * direction) - (gamepad1.left_stick_x * speed * direction) - (gamepad1.right_stick_x * speed * turnMultiple));
