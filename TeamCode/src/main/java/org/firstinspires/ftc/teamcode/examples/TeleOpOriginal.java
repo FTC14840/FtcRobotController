@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,13 +6,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-@Disabled
+// @Disabled
 
 // Register class as TeleOp and give it a name
 @TeleOp(name ="ExampleTeleOpMecanum")
 
+@Disabled
+
 // Define class and extend LinerOpMode
-public class Z_ExampleTeleOpMecanumLinearOpMode extends LinearOpMode {
+public class TeleOpOriginal extends LinearOpMode {
 
     // define global variables
     private DcMotor frontLeft;
@@ -34,18 +36,20 @@ public class Z_ExampleTeleOpMecanumLinearOpMode extends LinearOpMode {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        // define local variables for driver control
+        double speed = 1;
+        double direction = 1;
+        boolean aButtonPad1 = false;
+        boolean bButtonPad1 = false;
+        double turnMultiple = 2.0;
+
         // Wait for driver to press play
         waitForStart();
 
         // Until driver presses Stop, run this code
         while (opModeIsActive()) {
 
-            // Define local variables for later
-            double speed = 1;
-            double direction = 1;
-            boolean aButtonPad1 = false;
-            boolean bButtonPad1 = false;
-            double turnMultiple = 2.0;
+            // Define clip variables for motor power
             double frontLeftClip;
             double frontRightClip;
             double backLeftClip;
