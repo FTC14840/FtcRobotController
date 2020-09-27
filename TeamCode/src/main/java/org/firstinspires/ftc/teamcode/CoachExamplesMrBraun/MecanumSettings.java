@@ -1,12 +1,11 @@
 // Package name
-package org.firstinspires.ftc.teamcode.examples;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -38,8 +37,7 @@ public class MecanumSettings {
     // Constants for driver control
     private static final double HIGHSPEED = 1;
     private static final double LOWSPEED = .50;
-    private static final double TURNSENSITIVITY = 2.0;
-
+    private static final double TURNSENSITIVITY = 1.5;
 
     private static final double TICKS = 1440; // AndyMark = 1120, Tetrix = 1440
     private static final double GEARREDUCTION = 1.0; // Greater than 1.0; Less than 1.0 if geared up
@@ -80,31 +78,51 @@ public class MecanumSettings {
         moveRobot(0, 0, 0);
     }
 
-    public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
+    public void calibrateGyro(LinearOpMode opMode) {
 
-        // Get a reference to a Modern Robotics GyroSensor object. We use several interfaces
-        // on this object to illustrate which interfaces support which functionality.
         navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope)navxMicro;
-        // If you're only interested int the IntegratingGyroscope interface, the following will suffice.
         //gyro = botOpMode.hardwareMap.get(IntegratingGyroscope.class, "navx");
 
-        botOpMode.telemetry.log().add("Gyro Calibrating. Do Not Move!");
-
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-
         while (navxMicro.isCalibrating()) {
-            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
-            botOpMode.telemetry.update();
-            Thread.sleep(50);
+            botOpMode.telemetry.log().add("Gyro is Calibrating. Do Not Move...");
         }
 
-        botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.update();
         botOpMode.telemetry.log().add("Gyro Calibrated. Press Play to Begin!");
+        botOpMode.telemetry.update();
+    }
+
+/** Telemetry Methods **/
+
+    public void driveTelemetry (LinearOpMode opMode) {
+
+        // Set opMode to one defined above
+        botOpMode = opMode;
+
+        double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
+        double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
+        double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
+        double backRightInches = backRight.getCurrentPosition() / TICKSTOINCHES;
+
+        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double invertGyroHeading = gyroHeading * -1;
+
+        botOpMode.telemetry.addData("Heading: ", "%.2f", invertGyroHeading);
+        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", (int) frontLeftInches, (int) frontRightInches, (int) backLeftInches, (int) backRightInches);
+        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
+        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+        botOpMode.telemetry.addData("Axes  ", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
+        botOpMode.telemetry.update();
+
+        if (botOpMode.gamepad1.y) {
+            stopAndResetEncoder();
+            runUsingEncoder();
+        }
 
     }
+
+
 
 /** TeleOp Methods **/
 
@@ -196,12 +214,12 @@ public class MecanumSettings {
 
 /** Autonomous Methods **/
 
-    public void GyroDrive(int distance, double power, double angle, int pause) throws InterruptedException {
+    public void gyroDrive(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
-            StopAndResetEncoder();
-            RunUsingEncoder();
-            DriveByInches(distance);
-            RunToPosition();
+            stopAndResetEncoder();
+            runUsingEncoder();
+            driveByInches(distance);
+            runToPosition();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
@@ -211,9 +229,9 @@ public class MecanumSettings {
                     frontRight.setPower(power + error);
                     backLeft.setPower(power - error);
                     backRight.setPower(power + error);
-                    DisplayTelemetry();
+                    displayTelemetry();
                 } else {
-                    StopDriving();
+                    stopDriving();
                     Thread.sleep(pause);
                     break;
                 }
@@ -221,12 +239,12 @@ public class MecanumSettings {
         }
     }
 
-    public void GyroStrafe(int distance, double power, double angle, int pause) throws InterruptedException {
+    public void gyroStrafe(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
-            StopAndResetEncoder();
-            RunUsingEncoder();
-            StrafeByInches(distance);
-            RunToPosition();
+            stopAndResetEncoder();
+            runUsingEncoder();
+            strafeByInches(distance);
+            runToPosition();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
@@ -236,9 +254,9 @@ public class MecanumSettings {
                     frontRight.setPower(-power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    DisplayTelemetry();
+                    displayTelemetry();
                 } else {
-                    StopDriving();
+                    stopDriving();
                     Thread.sleep(pause);
                     break;
                 }
@@ -246,10 +264,10 @@ public class MecanumSettings {
         }
     }
 
-    public void GyroLeft(double power, double angle, int pause) throws InterruptedException {
+    public void gyroLeft(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
-            StopAndResetEncoder();
-            RunUsingEncoder();
+            stopAndResetEncoder();
+            runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double invertGyroHeading = gyroHeading * -1;
@@ -258,9 +276,9 @@ public class MecanumSettings {
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    DisplayTelemetry();
+                    displayTelemetry();
                 } else {
-                    StopDriving();
+                    stopDriving();
                     Thread.sleep(pause);
                     break;
                 }
@@ -268,10 +286,10 @@ public class MecanumSettings {
         }
     }
 
-    public void GyroRight(double power, double angle, int pause) throws InterruptedException {
+    public void gyroRight(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
-            StopAndResetEncoder();
-            RunUsingEncoder();
+            stopAndResetEncoder();
+            runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double invertGyroHeading = gyroHeading * -1;
@@ -280,9 +298,9 @@ public class MecanumSettings {
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
-                    DisplayTelemetry();
+                    displayTelemetry();
                 } else {
-                    StopDriving();
+                    stopDriving();
                     Thread.sleep(pause);
                     break;
                 }
@@ -290,63 +308,63 @@ public class MecanumSettings {
         }
     }
 
-    public void StopDriving() {
+    public void stopDriving() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
     }
 
-    public void DriveByInches(int distance) {
+    public void driveByInches(int distance) {
         frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
         frontRight.setTargetPosition(distance * (int) TICKSTOINCHES);
         backLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
         backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
     }
 
-    public void StrafeByInches(int distance) {
+    public void strafeByInches(int distance) {
         frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
         frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
         backLeft.setTargetPosition(-distance * (int) TICKSTOINCHES);
         backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
     }
 
-    public void TurnByInches(int distance) {
+    public void turnByInches(int distance) {
         frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
         frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
         backLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
         backRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
     }
 
-    public void StopAndResetEncoder() {
+    public void stopAndResetEncoder() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void RunWithoutEncoder() {
+    public void runWithoutEncoder() {
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void RunUsingEncoder() {
+    public void runUsingEncoder() {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void RunToPosition() {
+    public void runToPosition() {
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void DisplayTelemetry() {
+    public void displayTelemetry() {
         double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         double invertGyroHeading = gyroHeading * -1;
         double errorMultiple = 1.0;

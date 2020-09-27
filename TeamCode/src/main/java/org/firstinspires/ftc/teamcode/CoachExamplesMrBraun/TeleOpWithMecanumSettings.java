@@ -1,12 +1,12 @@
 // Package name
-package org.firstinspires.ftc.teamcode.examples;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Register class as TeleOp on Driver Station
-@TeleOp(name ="TeleOp With Hardware")
+@TeleOp(name ="TeleOp With Mecanum Settings")
 
 // Begin class and extend methods for LinearOpMode
 public class TeleOpWithMecanumSettings extends LinearOpMode {
@@ -20,6 +20,7 @@ public class TeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initDrive(this);
+        robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
         while (!isStarted()) {
@@ -35,6 +36,7 @@ public class TeleOpWithMecanumSettings extends LinearOpMode {
             // Run these methods from the hardware setup to move the bot
             robot.manualDrive();
             robot.moveRobot();
+            robot.driveTelemetry(this);
         }
     }
 }

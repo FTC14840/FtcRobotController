@@ -1,11 +1,12 @@
-package org.firstinspires.ftc.teamcode.examples;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Vuforia TeleOp")
 
-// @Disabled
+@Disabled
 
 public class VuforiaTeleOp extends LinearOpMode {
 
