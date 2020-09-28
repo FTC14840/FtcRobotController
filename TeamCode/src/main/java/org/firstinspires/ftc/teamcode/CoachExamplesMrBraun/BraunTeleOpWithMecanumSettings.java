@@ -5,8 +5,10 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+// @Disabled
+
 // Register class as TeleOp on Driver Station
-@TeleOp(name ="TeleOp With Mecanum Settings")
+@TeleOp(name ="Braun TeleOp")
 
 // Begin class and extend methods for LinearOpMode
 public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
@@ -16,10 +18,10 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
     // Override the method runOpMode from LinearOpMode
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         // Run method from hardware class
-        robot.initDrive(this);
+        robot.initHardware(this);
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed

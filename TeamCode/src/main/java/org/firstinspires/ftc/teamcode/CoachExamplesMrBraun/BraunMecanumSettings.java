@@ -2,11 +2,13 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
+
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -52,9 +54,11 @@ public class BraunMecanumSettings {
 
     }
 
-/** Hardware Methods **/
+    /**
+     * Hardware Methods
+     **/
 
-    public void initDrive(LinearOpMode opMode) {
+    public void initHardware(LinearOpMode opMode) {
 
         // Set opMode to one defined above
         botOpMode = opMode;
@@ -81,7 +85,7 @@ public class BraunMecanumSettings {
     public void calibrateGyro(LinearOpMode opMode) {
 
         navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope)navxMicro;
+        gyro = (IntegratingGyroscope) navxMicro;
         //gyro = botOpMode.hardwareMap.get(IntegratingGyroscope.class, "navx");
 
         while (navxMicro.isCalibrating()) {
@@ -92,39 +96,9 @@ public class BraunMecanumSettings {
         botOpMode.telemetry.update();
     }
 
-/** Telemetry Methods **/
-
-    public void driveTelemetry (LinearOpMode opMode) {
-
-        // Set opMode to one defined above
-        botOpMode = opMode;
-
-        double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
-        double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
-        double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
-        double backRightInches = backRight.getCurrentPosition() / TICKSTOINCHES;
-
-        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        double invertGyroHeading = gyroHeading * -1;
-
-        botOpMode.telemetry.addData("Heading: ", "%.2f", invertGyroHeading);
-        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", (int) frontLeftInches, (int) frontRightInches, (int) backLeftInches, (int) backRightInches);
-        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
-        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
-        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-        botOpMode.telemetry.addData("Axes  ", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
-        botOpMode.telemetry.update();
-
-        if (botOpMode.gamepad1.y) {
-            stopAndResetEncoder();
-            runUsingEncoder();
-        }
-
-    }
-
-
-
-/** TeleOp Methods **/
+    /**
+     * TeleOp Methods
+     **/
 
     public void manualDrive() {
         // Setting three motions to stick movements
@@ -212,7 +186,9 @@ public class BraunMecanumSettings {
         moveRobot();
     }
 
-/** Autonomous Methods **/
+    /**
+     * Autonomous Methods
+     **/
 
     public void gyroDrive(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
@@ -229,7 +205,7 @@ public class BraunMecanumSettings {
                     frontRight.setPower(power + error);
                     backLeft.setPower(power - error);
                     backRight.setPower(power + error);
-                    displayTelemetry();
+                    driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -254,7 +230,7 @@ public class BraunMecanumSettings {
                     frontRight.setPower(-power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    displayTelemetry();
+                    driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -276,7 +252,7 @@ public class BraunMecanumSettings {
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    displayTelemetry();
+                    driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -298,7 +274,7 @@ public class BraunMecanumSettings {
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
-                    displayTelemetry();
+                    driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -329,13 +305,6 @@ public class BraunMecanumSettings {
         backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
     }
 
-    public void turnByInches(int distance) {
-        frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
-        frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
-        backLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
-        backRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
-    }
-
     public void stopAndResetEncoder() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -364,14 +333,37 @@ public class BraunMecanumSettings {
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void displayTelemetry() {
-        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        double invertGyroHeading = gyroHeading * -1;
-        double errorMultiple = 1.0;
-        double error = (errorMultiple * (-gyroHeading - 0) / 100);
+    /**
+     * Telemetry Methods
+     **/
+
+    public void driveTelemetry(LinearOpMode opMode) {
+
+        // Set opMode to one defined above
+        botOpMode = opMode;
+
         double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
         double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
         double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
         double backRightInches = backRight.getCurrentPosition() / TICKSTOINCHES;
+
+        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double invertGyroHeading = gyroHeading * -1;
+
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("Heading: ", "%.2f", invertGyroHeading);
+        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", (int) frontLeftInches, (int) frontRightInches, (int) backLeftInches, (int) backRightInches);
+        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
+        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+        botOpMode.telemetry.addData("Axes  ", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
+        botOpMode.telemetry.update();
+
+        if (botOpMode.gamepad1.y) {
+            stopAndResetEncoder();
+            runUsingEncoder();
+        }
+
     }
+
 }
