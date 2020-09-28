@@ -16,7 +16,7 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
         import java.util.ArrayList;
         import java.util.List;
 
-public class VuforiaNavigation
+public class BraunVuforiaNavigation
 {
     // Constants
     private static final int     MAX_TARGETS    =   5;
@@ -32,7 +32,7 @@ public class VuforiaNavigation
 
     /* Private class members. */
     private LinearOpMode myOpMode;       // Access to the OpMode object
-    private VuforiaHardware myRobot;        // Access to the Robot hardware
+    private BraunVuforiaHardware myRobot;        // Access to the Robot hardware
     private VuforiaTrackables targets;        // List of active targets
 
     // Navigation data is only valid if targetFound == true;
@@ -47,7 +47,7 @@ public class VuforiaNavigation
     //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
 
     /* Constructor */
-    public VuforiaNavigation(){
+    public BraunVuforiaNavigation(){
 
         targetFound = false;
         targetName = null;
@@ -131,7 +131,7 @@ public class VuforiaNavigation
      * @param opMode    pointer to OpMode
      * @param robot     pointer to Robot hardware class
      */
-    public void initVuforia(LinearOpMode opMode, VuforiaHardware robot) {
+    public void initVuforia(LinearOpMode opMode, BraunVuforiaHardware robot) {
 
         // Save reference to OpMode and Hardware map
         myOpMode = opMode;

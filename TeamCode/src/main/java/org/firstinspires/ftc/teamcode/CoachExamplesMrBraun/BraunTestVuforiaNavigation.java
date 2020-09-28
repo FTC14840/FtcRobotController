@@ -65,7 +65,7 @@ import java.util.Locale;
 
 @Disabled
 
-public class TestVuforiaNavigation extends LinearOpMode {
+public class BraunTestVuforiaNavigation extends LinearOpMode {
 
     public static final String TAG = "Vuforia Navigation Sample";
 

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-public class VuforiaHardware {
+public class BraunVuforiaHardware {
     private LinearOpMode myOpMode;
 
     private DcMotor frontLeft = null;
@@ -16,7 +16,7 @@ public class VuforiaHardware {
     private double  driveLateral    = 0 ;   // Positive is right
     private double  driveYaw        = 0 ;   // Positive is CCW
 
-    public VuforiaHardware() {
+    public BraunVuforiaHardware() {
     }
 
     public void initDrive(LinearOpMode opMode) {

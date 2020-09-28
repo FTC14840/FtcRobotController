@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name ="TeleOp With Mecanum Settings")
 
 // Begin class and extend methods for LinearOpMode
-public class TeleOpWithMecanumSettings extends LinearOpMode {
+public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
     // Create a new instance of the hardware class
-    MecanumSettings robot = new MecanumSettings();
+    BraunMecanumSettings robot = new BraunMecanumSettings();
 
     // Override the method runOpMode from LinearOpMode
     @Override

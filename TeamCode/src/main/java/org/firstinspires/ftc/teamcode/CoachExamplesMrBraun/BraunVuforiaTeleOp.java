@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Disabled
 
-public class VuforiaTeleOp extends LinearOpMode {
+public class BraunVuforiaTeleOp extends LinearOpMode {
 
     final double TARGET_DISTANCE =  400.0;
 
-    VuforiaHardware robot    = new VuforiaHardware();
-    VuforiaNavigation nav      = new VuforiaNavigation();
+    BraunVuforiaHardware robot    = new BraunVuforiaHardware();
+    BraunVuforiaNavigation nav      = new BraunVuforiaNavigation();
 
     @Override
     public void runOpMode() {

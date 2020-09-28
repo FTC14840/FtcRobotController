@@ -1,4 +1,4 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
-public class AutoWithMecanumSettings {
+public class BraunAutoWithMecanumSettings {
 }

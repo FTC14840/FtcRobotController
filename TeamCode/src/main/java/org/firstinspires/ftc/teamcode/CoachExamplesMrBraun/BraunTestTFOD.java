@@ -53,7 +53,7 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 @Disabled
 
-public class TestTFOD extends LinearOpMode {
+public class BraunTestTFOD extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";

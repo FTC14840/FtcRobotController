@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 @Disabled
 
 // Define class and extend LinerOpMode
-public class TeleOpOriginal extends LinearOpMode {
+public class BraunTeleOpOriginal extends LinearOpMode {
 
     // define global variables
     private DcMotor frontLeft;

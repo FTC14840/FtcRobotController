@@ -12,7 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 // Begin hardware class
-public class MecanumSettings {
+public class BraunMecanumSettings {
 
     // Define OpMode for bot hardware
     private LinearOpMode botOpMode;
@@ -48,7 +48,7 @@ public class MecanumSettings {
     NavxMicroNavigationSensor navxMicro;
 
     // Empty Constructor - Don't need... Created automatically
-    public MecanumSettings() {
+    public BraunMecanumSettings() {
 
     }
 
