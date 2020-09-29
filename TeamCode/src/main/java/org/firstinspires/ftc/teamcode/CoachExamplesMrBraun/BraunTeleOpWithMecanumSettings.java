@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -22,15 +23,18 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
+        robot.activateTfod();
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
         while (!isStarted()) {
-
+            robot.tfodTelemetry();
         }
 
         // Wait for the drive to press play
         waitForStart();
+
+        robot.deactivedTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
@@ -39,6 +43,7 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
             robot.manualDrive();
             robot.moveRobot();
             robot.driveTelemetry(this);
+
         }
     }
 }

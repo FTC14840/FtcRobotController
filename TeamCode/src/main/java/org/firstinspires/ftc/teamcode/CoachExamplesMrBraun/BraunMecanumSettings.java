@@ -7,11 +7,19 @@ import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 // Begin hardware class
 public class BraunMecanumSettings {
@@ -49,9 +57,23 @@ public class BraunMecanumSettings {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
 
+    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Quad";
+    private static final String LABEL_SECOND_ELEMENT = "Single";
+
+    private static final String VUFORIA_KEY =
+            "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
+
+    private VuforiaLocalizer vuforia;
+    private TFObjectDetector tfod;
+
     // Empty Constructor - Don't need... Created automatically
     public BraunMecanumSettings() {
 
+    }
+
+    public TFObjectDetector getTfod() {
+        return tfod;
     }
 
     /**
@@ -62,6 +84,10 @@ public class BraunMecanumSettings {
 
         // Set opMode to one defined above
         botOpMode = opMode;
+
+        // This method takes a couple seconds to init and the gyro calibrates fast.  You never see the message im calibrateGyro.
+        botOpMode.telemetry.log().add("Gyro is Calibrating. Do Not Move...");
+        botOpMode.telemetry.update();
 
         // Map global variables/ fields to config file on Robot Controller
         frontLeft = botOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
@@ -82,16 +108,21 @@ public class BraunMecanumSettings {
         moveRobot(0, 0, 0);
     }
 
-    public void calibrateGyro(LinearOpMode opMode) {
+    public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
 
         navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope) navxMicro;
-        //gyro = botOpMode.hardwareMap.get(IntegratingGyroscope.class, "navx");
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
 
         while (navxMicro.isCalibrating()) {
-            botOpMode.telemetry.log().add("Gyro is Calibrating. Do Not Move...");
+            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
+            botOpMode.telemetry.update();
         }
 
+        Thread.sleep(500);
+        botOpMode.telemetry.log().clear();
         botOpMode.telemetry.log().add("Gyro Calibrated. Press Play to Begin!");
         botOpMode.telemetry.update();
     }
@@ -364,6 +395,73 @@ public class BraunMecanumSettings {
             runUsingEncoder();
         }
 
+    }
+
+    public String tfodTelemetry() {
+        String returnString = "double";
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                botOpMode.telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    returnString = recognition.getLabel();
+                    botOpMode.telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                    botOpMode.telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                            recognition.getLeft(), recognition.getTop());
+                    botOpMode.telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                            recognition.getRight(), recognition.getBottom());
+                }
+                botOpMode.telemetry.update();
+                return returnString;
+            }
+        }
+        return returnString;
+    }
+
+    /**
+     * TFOD Methods
+     **/
+
+    public void activateTfod() {
+        initVuforia();
+        initTfod();
+        if (tfod != null) {
+            tfod.activate();
+        }
+
+        // The TensorFlow software will scale the input images from the camera to a lower resolution.
+        // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+        // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+        // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+        // should be set to the value of the images used to create the TensorFlow Object Detection model
+        // (typically 1.78 or 16/9).
+
+        // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
+        // tfod.setZoom(2.5, 1.78);
+    }
+
+    public void deactivedTfod() {
+        tfod.deactivate();
+    }
+
+    private void initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    private void initTfod() {
+        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
 }
