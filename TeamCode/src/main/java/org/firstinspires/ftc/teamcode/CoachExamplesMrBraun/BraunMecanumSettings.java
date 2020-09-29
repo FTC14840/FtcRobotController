@@ -2,14 +2,12 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
-
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
 import java.util.List;
 
 // Begin hardware class
@@ -33,7 +30,7 @@ public class BraunMecanumSettings {
     private DcMotor backLeft;
     private DcMotor backRight;
 
-    // Define global variables/fields for three motions
+    // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
     private double driveLateral = 0;  // Positive is right
     private double driveYaw = 0;  // Positive is Counterclockwise
@@ -72,10 +69,6 @@ public class BraunMecanumSettings {
 
     }
 
-    public TFObjectDetector getTfod() {
-        return tfod;
-    }
-
     /**
      * Hardware Methods
      **/
@@ -85,7 +78,7 @@ public class BraunMecanumSettings {
         // Set opMode to one defined above
         botOpMode = opMode;
 
-        // This method takes a couple seconds to init and the gyro calibrates fast.  You never see the message im calibrateGyro.
+        // This method takes a couple seconds to init and the gyro calibrates fast.  You never see the message in calibrateGyro so it's here.
         botOpMode.telemetry.log().add("Gyro is Calibrating. Do Not Move...");
         botOpMode.telemetry.update();
 
@@ -101,8 +94,9 @@ public class BraunMecanumSettings {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        //Set the mode for the encoders
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Reset encoders
+        stopAndResetEncoder();
+        runUsingEncoder();
 
         // Set all motor power to zero
         moveRobot(0, 0, 0);
@@ -246,6 +240,13 @@ public class BraunMecanumSettings {
         }
     }
 
+    public void driveByInches(int distance) {
+        frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
+        frontRight.setTargetPosition(distance * (int) TICKSTOINCHES);
+        backLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
+        backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
+    }
+
     public void gyroStrafe(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
@@ -269,6 +270,13 @@ public class BraunMecanumSettings {
                 }
             }
         }
+    }
+
+    public void strafeByInches(int distance) {
+        frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
+        frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
+        backLeft.setTargetPosition(-distance * (int) TICKSTOINCHES);
+        backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
     }
 
     public void gyroLeft(double power, double angle, int pause) throws InterruptedException {
@@ -322,20 +330,6 @@ public class BraunMecanumSettings {
         backRight.setPower(0);
     }
 
-    public void driveByInches(int distance) {
-        frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
-        frontRight.setTargetPosition(distance * (int) TICKSTOINCHES);
-        backLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
-        backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
-    }
-
-    public void strafeByInches(int distance) {
-        frontLeft.setTargetPosition(distance * (int) TICKSTOINCHES);
-        frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
-        backLeft.setTargetPosition(-distance * (int) TICKSTOINCHES);
-        backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
-    }
-
     public void stopAndResetEncoder() {
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -343,18 +337,18 @@ public class BraunMecanumSettings {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void runWithoutEncoder() {
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
     public void runUsingEncoder() {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void runWithoutEncoder() {
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void runToPosition() {

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-// @Disabled
+@Disabled
 
 // Register class as TeleOp on Driver Station
 @TeleOp(name ="Braun TeleOp")

@@ -42,25 +42,25 @@ import java.util.List;
             // Repeat this code once play is pressed until stop is pressed
             while (opModeIsActive()) {
 
-                if (robot.tfodTelemetry() == "single") {
-                    robot.gyroLeft(.20, -90, 5000);
-                    Thread.sleep(50000);
-                }
-
-                if (robot.tfodTelemetry() == "double") {
-                    robot.gyroRight(.20, 90, 5000);
-                    Thread.sleep(50000);
-                }
-
-                if (robot.tfodTelemetry() == "quad") {
-                    robot.gyroDrive(12, .20, 0, 5000);
-                    Thread.sleep(50000);
-                }
+//                if (robot.tfodTelemetry() == "single") {
+//                    robot.gyroLeft(.20, -90, 5000);
+//                    Thread.sleep(50000);
+//                }
+//
+//                if (robot.tfodTelemetry() == "double") {
+//                    robot.gyroRight(.20, 90, 5000);
+//                    Thread.sleep(50000);
+//                }
+//
+//                if (robot.tfodTelemetry() == "quad") {
+//                    robot.gyroDrive(12, .20, 0, 5000);
+//                    Thread.sleep(50000);
+//                }
 
 
 
                 // Run these methods from the hardware setup to move the bot
-//                robot.gyroDrive(12, .20, 0, 5000);
+                robot.gyroDrive(12, .20, 0, 5000);
 //                robot.gyroLeft(.20, -90, 5000);
 //                robot.gyroRight(.20, 0, 5000);
 //                robot.gyroDrive(-12, .20, 0, 5000);
