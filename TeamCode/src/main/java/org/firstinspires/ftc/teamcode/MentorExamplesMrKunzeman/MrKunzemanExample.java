@@ -1,4 +1,4 @@
 package org.firstinspires.ftc.teamcode.MentorExamplesMrKunzeman;
 
-public class Example {
+public class MrKunzemanExample {
 }
