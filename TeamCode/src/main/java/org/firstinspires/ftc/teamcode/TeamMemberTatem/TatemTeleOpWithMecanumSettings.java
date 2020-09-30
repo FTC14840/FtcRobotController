@@ -7,17 +7,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
+import org.firstinspires.ftc.teamcode.MecanumSettings;
 
 @Disabled
 
 // Register class as TeleOp on Driver Station
-@TeleOp(name ="Braun TeleOp")
+@TeleOp(name ="Tatem TeleOp")
 
 // Begin class and extend methods for LinearOpMode
 public class TatemTeleOpWithMecanumSettings extends LinearOpMode {
 
     // Create a new instance of the hardware class
-    BraunMecanumSettings robot = new BraunMecanumSettings();
+    TatemMecanumSettings robot = new TatemMecanumSettings();
 
     // Override the method runOpMode from LinearOpMode
     @Override
