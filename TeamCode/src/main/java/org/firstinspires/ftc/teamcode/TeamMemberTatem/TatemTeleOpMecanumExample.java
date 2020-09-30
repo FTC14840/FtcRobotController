@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name ="TeleOpMecanumExample")
 
 // Begin of LinearOpMode Class
-public class TeleOpMecanumExample extends LinearOpMode {
+public class TatemTeleOpMecanumExample extends LinearOpMode {
 
     // DEfining our Global variables for Java
     private DcMotor frontLeft;
