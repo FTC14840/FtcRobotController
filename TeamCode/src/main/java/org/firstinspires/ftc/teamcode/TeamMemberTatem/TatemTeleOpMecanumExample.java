@@ -1,5 +1,5 @@
 // FTC package name
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeamMemberTatem;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 // Name under TeleOp List
-@TeleOp(name ="TeleOpMecanumExample")
+@TeleOp(name ="Tatem TeleOpMecanumExample")
 
 // Begin of LinearOpMode Class
 public class TatemTeleOpMecanumExample extends LinearOpMode {

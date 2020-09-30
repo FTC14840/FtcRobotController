@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "TeleOpMecanumExample")
+@TeleOp(name = "Bekah TeleOpMecanumExample")
+
+@Disabled
 
 public class BekahMecanumExample extends LinearOpMode {
 

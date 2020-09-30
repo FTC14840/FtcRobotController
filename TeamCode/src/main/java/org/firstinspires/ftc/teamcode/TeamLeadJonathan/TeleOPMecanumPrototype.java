@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 // @Disabled
 
 // Name under TeleOp List
-@TeleOp(name ="This Is A Serious Name")
+@TeleOp(name ="Jonathan TeleOp")
 
 // Begin of LinearOpMode Class
 public class TeleOPMecanumPrototype extends LinearOpMode {
