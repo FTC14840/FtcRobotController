@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
 // @Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Braun Autonomous")
+@Autonomous(name = "Jonathan Autonomous")
 
     // Begin class and extend methods for LinearOpMode
     public class JonathanAutoWithMecanumSettings extends LinearOpMode {
