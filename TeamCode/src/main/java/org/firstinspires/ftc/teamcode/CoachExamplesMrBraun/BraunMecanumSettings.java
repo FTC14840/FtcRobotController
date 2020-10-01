@@ -2,14 +2,12 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
-
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -24,7 +22,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaHardware;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,61 +59,38 @@ public class BraunMecanumSettings {
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
 
-    IntegratingGyroscope gyro;
-    NavxMicroNavigationSensor navxMicro;
-
-    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
-    private static final String LABEL_FIRST_ELEMENT = "Quad";
-    private static final String LABEL_SECOND_ELEMENT = "Single";
-
     private static final String VUFORIA_KEY =
             "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
 
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
-
-    // Constants
+    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
+    private static final String LABEL_FIRST_ELEMENT = "Quad";
+    private static final String LABEL_SECOND_ELEMENT = "Single";
     private static final int MAX_TARGETS = 5;
     private static final double ON_AXIS = 10;      // Within 1.0 cm of target center-line
     private static final double CLOSE_ENOUGH = 20;      // Within 2.0 cm of final target standoff
-
-    // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
-
     public static final double YAW_GAIN = 0.018;   // Rate at which we respond to heading error
     public static final double LATERAL_GAIN = 0.0027;  // Rate at which we respond to off-axis error
     public static final double AXIAL_GAIN = 0.0017;  // Rate at which we respond to target distance errors
-
-    /* Private class members. */
-    private LinearOpMode myOpMode;       // Access to the OpMode object
-    private BraunVuforiaHardware myRobot;        // Access to the Robot hardware
-    private VuforiaTrackables targets;        // List of active targets
+    private VuforiaTrackables targets = null;        // List of active targets
 
     // Navigation data is only valid if targetFound == true;
-    private boolean targetFound;    // set to true if Vuforia is currently tracking a target
-    private String targetName;     // Name of the currently tracked target
-    private double robotX;         // X displacement from target center
-    private double robotY;         // Y displacement from target center
-    private double robotBearing;   // Robot's rotation around the Z axis (CCW is positive)
-    private double targetRange;    // Range from robot's center to target in mm
-    private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
-    private double relativeBearing;// Heading to the target from the robot's current bearing.
+    private boolean targetFound = false;    // set to true if Vuforia is currently tracking a target
+    private String targetName = null;     // Name of the currently tracked target
+    private double robotX = 0;         // X displacement from target center
+    private double robotY = 0;         // Y displacement from target center
+    private double robotBearing = 0;   // Robot's rotation around the Z axis (CCW is positive)
+    private double targetRange = 0;    // Range from robot's center to target in mm
+    private double targetBearing = 0;  // Heading of the target , relative to the robot's unrotated center
+    private double relativeBearing = 0;// Heading to the target from the robot's current bearing.
     //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
+
+    IntegratingGyroscope gyro;
+    NavxMicroNavigationSensor navxMicro;
 
     // Empty Constructor - Don't need... Created automatically
     public BraunMecanumSettings() {
-
-        targetFound = false;
-        targetName = null;
-        targets = null;
-
-        robotX = 0;
-        robotY = 0;
-        targetRange = 0;
-        targetBearing = 0;
-        robotBearing = 0;
-        relativeBearing = 0;
-
     }
 
     /**
@@ -128,8 +102,8 @@ public class BraunMecanumSettings {
         // Set opMode to one defined above
         botOpMode = opMode;
 
-        // This method takes a couple seconds to init and the gyro calibrates fast.  You never see the message in calibrateGyro so it's here.
-        botOpMode.telemetry.log().add("Gyro is Calibrating. Do Not Move...");
+        // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
+        botOpMode.telemetry.log().add("Robot Initializing. Stand clear and Do Not Move The Bot...");
         botOpMode.telemetry.update();
 
         // Map global variables/ fields to config file on Robot Controller
@@ -152,54 +126,36 @@ public class BraunMecanumSettings {
         moveRobot(0, 0, 0);
     }
 
-    public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
+    public void initVision (LinearOpMode opMode) {
 
-        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope) navxMicro;
+        botOpMode = opMode;
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
+        initVuforia(botOpMode);
+        initTfod(botOpMode);
+        activateTracking();
 
-        while (navxMicro.isCalibrating()) {
-            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
-            botOpMode.telemetry.update();
+        if (tfod != null) {
+            tfod.activate();
         }
 
-        Thread.sleep(500);
-        botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.log().add("Gyro Calibrated. Press Play to Begin!");
-        botOpMode.telemetry.update();
+        // The TensorFlow software will scale the input images from the camera to a lower resolution.
+        // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+        // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+        // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+        // should be set to the value of the images used to create the TensorFlow Object Detection model
+        // (typically 1.78 or 16/9).
+
+        // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
+        // tfod.setZoom(2.5, 1.78);
     }
 
-    public void initVuforia(LinearOpMode opMode, BraunVuforiaHardware robot) {
+    public void initVuforia(LinearOpMode opMode) {
 
-        // Save reference to OpMode and Hardware map
-        myOpMode = opMode;
-        myRobot = robot;
-
-        /**
-         * Start up Vuforia, telling it the id of the view that we wish to use as the parent for
-         * the camera monitor.
-         * We also indicate which camera on the RC that we wish to use.
-         */
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);  // Use this line to see camera display
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();                             // OR... Use this line to improve performance
-
-        // Get your own Vuforia key at  https://developer.vuforia.com/license-manager
-        // and paste it here...
-        parameters.vuforiaLicenseKey = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
-
-        parameters.cameraDirection = CAMERA_CHOICE;
-        parameters.useExtendedTracking = false;
-        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        // VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        /**
-         * Load the data sets that for the trackable objects we wish to track.
-         * These particular data sets are stored in the 'assets' part of our application
-         * They represent the four image targets used in the 2016-17 FTC game.
-         */
+        botOpMode = opMode;
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         // targets = vuforia.loadTrackablesFromAsset("Ultimate Goal");
         VuforiaTrackables UltimateGoal = vuforia.loadTrackablesFromAsset("UltimateGoal");
@@ -249,17 +205,118 @@ public class BraunMecanumSettings {
         final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
         final int CAMERA_LEFT_DISPLACEMENT = 0;     // Camera is ON the robots center line
 
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.YZX,
-                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
+/** This code is out of date... Research how to transcribe the camera location **/
+
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.YZX,
+//                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
 
         // Set the all the targets to have the same location and camera orientation
-        for (VuforiaTrackable trackable : allTrackables) {
-            trackable.setLocation(targetOrientation);
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        for (VuforiaTrackable trackable : allTrackables) {
+//            trackable.setLocation(targetOrientation);
+//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+//        }
+    }
+
+    public void activateTracking() {
+
+        // Start tracking any of the defined targets
+        if (targets != null)
+            targets.activate();
+    }
+
+    public boolean targetsAreVisible() {
+
+        int targetTestID = 0;
+
+        // Check each target in turn, but stop looking when the first target is found.
+        while ((targetTestID < MAX_TARGETS) && !targetIsVisible(targetTestID)) {
+            targetTestID++;
         }
+
+        return (targetFound);
+    }
+
+    public boolean targetIsVisible(int targetId) {
+
+        VuforiaTrackable target = targets.get(targetId);
+        VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) target.getListener();
+        OpenGLMatrix location = null;
+
+        // if we have a target, look for an updated robot position
+        if ((target != null) && (listener != null) && listener.isVisible()) {
+            targetFound = true;
+            targetName = target.getName();
+
+            // If we have an updated robot location, update all the relevant tracking information
+            location = listener.getUpdatedRobotLocation();
+            if (location != null) {
+
+                // Create a translation and rotation vector for the robot.
+                VectorF trans = location.getTranslation();
+                Orientation rot = Orientation.getOrientation(location, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+                // Robot position is defined by the standard Matrix translation (x and y)
+                robotX = trans.get(0);
+                robotY = trans.get(1);
+
+                // Robot bearing (in +vc CCW cartesian system) is defined by the standard Matrix z rotation
+                robotBearing = rot.thirdAngle;
+
+                // target range is based on distance from robot position to origin.
+                targetRange = Math.hypot(robotX, robotY);
+
+                // target bearing is based on angle formed between the X axis to the target range line
+                targetBearing = Math.toDegrees(-Math.asin(robotY / targetRange));
+
+                // Target relative bearing is the target Heading relative to the direction the robot is pointing.
+                relativeBearing = targetBearing - robotBearing;
+            }
+            targetFound = true;
+        } else {
+            // Indicate that there is no target visible
+            targetFound = false;
+            targetName = "None";
+        }
+
+        return targetFound;
+    }
+
+    void initTfod(LinearOpMode opMode) {
+        botOpMode = opMode;
+        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+    }
+
+    public void deactiveTfod() {
+        tfod.deactivate();
+    }
+
+    public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
+
+        botOpMode = opMode;
+
+        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+        gyro = (IntegratingGyroscope) navxMicro;
+
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
+        while (navxMicro.isCalibrating()) {
+            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
+            botOpMode.telemetry.update();
+        }
+
+        Thread.sleep(500);
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.log().add("Gyro Calibrated. Press Play to Begin!");
+        botOpMode.telemetry.update();
     }
 
     /**
@@ -352,13 +409,6 @@ public class BraunMecanumSettings {
         moveRobot();
     }
 
-    public void activateTracking() {
-
-        // Start tracking any of the defined targets
-        if (targets != null)
-            targets.activate();
-    }
-
     public boolean cruiseControl(double standOffDistance) {
         boolean closeEnough;
 
@@ -372,72 +422,15 @@ public class BraunMecanumSettings {
         double A = (-(robotX + standOffDistance) * AXIAL_GAIN);
 
         // Send the desired axis motions to the robot hardware.
-        myRobot.setYaw(Y);
-        myRobot.setAxial(A);
-        myRobot.setLateral(L);
+        setYaw(Y);
+        setAxial(A);
+        setLateral(L);
 
         // Determine if we are close enough to the target for action.
         closeEnough = ((Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
                 (Math.abs(robotY) < ON_AXIS));
 
         return (closeEnough);
-    }
-
-    public boolean targetsAreVisible() {
-
-        int targetTestID = 0;
-
-        // Check each target in turn, but stop looking when the first target is found.
-        while ((targetTestID < MAX_TARGETS) && !targetIsVisible(targetTestID)) {
-            targetTestID++;
-        }
-
-        return (targetFound);
-    }
-
-    public boolean targetIsVisible(int targetId) {
-
-        VuforiaTrackable target = targets.get(targetId);
-        VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) target.getListener();
-        OpenGLMatrix location = null;
-
-        // if we have a target, look for an updated robot position
-        if ((target != null) && (listener != null) && listener.isVisible()) {
-            targetFound = true;
-            targetName = target.getName();
-
-            // If we have an updated robot location, update all the relevant tracking information
-            location = listener.getUpdatedRobotLocation();
-            if (location != null) {
-
-                // Create a translation and rotation vector for the robot.
-                VectorF trans = location.getTranslation();
-                Orientation rot = Orientation.getOrientation(location, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-                // Robot position is defined by the standard Matrix translation (x and y)
-                robotX = trans.get(0);
-                robotY = trans.get(1);
-
-                // Robot bearing (in +vc CCW cartesian system) is defined by the standard Matrix z rotation
-                robotBearing = rot.thirdAngle;
-
-                // target range is based on distance from robot position to origin.
-                targetRange = Math.hypot(robotX, robotY);
-
-                // target bearing is based on angle formed between the X axis to the target range line
-                targetBearing = Math.toDegrees(-Math.asin(robotY / targetRange));
-
-                // Target relative bearing is the target Heading relative to the direction the robot is pointing.
-                relativeBearing = targetBearing - robotBearing;
-            }
-            targetFound = true;
-        } else {
-            // Indicate that there is no target visible
-            targetFound = false;
-            targetName = "None";
-        }
-
-        return targetFound;
     }
 
     /**
@@ -648,59 +641,16 @@ public class BraunMecanumSettings {
     public void navigationTelemetry() {
         if (targetFound) {
             // Display the current visible target name, robot info, target info, and required robot action.
-            myOpMode.telemetry.addData("Visible", targetName);
-            myOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
+            botOpMode.telemetry.addData("Visible", targetName);
+            botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
                     robotX, robotY, robotBearing);
-            myOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)",
+            botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)",
                     targetRange, targetBearing, relativeBearing);
-            myOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
-            myOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
-            myOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
+            botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
+            botOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
+            botOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
         } else {
-            myOpMode.telemetry.addData("Visible", "- - - -");
+            botOpMode.telemetry.addData("Visible", "- - - -");
         }
     }
-
-    /**
-     * TFOD Methods
-     **/
-
-    public void activateTfod() {
-        initVuforia();
-        initTfod();
-        if (tfod != null) {
-            tfod.activate();
-        }
-
-        // The TensorFlow software will scale the input images from the camera to a lower resolution.
-        // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-        // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-        // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-        // should be set to the value of the images used to create the TensorFlow Object Detection model
-        // (typically 1.78 or 16/9).
-
-        // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
-        // tfod.setZoom(2.5, 1.78);
-    }
-
-    public void deactivedTfod() {
-        tfod.deactivate();
-    }
-
-    private void initVuforia() {
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-    }
-
-    private void initTfod() {
-        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-    }
-
 }

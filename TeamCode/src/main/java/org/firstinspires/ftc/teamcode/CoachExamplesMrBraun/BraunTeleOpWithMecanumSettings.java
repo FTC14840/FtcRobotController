@@ -16,11 +16,11 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaNavig
 // Begin class and extend methods for LinearOpMode
 public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
-    final double TARGET_DISTANCE =  400.0;
+    final double PRIMARYDISTANCE =  400.0;
+    final double SECONDAYDISTANCE = 800.0;
 
     // Create a new instance of the hardware class
     BraunMecanumSettings robot = new BraunMecanumSettings();
-    BraunVuforiaNavigation nav      = new BraunVuforiaNavigation();
 
     // Override the method runOpMode from LinearOpMode
     @Override
@@ -28,43 +28,34 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
-        robot.activateTfod();
-        nav.activateTracking();
+        robot.initVision(this);
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
         while (!isStarted()) {
-            nav.targetsAreVisible();
-            robot.tfodTelemetry();
+            robot.targetsAreVisible();
         }
 
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactivedTfod();
+        robot.deactiveTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
 
-            // Run these methods from the hardware setup to move the bot
-            robot.manualDrive();
-            robot.moveRobot();
-            robot.driveTelemetry(this);
+            if (robot.targetsAreVisible() && gamepad1.left_bumper) {
+                robot.cruiseControl(PRIMARYDISTANCE);
 
-            telemetry.addData(">", "Press Left Bumper to track target");
-
-            if (nav.targetsAreVisible() && gamepad1.left_bumper) {
-                nav.cruiseControl(TARGET_DISTANCE);
+            } else if(robot.targetsAreVisible() && gamepad1.right_bumper){
+                robot.cruiseControl(SECONDAYDISTANCE);
 
             } else {
                 robot.manualDrive();
             }
 
-            nav.addNavTelemetry();
-
             robot.moveRobot();
-            telemetry.update();
-
+            robot.navigationTelemetry();
         }
     }
 }
