@@ -1,13 +1,15 @@
 // Package name
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
 // Imports
+
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -22,11 +24,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
 import java.util.ArrayList;
 import java.util.List;
 
 // Begin hardware class
-public class BraunMecanumSettings {
+public class BekahMecanumSettings {
 
     // Define OpMode for bot hardware
     private LinearOpMode botOpMode;
@@ -94,7 +97,7 @@ public class BraunMecanumSettings {
     NavxMicroNavigationSensor navxMicro;
 
     // Empty Constructor - Don't need... Created automatically
-    public BraunMecanumSettings() {
+    public BekahMecanumSettings() {
     }
 
     /**

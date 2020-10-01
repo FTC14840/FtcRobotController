@@ -1,18 +1,21 @@
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
+import org.firstinspires.ftc.teamcode.MecanumSettings;
+
 // @Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Braun Test Autonomous")
+@Autonomous(name = "Bekah Test Autonomous")
 
     // Begin class and extend methods for LinearOpMode
-    public class BraunAutoWithMecanumSettings extends LinearOpMode {
+    public class BekahAutoWithMecanumSettings extends LinearOpMode {
 
         // Create a new instance of the hardware class
-        BraunMecanumSettings robot = new BraunMecanumSettings();
+        BekahMecanumSettings robot = new BekahMecanumSettings();
 
         // Override the method runOpMode from LinearOpMode
         @Override
