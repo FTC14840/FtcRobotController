@@ -59,9 +59,11 @@ public class BraunMecanumSettings {
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
 
+    // Vuforia Key
     private static final String VUFORIA_KEY =
             "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
 
+    // Fields for Vuforia and TFOD
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -75,7 +77,7 @@ public class BraunMecanumSettings {
     public static final double AXIAL_GAIN = 0.0017;  // Rate at which we respond to target distance errors
     private VuforiaTrackables targets = null;        // List of active targets
 
-    // Navigation data is only valid if targetFound == true;
+    // Fields for Target Tracking
     private boolean targetFound = false;    // set to true if Vuforia is currently tracking a target
     private String targetName = null;     // Name of the currently tracked target
     private double robotX = 0;         // X displacement from target center
@@ -86,6 +88,7 @@ public class BraunMecanumSettings {
     private double relativeBearing = 0;// Heading to the target from the robot's current bearing.
     //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
 
+    // Fields for navx gyro
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
 
