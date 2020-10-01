@@ -16,8 +16,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaNavig
 // Begin class and extend methods for LinearOpMode
 public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
-    final double PRIMARYDISTANCE =  400.0;
-    final double SECONDAYDISTANCE = 800.0;
+
 
     // Create a new instance of the hardware class
     BraunMecanumSettings robot = new BraunMecanumSettings();
@@ -45,10 +44,10 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
         while (opModeIsActive()) {
 
             if (robot.targetsAreVisible() && gamepad1.left_bumper) {
-                robot.cruiseControl(PRIMARYDISTANCE);
+                robot.cruiseControl(robot.PRIMARYDISTANCE);
 
             } else if(robot.targetsAreVisible() && gamepad1.right_bumper){
-                robot.cruiseControl(SECONDAYDISTANCE);
+                robot.cruiseControl(robot.SECONDAYDISTANCE);
 
             } else {
                 robot.manualDrive();

@@ -78,6 +78,8 @@ public class BraunMecanumSettings {
     private VuforiaTrackables targets = null;        // List of active targets
 
     // Fields for Target Tracking
+    final double PRIMARYDISTANCE =  400.0;
+    final double SECONDAYDISTANCE = 800.0;
     private boolean targetFound = false;    // set to true if Vuforia is currently tracking a target
     private String targetName = null;     // Name of the currently tracked target
     private double robotX = 0;         // X displacement from target center
