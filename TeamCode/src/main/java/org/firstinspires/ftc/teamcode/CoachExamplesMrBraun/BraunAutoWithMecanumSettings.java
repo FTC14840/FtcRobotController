@@ -3,15 +3,10 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-
-import java.util.List;
-
-
 // @Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Braun Autonomous")
+@Autonomous(name = "Braun Test Autonomous")
 
     // Begin class and extend methods for LinearOpMode
     public class BraunAutoWithMecanumSettings extends LinearOpMode {
