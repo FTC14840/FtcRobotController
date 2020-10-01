@@ -4,18 +4,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
-
+import org.firstinspires.ftc.teamcode.MecanumSettings;
 
 // @Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Jonathan Autonomous")
+@Autonomous(name = "Jonathan Test Autonomous")
 
     // Begin class and extend methods for LinearOpMode
     public class JonathanAutoWithMecanumSettings extends LinearOpMode {
 
         // Create a new instance of the hardware class
-        BraunMecanumSettings robot = new BraunMecanumSettings();
+        JonathanMecanumSettings robot = new JonathanMecanumSettings();
 
         // Override the method runOpMode from LinearOpMode
         @Override
@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
 
             robot.initHardware(this);
             robot.calibrateGyro(this);
-            robot.activateTfod();
+
             //robot.tfodTelemetry();
 
             while (!isStarted()) {
@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
             // Wait for the drive to press play
             waitForStart();
 
-            robot.deactivedTfod();
+            robot.deactivateTfod();
 
             // Repeat this code once play is pressed until stop is pressed
             while (opModeIsActive()) {
