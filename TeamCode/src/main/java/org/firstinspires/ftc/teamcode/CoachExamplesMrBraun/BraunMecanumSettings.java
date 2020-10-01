@@ -164,7 +164,7 @@ public class BraunMecanumSettings {
         // targets = vuforia.loadTrackablesFromAsset("Ultimate Goal");
         VuforiaTrackables UltimateGoal = vuforia.loadTrackablesFromAsset("UltimateGoal");
         VuforiaTrackable redGoal = UltimateGoal.get(0);
-        redGoal.setName("RedGoal");  // Red Goal
+        redGoal.setName("Red Goal");  // Red Goal
 
         VuforiaTrackable blueGoal = UltimateGoal.get(1);
         blueGoal.setName("Blue Goal");  // Blue Goal

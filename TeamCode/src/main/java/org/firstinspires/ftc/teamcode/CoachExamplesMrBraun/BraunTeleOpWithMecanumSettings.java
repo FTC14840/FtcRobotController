@@ -33,7 +33,7 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactiveTfod();
+        robot.deactivateTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
