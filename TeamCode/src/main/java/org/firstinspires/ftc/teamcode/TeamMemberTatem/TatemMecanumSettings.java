@@ -1,13 +1,15 @@
 // Package name
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberTatem;
 
 // Imports
+
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -22,11 +24,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
 import java.util.ArrayList;
 import java.util.List;
 
 // Begin hardware class
-public class BraunMecanumSettings {
+public class TatemMecanumSettings {
 
     // Define OpMode for bot hardware
     private LinearOpMode botOpMode;
@@ -78,7 +81,7 @@ public class BraunMecanumSettings {
 
     // Fields for Target Tracking
     final double PRIMARYDISTANCE =  400.0;
-    final double SECONDAYDISTANCE = 800.0;
+    final double SECONDARYDISTANCE = 800.0;
     private boolean targetFound = false;    // set to true if Vuforia is currently tracking a target
     private String targetName = null;     // Name of the currently tracked target
     private double robotX = 0;         // X displacement from target center
@@ -94,7 +97,7 @@ public class BraunMecanumSettings {
     NavxMicroNavigationSensor navxMicro;
 
     // Empty Constructor - Don't need... Created automatically
-    public BraunMecanumSettings() {
+    public TatemMecanumSettings() {
     }
 
     /**
@@ -298,7 +301,7 @@ public class BraunMecanumSettings {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    public void deactiveTfod() {
+    public void deactivateTfod() {
         tfod.deactivate();
     }
 

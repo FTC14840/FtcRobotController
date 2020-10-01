@@ -1,25 +1,25 @@
 // Package name
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberTatem;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaHardware;
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaNavigation;
+import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
+import org.firstinspires.ftc.teamcode.MecanumSettings;
 
 // @Disabled
 
 // Register class as TeleOp on Driver Station
-@TeleOp(name ="Braun Test TeleOp")
+@TeleOp(name ="Tatem Test TeleOp")
 
 // Begin class and extend methods for LinearOpMode
-public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
+public class TatemTeleOpWithMecanumSettings extends LinearOpMode {
 
 
 
     // Create a new instance of the hardware class
-    BraunMecanumSettings robot = new BraunMecanumSettings();
+    TatemMecanumSettings robot = new TatemMecanumSettings();
 
     // Override the method runOpMode from LinearOpMode
     @Override
@@ -38,7 +38,7 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactiveTfod();
+        robot.deactivateTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
@@ -47,7 +47,7 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
                 robot.cruiseControl(robot.PRIMARYDISTANCE);
 
             } else if(robot.targetsAreVisible() && gamepad1.right_bumper){
-                robot.cruiseControl(robot.SECONDAYDISTANCE);
+                robot.cruiseControl(robot.SECONDARYDISTANCE);
 
             } else {
                 robot.manualDrive();
