@@ -2,13 +2,14 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
+
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -75,16 +76,16 @@ public class BraunMecanumSettings {
     private TFObjectDetector tfod;
 
     // Constants
-    private static final int     MAX_TARGETS    =   5;
-    private static final double  ON_AXIS        =  10;      // Within 1.0 cm of target center-line
-    private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
+    private static final int MAX_TARGETS = 5;
+    private static final double ON_AXIS = 10;      // Within 1.0 cm of target center-line
+    private static final double CLOSE_ENOUGH = 20;      // Within 2.0 cm of final target standoff
 
     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
 
-    public  static final double  YAW_GAIN       =  0.018;   // Rate at which we respond to heading error
-    public  static final double  LATERAL_GAIN   =  0.0027;  // Rate at which we respond to off-axis error
-    public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
+    public static final double YAW_GAIN = 0.018;   // Rate at which we respond to heading error
+    public static final double LATERAL_GAIN = 0.0027;  // Rate at which we respond to off-axis error
+    public static final double AXIAL_GAIN = 0.0017;  // Rate at which we respond to target distance errors
 
     /* Private class members. */
     private LinearOpMode myOpMode;       // Access to the OpMode object
@@ -92,14 +93,14 @@ public class BraunMecanumSettings {
     private VuforiaTrackables targets;        // List of active targets
 
     // Navigation data is only valid if targetFound == true;
-    private boolean             targetFound;    // set to true if Vuforia is currently tracking a target
-    private String              targetName;     // Name of the currently tracked target
-    private double              robotX;         // X displacement from target center
-    private double              robotY;         // Y displacement from target center
-    private double              robotBearing;   // Robot's rotation around the Z axis (CCW is positive)
-    private double              targetRange;    // Range from robot's center to target in mm
-    private double              targetBearing;  // Heading of the target , relative to the robot's unrotated center
-    private double              relativeBearing;// Heading to the target from the robot's current bearing.
+    private boolean targetFound;    // set to true if Vuforia is currently tracking a target
+    private String targetName;     // Name of the currently tracked target
+    private double robotX;         // X displacement from target center
+    private double robotY;         // Y displacement from target center
+    private double robotBearing;   // Robot's rotation around the Z axis (CCW is positive)
+    private double targetRange;    // Range from robot's center to target in mm
+    private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
+    private double relativeBearing;// Heading to the target from the robot's current bearing.
     //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
 
     // Empty Constructor - Don't need... Created automatically
@@ -205,7 +206,7 @@ public class BraunMecanumSettings {
         VuforiaTrackable redGoal = UltimateGoal.get(0);
         redGoal.setName("RedGoal");  // Red Goal
 
-        VuforiaTrackable blueGoal  = UltimateGoal.get(1);
+        VuforiaTrackable blueGoal = UltimateGoal.get(1);
         blueGoal.setName("Blue Goal");  // Blue Goal
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
@@ -244,9 +245,9 @@ public class BraunMecanumSettings {
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
+        final int CAMERA_FORWARD_DISPLACEMENT = 110;   // Camera is 110 mm in front of robot center
         final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
+        final int CAMERA_LEFT_DISPLACEMENT = 0;     // Camera is ON the robots center line
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
@@ -255,10 +256,9 @@ public class BraunMecanumSettings {
                         AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
 
         // Set the all the targets to have the same location and camera orientation
-        for (VuforiaTrackable trackable : allTrackables)
-        {
+        for (VuforiaTrackable trackable : allTrackables) {
             trackable.setLocation(targetOrientation);
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
     }
 
@@ -363,13 +363,13 @@ public class BraunMecanumSettings {
         boolean closeEnough;
 
         // Priority #1 Rotate to always be pointing at the target (for best target retention).
-        double Y  = (relativeBearing * YAW_GAIN);
+        double Y = (relativeBearing * YAW_GAIN);
 
         // Priority #2  Drive laterally based on distance from X axis (same as y value)
-        double L  =(robotY * LATERAL_GAIN);
+        double L = (robotY * LATERAL_GAIN);
 
         // Priority #3 Drive forward based on the desiredHeading target standoff distance
-        double A  = (-(robotX + standOffDistance) * AXIAL_GAIN);
+        double A = (-(robotX + standOffDistance) * AXIAL_GAIN);
 
         // Send the desired axis motions to the robot hardware.
         myRobot.setYaw(Y);
@@ -377,19 +377,19 @@ public class BraunMecanumSettings {
         myRobot.setLateral(L);
 
         // Determine if we are close enough to the target for action.
-        closeEnough = ( (Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
+        closeEnough = ((Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
                 (Math.abs(robotY) < ON_AXIS));
 
         return (closeEnough);
     }
 
-    public boolean targetsAreVisible()  {
+    public boolean targetsAreVisible() {
 
         int targetTestID = 0;
 
         // Check each target in turn, but stop looking when the first target is found.
         while ((targetTestID < MAX_TARGETS) && !targetIsVisible(targetTestID)) {
-            targetTestID++ ;
+            targetTestID++;
         }
 
         return (targetFound);
@@ -398,8 +398,8 @@ public class BraunMecanumSettings {
     public boolean targetIsVisible(int targetId) {
 
         VuforiaTrackable target = targets.get(targetId);
-        VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener)target.getListener();
-        OpenGLMatrix location  = null;
+        VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) target.getListener();
+        OpenGLMatrix location = null;
 
         // if we have a target, look for an updated robot position
         if ((target != null) && (listener != null) && listener.isVisible()) {
@@ -407,7 +407,7 @@ public class BraunMecanumSettings {
             targetName = target.getName();
 
             // If we have an updated robot location, update all the relevant tracking information
-            location  = listener.getUpdatedRobotLocation();
+            location = listener.getUpdatedRobotLocation();
             if (location != null) {
 
                 // Create a translation and rotation vector for the robot.
@@ -431,8 +431,7 @@ public class BraunMecanumSettings {
                 relativeBearing = targetBearing - robotBearing;
             }
             targetFound = true;
-        }
-        else  {
+        } else {
             // Indicate that there is no target visible
             targetFound = false;
             targetName = "None";
@@ -647,21 +646,18 @@ public class BraunMecanumSettings {
     }
 
     public void navigationTelemetry() {
-        if (targetFound)
-        {
+        if (targetFound) {
             // Display the current visible target name, robot info, target info, and required robot action.
             myOpMode.telemetry.addData("Visible", targetName);
             myOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
                     robotX, robotY, robotBearing);
             myOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)",
                     targetRange, targetBearing, relativeBearing);
-            myOpMode.telemetry.addData("- Turn    ", "%s %4.0f°",  relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
+            myOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
             myOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             myOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
-        }
-        else
-        {
-            myOpMode.telemetry.addData("Visible", "- - - -" );
+        } else {
+            myOpMode.telemetry.addData("Visible", "- - - -");
         }
     }
 
