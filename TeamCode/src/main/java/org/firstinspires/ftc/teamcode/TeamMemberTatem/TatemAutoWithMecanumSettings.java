@@ -1,18 +1,15 @@
-package org.firstinspires.ftc.teamcode.TeamMemberTatem;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
-
-
 // @Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Tatem Autonomous")
+@Autonomous(name = "Braun Test Autonomous")
 
     // Begin class and extend methods for LinearOpMode
-    public class TatemAutoWithMecanumSettings extends LinearOpMode {
+    public class BraunAutoWithMecanumSettings extends LinearOpMode {
 
         // Create a new instance of the hardware class
         BraunMecanumSettings robot = new BraunMecanumSettings();
