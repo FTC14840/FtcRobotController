@@ -5,18 +5,13 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaHardware;
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old.BraunVuforiaNavigation;
-
 // @Disabled
 
-// Register class as TeleOp on Driver Station
+// Register class as TeleOp on Driver Station - Place your name first
 @TeleOp(name ="Braun Test TeleOp")
 
-// Begin class and extend methods for LinearOpMode
+// Begin class and extend methods for LinearOpMode - Place your name first
 public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
-
-
 
     // Create a new instance of the hardware class
     BraunMecanumSettings robot = new BraunMecanumSettings();
