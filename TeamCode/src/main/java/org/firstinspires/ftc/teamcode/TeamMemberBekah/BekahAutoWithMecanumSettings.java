@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
 import org.firstinspires.ftc.teamcode.MecanumSettings;
 
-// @Disabled
+@Disabled
 
 // Register class as Autonomous on Driver Station
 @Autonomous(name = "Bekah Test Autonomous")

@@ -1,10 +1,35 @@
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.Old;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
-public class BraunVuforiaHardware {
+/**
+ * This is NOT an opmode.
+ *
+ * This class defines all the specific hardware for a three wheel omni-bot.
+ *
+ * This hardware class assumes the following device names have been configured on the robot:
+ * Note:  All names are lower case and some have single spaces between words.
+ *
+ * Motor channel:  Left  drive motor:        "left drive"
+ * Motor channel:  Right drive motor:        "right drive"
+ * Motor channel:  Rear  drive motor:        "back drive"
+ *
+ * These motors correspond to three drive locations spaced 120 degrees around a circular robot.
+ * Each motor is attached to an omni-wheel. Two wheels are in front, and one is at the rear of the robot.
+ *
+ * Robot motion is defined in three different axis motions:
+ * - Axial    Forward/Backwards      +ve = Forward
+ * - Lateral  Side to Side strafing  +ve = Right
+ * - Yaw      Rotating               +ve = CCW
+ */
+
+
+public class BraunHardware
+{
+    // Private Members
     private LinearOpMode myOpMode;
 
     private DcMotor frontLeft = null;
@@ -16,25 +41,40 @@ public class BraunVuforiaHardware {
     private double  driveLateral    = 0 ;   // Positive is right
     private double  driveYaw        = 0 ;   // Positive is CCW
 
-    public BraunVuforiaHardware() {
+    double speed = 1;
+    double direction = 1;
+    boolean aButtonPad1 = false;
+    boolean bButtonPad1 = false;
+
+    private static final double HIGHSPEED = 1;
+    private static final double LOWSPEED = .50;
+    private static final double TURNSENSITIVITY = 1.5;
+
+    /* Constructor */
+    public BraunHardware(){
+
     }
 
+
+    /* Initialize standard Hardware interfaces */
     public void initDrive(LinearOpMode opMode) {
 
+        // Save reference to Hardware map
         myOpMode = opMode;
 
-        frontLeft = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
-        backLeft = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
-        backRight = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
+        // Define and Initialize Motors
+        frontLeft        = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight       = myOpMode.hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft        = myOpMode.hardwareMap.get(DcMotor.class, "backLeft");
+        backRight        = myOpMode.hardwareMap.get(DcMotor.class, "backRight");
 
-        frontLeft.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
-        frontRight.setDirection(DcMotor.Direction.FORWARD);// Positive input rotates counter clockwise
-        backLeft.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
-        backRight.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
+        frontLeft.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
+        frontRight.setDirection(DcMotor.Direction.REVERSE);// Positive input rotates counter clockwise
+        backLeft.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
+        backRight.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
 
         //use RUN_USING_ENCODERS because encoders are installed.
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Stop all robot motion by setting each axis value to zero
         moveRobot(0,0,0) ;
@@ -80,18 +120,17 @@ public class BraunVuforiaHardware {
      */
     public void moveRobot() {
         // calculate required motor speeds to acheive axis motions
-        double moveFrontLeft = driveYaw - driveAxial - (driveLateral * 0.5);
-        double moveFrontRight = driveYaw - driveAxial - (driveLateral * 0.5);
-        double moveBackLeft = driveYaw - driveAxial - (driveLateral * 0.5);
-        double moveBackRight = driveYaw - driveAxial - (driveLateral * 0.5);
+        double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        double moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
 
         // normalize all motor speeds so no values exceeds 100%.
         double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
         max = Math.max(max, Math.abs(moveBackLeft));
         max = Math.max(max, Math.abs(moveBackRight));
 
-        if (max > 1.0)
-        {
+        if (max > 1.0) {
             moveFrontLeft /= max;
             moveFrontRight /= max;
             moveBackLeft /= max;
@@ -105,8 +144,12 @@ public class BraunVuforiaHardware {
         backRight.setPower(moveBackRight);
 
         // Display Telemetry
-        myOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-        myOpMode.telemetry.addData("Wheels", "L[%+5.2f], R[%+5.2f], B[%+5.2f]", moveFrontLeft, moveFrontRight, moveBackLeft,moveBackRight);
+        myOpMode.telemetry.log().clear();
+        myOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
+        myOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
+        myOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+        myOpMode.telemetry.addData("Axes  ", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
+        myOpMode.telemetry.update();
     }
 
 

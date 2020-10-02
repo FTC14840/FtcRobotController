@@ -2,13 +2,14 @@
 package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
 // Imports
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
 import org.firstinspires.ftc.teamcode.MecanumSettings;
 
-// @Disabled
+@Disabled
 
 // Register class as TeleOp on Driver Station - Place your name first
 @TeleOp(name ="Bekah Test TeleOp")
@@ -36,7 +37,7 @@ public class BekahTeleOpWithMecanumSettings extends LinearOpMode {
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactiveTfod();
+        //robot.deactiveTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {

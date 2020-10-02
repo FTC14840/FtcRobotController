@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-// @Disabled
+@Disabled
 
 // Register class as Autonomous on Driver Station
 @Autonomous(name = "Braun Test Autonomous")

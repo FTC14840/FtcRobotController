@@ -2,10 +2,11 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-// @Disabled
+@Disabled
 
 // Register class as TeleOp on Driver Station - Place your name first
 @TeleOp(name ="Braun Test TeleOp")
@@ -22,18 +23,21 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
-        robot.initVision(this);
+        robot.initVuforia(this);
+        //robot.initTfod(this);
+        robot.activateTracking();
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
         while (!isStarted()) {
-            robot.targetsAreVisible();
+            //robot.targetsAreVisible();
+            // robot.navigationTelemetry();
         }
 
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactivateTfod();
+        //robot.deactivateTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
