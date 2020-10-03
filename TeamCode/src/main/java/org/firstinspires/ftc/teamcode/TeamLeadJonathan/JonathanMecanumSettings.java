@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -39,6 +40,8 @@ public class JonathanMecanumSettings {
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+    private DcMotor frontLauncher;
+    private DcMotor backLauncher;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -50,6 +53,13 @@ public class JonathanMecanumSettings {
     double direction = 1;
     boolean aButtonPad1 = false;
     boolean bButtonPad1 = false;
+
+    // Increments for ramp up launcher
+    static double INCREMENT = .05;
+
+
+
+
 
     // Constants for driver control
     private static final double HIGHSPEED = 1;
@@ -118,6 +128,8 @@ public class JonathanMecanumSettings {
         frontRight = botOpMode.hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = botOpMode.hardwareMap.get(DcMotor.class, "backLeft");
         backRight = botOpMode.hardwareMap.get(DcMotor.class, "backRight");
+        frontLauncher = botOpMode.hardwareMap.get(DcMotor.class, "frontLauncher");
+        backLauncher = botOpMode.hardwareMap.get(DcMotor.class, "backLauncher");
 
         // Reverse motors if they don't drive forward
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
@@ -354,6 +366,20 @@ public class JonathanMecanumSettings {
         } else if (bButtonPad1) {
             bButtonPad1 = false;
             direction = -direction;
+        }
+        // Decreasing and Increasing Launcher Speed
+        frontLauncher.setPower(1);
+        backLauncher.setPower(1);
+        frontLauncher.setDirection(DcMotor.Direction.FORWARD);
+        backLauncher.setDirection(DcMotor.Direction.FORWARD);
+        if (botOpMode.gamepad1.dpad_down) {
+            frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
+            backLauncher.setPower(backLauncher.getPower() - INCREMENT);
+        }
+
+        if (botOpMode.gamepad1.dpad_up) {
+            frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
+            backLauncher.setPower(backLauncher.getPower() + INCREMENT);
         }
     }
 
