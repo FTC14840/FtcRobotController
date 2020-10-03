@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Braun Tracking TeleOp")
 
-// @Disabled
+@Disabled
 
 public class BraunTrackingTeleOp extends LinearOpMode {
 
