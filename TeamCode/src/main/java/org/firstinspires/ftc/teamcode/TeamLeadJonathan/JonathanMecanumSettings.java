@@ -55,7 +55,7 @@ public class JonathanMecanumSettings {
     boolean bButtonPad1 = false;
 
     // Increments for ramp up launcher
-    static double INCREMENT = .05;
+    private static final double INCREMENT = .05;
 
 
 
