@@ -60,10 +60,17 @@ public class BraunMethods {
     private static final String LABEL_SECOND_ELEMENT = "Single";
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
-    public String tfodDetected = "Double";
+
+    private String tfodDetected = null;
+    public String getTfodDetected() {
+        return tfodDetected;
+    }
 
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
+
+
+
 
     /**
      * Hardware Methods
@@ -251,12 +258,12 @@ public class BraunMethods {
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
-                double error = (errorMultiple * (-gyroHeading - angle) / 100);
+                double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
-                    frontLeft.setPower(power - error);
-                    frontRight.setPower(power + error);
-                    backLeft.setPower(power - error);
-                    backRight.setPower(power + error);
+                    frontLeft.setPower(power + error);
+                    frontRight.setPower(power - error);
+                    backLeft.setPower(power + error);
+                    backRight.setPower(power - error);
                     driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
@@ -283,11 +290,11 @@ public class BraunMethods {
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
-                double error = (errorMultiple * (-gyroHeading - angle) / 100);
+                double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
                     frontLeft.setPower(power);
-                    frontRight.setPower(-power);
-                    backLeft.setPower(-power);
+                    frontRight.setPower(power);
+                    backLeft.setPower(power);
                     backRight.setPower(power);
                     driveTelemetry(botOpMode);
                 } else {
@@ -445,6 +452,8 @@ public class BraunMethods {
                 botOpMode.telemetry.addData(String.format("  R (%d)", i), "%.01f", recognition.getRight());
             }
             botOpMode.telemetry.update();
+        } else {
+            tfodDetected = "Double";
         }
     }
 }

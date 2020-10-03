@@ -40,38 +40,39 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
             // Repeat this code once play is pressed until stop is pressed
 
 
-            if (robot.tfodDetected == "Single") {
-
-                telemetry.log().clear();
-                telemetry.addData("Detected", "Single");
-                telemetry.update();
-                robot.gyroDrive(12, .20, 0, 5000);
-            }
-
-            if (robot.tfodDetected == "Double") {
-
-                telemetry.log().clear();
-                telemetry.addData("Detected", "Double");
-                telemetry.update();
-            }
-
-            if (robot.tfodDetected == "Quad") {
-
-                telemetry.log().clear();
-                telemetry.addData("Detected", "Quad");
-                telemetry.update();
-
-
-
-            }
+//            if (robot.getTfodDetected() == "Single") {
+//
+//                telemetry.log().clear();
+//                telemetry.addData("Detected", "Single");
+//                telemetry.update();
+//
+//            }
+//
+//            if (robot.getTfodDetected() == "Double") {
+//
+//                telemetry.log().clear();
+//                telemetry.addData("Detected", "Double");
+//                telemetry.update();
+//                robot.gyroDrive(12, .20, 0, 5000);
+//            }
+//
+//            if (robot.getTfodDetected() == "Quad") {
+//
+//                telemetry.log().clear();
+//                telemetry.addData("Detected", "Quad");
+//                telemetry.update();
+//            }
 
 
 
                 // Run these methods from the hardware setup to move the bot
-//                robot.gyroDrive(12, .20, 0, 5000);
-//                robot.gyroLeft(.20, -90, 5000);
-//                robot.gyroRight(.20, 0, 5000);
-//                robot.gyroDrive(-12, .20, 0, 5000);
+                robot.gyroDrive(50, .20, 0, 5000);
+                robot.gyroDrive(-50, .20, 0, 5000);
+//                robot.gyroStrafe(100, .20, 0,5000);
+//                robot.gyroStrafe(-100, .20, 0,5000);
+//                robot.gyroLeft(.20, 90, 5000);
+//                robot.gyroRight(.20, -90, 5000);
+
 
 
             Thread.sleep(5000);
