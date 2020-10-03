@@ -61,15 +61,14 @@ public class BraunMethods {
     private VuforiaLocalizer vuforia;
     private TFObjectDetector tfod;
 
-    private String tfodDetected = null;
+    private String tfodDetected = "None";
+
     public String getTfodDetected() {
         return tfodDetected;
     }
 
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
-
-
 
 
     /**
@@ -128,6 +127,17 @@ public class BraunMethods {
         tfodParameters.minResultConfidence = 0.8f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+
+        // The TensorFlow software will scale the input images from the camera to a lower resolution.
+        // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+        // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+        // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+        // should be set to the value of the images used to create the TensorFlow Object Detection model
+        // (typically 1.78 or 16/9).
+
+        // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
+        tfod.setZoom(2.5, 1.78);
+
         if (tfod != null) {
             tfod.activate();
         }
@@ -157,10 +167,10 @@ public class BraunMethods {
             botOpMode.telemetry.update();
         }
 
-        Thread.sleep(500);
-        botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.log().add("Gyro Calibrated");
-        botOpMode.telemetry.update();
+//        Thread.sleep(500);
+//        botOpMode.telemetry.log().clear();
+//        botOpMode.telemetry.log().add("Gyro Calibrated");
+//        botOpMode.telemetry.update();
     }
 
     /**
@@ -446,7 +456,7 @@ public class BraunMethods {
      * Telemetry Methods
      **/
 
-    public void driveTelemetry (LinearOpMode opMode) throws InterruptedException {
+    public void driveTelemetry(LinearOpMode opMode) throws InterruptedException {
 
         // Set opMode to one defined above
         botOpMode = opMode;
@@ -473,7 +483,7 @@ public class BraunMethods {
         botOpMode.telemetry.update();
     }
 
-    public void tfodTelemetry (LinearOpMode opMode) throws InterruptedException {
+    public void tfodTelemetry(LinearOpMode opMode) throws InterruptedException {
 
         // Set opMode to one defined above
         botOpMode = opMode;
@@ -490,22 +500,23 @@ public class BraunMethods {
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
         if (updatedRecognitions != null) {
-            botOpMode.telemetry.log().clear();
-            botOpMode.telemetry.log().add("Gyro Calibrated");
-            botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
             int i = 0;
             for (Recognition recognition : updatedRecognitions) {
                 tfodDetected = recognition.getLabel();
-                botOpMode.telemetry.addData(String.format("Stack (%d)", i), recognition.getLabel());
-                botOpMode.telemetry.addData(String.format("  T (%d)", i), "%.01f", recognition.getTop());
-                botOpMode.telemetry.addData(String.format("  B (%d)", i), "%.01f", recognition.getBottom());
-                botOpMode.telemetry.addData(String.format("  L (%d)", i), "%.01f", recognition.getLeft());
-                botOpMode.telemetry.addData(String.format("  R (%d)", i), "%.01f", recognition.getRight());
-                botOpMode.telemetry.log().add("Press Play to Begin");
+                botOpMode.telemetry.log().clear();
+                botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
+                botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
+                botOpMode.telemetry.addData(String.format("Detected (%d)", i), recognition.getLabel());
+                botOpMode.telemetry.update();
+                Thread.sleep(5000);
             }
-            botOpMode.telemetry.update();
         } else {
-            tfodDetected = "Double";
+            tfodDetected = "None";
+            botOpMode.telemetry.log().clear();
+            botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
+            botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
+            botOpMode.telemetry.addData("Detected", "None");
+            botOpMode.telemetry.update();
         }
     }
 }

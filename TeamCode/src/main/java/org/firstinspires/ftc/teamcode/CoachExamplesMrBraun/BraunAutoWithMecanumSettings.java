@@ -42,6 +42,17 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
                 // robot.gyroLeft(.20, -90, 5000);
                 // robot.gyroRight(.20, 90, 5000);
 
+            if (robot.getTfodDetected() == "None") { //Default
+
+                telemetry.log().clear();
+                telemetry.addData("Detected", "None");
+                telemetry.update();
+                robot.stopTfod(this);
+                // robot.driveTelemetry(this);
+
+                robot.gyroForward(12, .20, 0, 5000);
+            }
+
             if (robot.getTfodDetected() == "Single") {
 
                 telemetry.log().clear();
@@ -52,17 +63,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
                 robot.gyroLeft(.20, -90, 5000);
 
-            }
-
-            if (robot.getTfodDetected() == "Double") { //Default if nothing detected
-
-                telemetry.log().clear();
-                telemetry.addData("Detected", "Double");
-                telemetry.update();
-                robot.stopTfod(this);
-                // robot.driveTelemetry(this);
-
-                robot.gyroForward(12, .20, 0, 5000);
             }
 
             if (robot.getTfodDetected() == "Quad") {
