@@ -159,7 +159,7 @@ public class BraunMethods {
 
         Thread.sleep(500);
         botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.log().add("Gyro Calibrated. Press Play to Begin!");
+        botOpMode.telemetry.log().add("Gyro Calibrated");
         botOpMode.telemetry.update();
     }
 
@@ -249,7 +249,7 @@ public class BraunMethods {
      * Autonomous Methods
      **/
 
-    public void gyroDrive(int distance, double power, double angle, int pause) throws InterruptedException {
+    public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
             runUsingEncoder();
@@ -264,7 +264,7 @@ public class BraunMethods {
                     frontRight.setPower(power - error);
                     backLeft.setPower(power + error);
                     backRight.setPower(power - error);
-                    driveTelemetry(botOpMode);
+                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -281,22 +281,47 @@ public class BraunMethods {
         backRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
     }
 
-    public void gyroStrafe(int distance, double power, double angle, int pause) throws InterruptedException {
+    public void gyroReverse(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
             runUsingEncoder();
-            strafeByInches(distance);
+            driveByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
-                    frontLeft.setPower(power);
-                    frontRight.setPower(power);
-                    backLeft.setPower(power);
-                    backRight.setPower(power);
-                    driveTelemetry(botOpMode);
+                    frontLeft.setPower(power - error);
+                    frontRight.setPower(power + error);
+                    backLeft.setPower(power - error);
+                    backRight.setPower(power + error);
+                    // driveTelemetry(botOpMode);
+                } else {
+                    stopDriving();
+                    Thread.sleep(pause);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void gyroStrafeLeft(int distance, double power, double angle, int pause) throws InterruptedException {
+        if (botOpMode.opModeIsActive()) {
+            stopAndResetEncoder();
+            runUsingEncoder();
+            strafeByInches(-distance);
+            runToPosition();
+            while (botOpMode.opModeIsActive()) {
+                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double errorMultiple = 1.0;
+                double error = (errorMultiple * (gyroHeading - angle) / 100);
+                if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+                    frontLeft.setPower(power + error);
+                    frontRight.setPower(power + error);
+                    backLeft.setPower(power - error);
+                    backRight.setPower(power - error);
+                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -313,6 +338,31 @@ public class BraunMethods {
         backRight.setTargetPosition(distance * (int) TICKSTOINCHES);
     }
 
+    public void gyroStrafeRight(int distance, double power, double angle, int pause) throws InterruptedException {
+        if (botOpMode.opModeIsActive()) {
+            stopAndResetEncoder();
+            runUsingEncoder();
+            strafeByInches(distance);
+            runToPosition();
+            while (botOpMode.opModeIsActive()) {
+                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double errorMultiple = 1.0;
+                double error = (errorMultiple * (gyroHeading - angle) / 100);
+                if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+                    frontLeft.setPower(power - error);
+                    frontRight.setPower(power - error);
+                    backLeft.setPower(power + error);
+                    backRight.setPower(power + error);
+                    // driveTelemetry(botOpMode);
+                } else {
+                    stopDriving();
+                    Thread.sleep(pause);
+                    break;
+                }
+            }
+        }
+    }
+
     public void gyroLeft(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
@@ -321,11 +371,11 @@ public class BraunMethods {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double invertGyroHeading = gyroHeading * -1;
                 if (invertGyroHeading > angle) {
-                    frontLeft.setPower(-power);
-                    frontRight.setPower(power);
-                    backLeft.setPower(-power);
-                    backRight.setPower(power);
-                    driveTelemetry(botOpMode);
+                    frontLeft.setPower(power);
+                    frontRight.setPower(-power);
+                    backLeft.setPower(power);
+                    backRight.setPower(-power);
+                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -343,11 +393,11 @@ public class BraunMethods {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double invertGyroHeading = gyroHeading * -1;
                 if (invertGyroHeading < angle) {
-                    frontLeft.setPower(power);
-                    frontRight.setPower(-power);
-                    backLeft.setPower(power);
-                    backRight.setPower(-power);
-                    driveTelemetry(botOpMode);
+                    frontLeft.setPower(-power);
+                    frontRight.setPower(power);
+                    backLeft.setPower(-power);
+                    backRight.setPower(power);
+                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -415,9 +465,9 @@ public class BraunMethods {
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Note", "--> Tap Y to reset encoders");
         botOpMode.telemetry.addData("Heading", "%.2f", gyroHeading);
-        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", (int) frontLeftInches, (int) frontRightInches, (int) backLeftInches, (int) backRightInches);
-        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
-        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
+        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
+        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
+        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -frontLeft.getTargetPosition(), -frontRight.getTargetPosition(), -backLeft.getTargetPosition(), -backRight.getTargetPosition());
         botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", frontLeft.getPower(), frontRight.getPower(), backLeft.getPower(), backRight.getPower());
         botOpMode.telemetry.addData("Axes", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
         botOpMode.telemetry.update();
@@ -441,6 +491,7 @@ public class BraunMethods {
 
         if (updatedRecognitions != null) {
             botOpMode.telemetry.log().clear();
+            botOpMode.telemetry.log().add("Gyro Calibrated");
             botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
             int i = 0;
             for (Recognition recognition : updatedRecognitions) {
@@ -450,6 +501,7 @@ public class BraunMethods {
                 botOpMode.telemetry.addData(String.format("  B (%d)", i), "%.01f", recognition.getBottom());
                 botOpMode.telemetry.addData(String.format("  L (%d)", i), "%.01f", recognition.getLeft());
                 botOpMode.telemetry.addData(String.format("  R (%d)", i), "%.01f", recognition.getRight());
+                botOpMode.telemetry.log().add("Press Play to Begin");
             }
             botOpMode.telemetry.update();
         } else {

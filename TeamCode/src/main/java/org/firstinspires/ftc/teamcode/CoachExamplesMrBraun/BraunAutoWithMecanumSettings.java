@@ -34,48 +34,54 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
             // Wait for the drive to press play
             waitForStart();
 
-            robot.stopTfod(this);
+            // Example Movements
+                // robot.gyroForward(12, .20, 0, 5000);
+                // robot.gyroReverse(12, .20, 0, 5000);
+                // robot.gyroStrafeLeft(12, .20, 0, 5000);
+                // robot.gyroStrafeRight(12, .20, 0, 5000);
+                // robot.gyroLeft(.20, -90, 5000);
+                // robot.gyroRight(.20, 90, 5000);
+
+            if (robot.getTfodDetected() == "Single") {
+
+                telemetry.log().clear();
+                telemetry.addData("Detected", "Single");
+                telemetry.update();
+                robot.stopTfod(this);
+                // robot.driveTelemetry(this);
+
+                robot.gyroLeft(.20, -90, 5000);
+
+            }
+
+            if (robot.getTfodDetected() == "Double") { //Default if nothing detected
+
+                telemetry.log().clear();
+                telemetry.addData("Detected", "Double");
+                telemetry.update();
+                robot.stopTfod(this);
+                // robot.driveTelemetry(this);
+
+                robot.gyroForward(12, .20, 0, 5000);
+            }
+
+            if (robot.getTfodDetected() == "Quad") {
+
+                telemetry.log().clear();
+                telemetry.addData("Detected", "Quad");
+                telemetry.update();
+                robot.stopTfod(this);
+                // robot.driveTelemetry(this);
+
+                robot.gyroRight(.20, 90, 5000);
+            }
 
 
-            // Repeat this code once play is pressed until stop is pressed
-
-
-//            if (robot.getTfodDetected() == "Single") {
-//
-//                telemetry.log().clear();
-//                telemetry.addData("Detected", "Single");
-//                telemetry.update();
-//
-//            }
-//
-//            if (robot.getTfodDetected() == "Double") {
-//
-//                telemetry.log().clear();
-//                telemetry.addData("Detected", "Double");
-//                telemetry.update();
-//                robot.gyroDrive(12, .20, 0, 5000);
-//            }
-//
-//            if (robot.getTfodDetected() == "Quad") {
-//
-//                telemetry.log().clear();
-//                telemetry.addData("Detected", "Quad");
-//                telemetry.update();
-//            }
 
 
 
-                // Run these methods from the hardware setup to move the bot
-                robot.gyroDrive(50, .20, 0, 5000);
-                robot.gyroDrive(-50, .20, 0, 5000);
-//                robot.gyroStrafe(100, .20, 0,5000);
-//                robot.gyroStrafe(-100, .20, 0,5000);
-//                robot.gyroLeft(.20, 90, 5000);
-//                robot.gyroRight(.20, -90, 5000);
 
 
-
-            Thread.sleep(5000);
 
         }
     }
