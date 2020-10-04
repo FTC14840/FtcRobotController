@@ -204,15 +204,10 @@ public class BraunMethods {
 
     public void initVuforiaTracking(LinearOpMode opMode) throws InterruptedException {
 
-        // Set opMode to one defined above
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        // Note: To use the remote camera preview:
-        // AFTER you hit Init on the Driver Station, use the "options menu" to select "Camera Stream"
-        // Tap the preview window to receive a fresh image.
         int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = webcamName;
         parameters.useExtendedTracking = false;
@@ -287,98 +282,48 @@ public class BraunMethods {
         targetsUltimateGoal.activate();
     }
 
-    public void initVuforiaVision(LinearOpMode opMode, Robot_OmniDrive robot) {
+    public void initVuforiaVision(LinearOpMode opMode) throws InterruptedException {
 
-        // Save reference to OpMode and Hardware map
         botOpMode = opMode;
-
-        /**
-         * Start up Vuforia, telling it the id of the view that we wish to use as the parent for
-         * the camera monitor.
-         * We also indicate which camera on the RC that we wish to use.
-         */
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);  // Use this line to see camera display
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();                             // OR... Use this line to improve performance
-
-        // Get your own Vuforia key at  https://developer.vuforia.com/license-manager
-        // and paste it here...
-        parameters.vuforiaLicenseKey = "Afbu2Uv/////AAAAGVouNdSAD0P8la+sq37vCdQ6uLVH8NWrBLnfZ1R5rObJQpVVHJzqvIgMZO5gTqXG6DYJZcgwtSVZXU2g20FAJobxCog9Wc5vtqgJJmrsJ0NOABRbi9vy4Y9IzBVfaDoRsQTmjxxFf62Z9slttsb44KopGpVGTQ83iHnTo/wDvnZBWRhmckG6IKuqkbRYCFD+w1hHvVLuDoIYLgfpa1Rw1Pc7rszP/CDzUfeO9KwodFpEsfZHIZI8KHIYzfRIOhg1Tg0T4eRsLCO8s9vfZd6vfTuUA/sZkID3N7BsrlLaL6vUqheGPvsbPuQQsMqgPNYTqbhvv3KI/SR5WxUaccuVHnpVMhAjkdpruWVliCCZqp1t";
-
-        parameters.cameraDirection = CAMERA_CHOICE;
+        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        // parameters.cameraDirection = CAMERA_CHOICE;
+        parameters.cameraName = webcamName;
         parameters.useExtendedTracking = false;
-        VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        /**
-         * Load the data sets that for the trackable objects we wish to track.
-         * These particular data sets are stored in the 'assets' part of our application
-         * They represent the four image targets used in the 2016-17 FTC game.
-         */
-        targets = vuforia.loadTrackablesFromAsset("FTC_2016-17");
-        targets.get(0).setName("Blue Near");
-        targets.get(1).setName("Red Far");
-        targets.get(2).setName("Blue Far");
-        targets.get(3).setName("Red Near");
-
-        /** For convenience, gather together all the trackable objects in one easily-iterable collection */
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        targets.get(0).setName("Blue Tower Goal Target");
+        targets.get(1).setName("Red Tower Goal Target");
+        targets.get(2).setName("Red Alliance Target");
+        targets.get(3).setName("Blue Alliance Target");
+        targets.get(4).setName("Front Wall Target");
         allTrackables.addAll(targets);
-
-        // create an image translation/rotation matrix to be used for all images
-        // Essentially put all the image centers 6" above the 0:0:0 origin,
-        // but rotate them so they along the -X axis.
         OpenGLMatrix targetOrientation = OpenGLMatrix
-                .translation(0, 0, 150)
+                .translation(0, 0, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.XYZ,
                         AngleUnit.DEGREES, 90, 0, -90));
-
-        /**
-         * Create a transformation matrix describing where the phone is on the robot.
-         *
-         * The coordinate frame for the robot looks the same as the field.
-         * The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
-         * Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
-         *
-         * The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
-         * pointing to the LEFT side of the Robot.  If we consider that the camera and screen will be
-         * in "Landscape Mode" the upper portion of the screen is closest to the front of the robot.
-         *
-         * If using the rear (High Res) camera:
-         * We need to rotate the camera around it's long axis to bring the rear camera forward.
-         * This requires a negative 90 degree rotation on the Y axis
-         *
-         * If using the Front (Low Res) camera
-         * We need to rotate the camera around it's long axis to bring the FRONT camera forward.
-         * This requires a Positive 90 degree rotation on the Y axis
-         *
-         * Next, translate the camera lens to where it is on the robot.
-         * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
-         */
-
         final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
         final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
         final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
-
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.YZX,
-                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.FRONT ? 90 : -90, 0, 0));
-
-        // Set the all the targets to have the same location and camera orientation
+                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.BACK ? 90 : -90, 0, 0));
         for (VuforiaTrackable trackable : allTrackables)
         {
             trackable.setLocation(targetOrientation);
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
+
+        targets.activate();
+
+
     }
 
-    /***
-     * See if any of the vision targets are in sight.
-     *
-     * @return true if any target is found
-     */
     public boolean targetsAreVisible()  {
 
         int targetTestID = 0;
@@ -391,13 +336,6 @@ public class BraunMethods {
         return (targetFound);
     }
 
-    /***
-     * Determine if specified target ID is visible and
-     * If it is, retreive the relevant data, and then calculate the Robot and Target locations
-     *
-     * @param   targetId
-     * @return  true if the specified target is found
-     */
     public boolean targetIsVisible(int targetId) {
 
         VuforiaTrackable target = targets.get(targetId);

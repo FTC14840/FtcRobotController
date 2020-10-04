@@ -23,7 +23,8 @@ public class BraunTeleOpWithMethods extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
-        robot.initVuforiaTracking(this);
+        //robot.initVuforiaTracking(this);
+        robot.initVuforiaVision(this);
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
