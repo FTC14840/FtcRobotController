@@ -4,9 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
-import org.firstinspires.ftc.teamcode.MecanumSettings;
-
 @Disabled
 
 // Register class as Autonomous on Driver Station

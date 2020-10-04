@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
 // Register class as Autonomous on Driver Station - Place your name first
 @Autonomous(name = "Braun Test Autonomous")
@@ -12,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 // @Disabled
 
     // Begin class and extend methods for LinearOpMode - Place your name first
-    public class BraunAutoWithMecanumSettings extends LinearOpMode {
+    public class BraunAutoWithMethods extends LinearOpMode {
 
         // Create a new instance of the hardware class
         BraunMethods robot = new BraunMethods();
@@ -23,7 +20,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
             // Run method from hardware class
             robot.initHardware(this);
-            robot.initVuforia(this);
             robot.initTfod(this);
             robot.calibrateGyro(this);
 
@@ -33,6 +29,10 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
             // Wait for the drive to press play
             waitForStart();
+
+            robot.deactivateTfod();
+
+            // Still need to research threads so we can do two things at once.
 
             // Example Movements
                 // robot.gyroForward(12, .20, 0, 5000);
@@ -75,13 +75,5 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
                 robot.gyroRight(.20, 90, 5000);
             }
-
-
-
-
-
-
-
-
         }
     }

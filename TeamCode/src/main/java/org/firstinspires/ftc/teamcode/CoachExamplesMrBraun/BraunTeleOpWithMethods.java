@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 
 // Begin class and extend methods for LinearOpMode - Place your name first
-public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
+public class BraunTeleOpWithMethods extends LinearOpMode {
 
     // Create a new instance of the hardware class
     BraunMethods robot = new BraunMethods();
@@ -22,32 +22,22 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
+        robot.initVuforiaTracking(this);
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
-        while (!isStarted()) {
-            // robot.driveTelemetry(this);
+        while (!isStarted() || !isStopRequested()) {
+            robot.vuforiaTelemetry();
         }
 
         // Wait for the drive to press play
         waitForStart();
 
-
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
 
-//            if (robot.targetsAreVisible() && gamepad1.left_bumper) {
-//                robot.cruiseControl(robot.PRIMARYDISTANCE);
-//
-//            } else if(robot.targetsAreVisible() && gamepad1.right_bumper){
-//                robot.cruiseControl(robot.SECONDARYDISTANCE);
-//
-//            } else {
-//                robot.manualDrive();
-//            }
-
             robot.manualDrive();
-            robot.driveTelemetry(this);
+            robot.vuforiaTelemetry();
             robot.moveRobot();
         }
     }

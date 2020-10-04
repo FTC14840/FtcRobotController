@@ -6,9 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMecanumSettings;
-import org.firstinspires.ftc.teamcode.MecanumSettings;
-
 @Disabled
 
 // Register class as TeleOp on Driver Station
