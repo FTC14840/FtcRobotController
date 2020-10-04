@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -26,19 +27,30 @@ public class BraunTeleOpWithMethods extends LinearOpMode {
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
-        while (!isStarted() || !isStopRequested()) {
+        while (!isStarted()) {
             robot.vuforiaTelemetry();
         }
 
         // Wait for the drive to press play
         waitForStart();
 
+        //robot.deactiveTfod();
+
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
 
-            robot.manualDrive();
-            robot.vuforiaTelemetry();
+            if (gamepad1.left_bumper) {
+                robot.cruiseControl(400);
+
+            } else if(gamepad1.right_bumper){
+                robot.cruiseControl(800);
+
+            } else {
+                robot.manualDrive();
+            }
+
             robot.moveRobot();
+            robot.driveTelemetry(this);
         }
     }
 }

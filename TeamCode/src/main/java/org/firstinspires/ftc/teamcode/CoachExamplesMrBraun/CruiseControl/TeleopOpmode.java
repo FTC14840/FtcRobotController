@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl.Robot_Navigation;
+import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl.Robot_OmniDrive;
 
 /**
  * This example is designed to show how to identify a target, get the robot's position, and then plan
@@ -65,12 +66,12 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl.Robot_N
 
 @Disabled
 
-public class TeleOpmode extends LinearOpMode {
+public class TeleopOpmode extends LinearOpMode {
 
     final double TARGET_DISTANCE =  400.0;    // Hold robot's center 400 mm from target
 
     /* Declare OpMode members. */
-    Robot_Mecanum     robot    = new Robot_Mecanum();   // Use Omni-Directional drive system
+    Robot_OmniDrive robot    = new Robot_OmniDrive();   // Use Omni-Directional drive system
     Robot_Navigation nav      = new Robot_Navigation();  // Use Image Tracking library
 
     @Override
