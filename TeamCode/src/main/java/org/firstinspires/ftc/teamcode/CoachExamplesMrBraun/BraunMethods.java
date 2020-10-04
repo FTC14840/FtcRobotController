@@ -90,7 +90,7 @@ public class BraunMethods {
     /*******************************************************/
 
      // Constants
-     private static final int     MAX_TARGETS    =   4;
+     private static final int     MAX_TARGETS    =   5;
      private static final double  ON_AXIS        =  10;      // Within 1.0 cm of target center-line
      private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
 
