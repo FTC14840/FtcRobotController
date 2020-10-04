@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -27,31 +29,30 @@ import com.qualcomm.robotcore.util.Range;
  */
 
 
-public class BraunHardware
-{
+public class Robot_Mecanum {
     // Private Members
     private LinearOpMode myOpMode;
 
-    private DcMotor frontLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor backRight = null;
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
 
     private double  driveAxial      = 0 ;   // Positive is forward
     private double  driveLateral    = 0 ;   // Positive is right
     private double  driveYaw        = 0 ;   // Positive is CCW
 
-    double speed = 1;
-    double direction = 1;
-    boolean aButtonPad1 = false;
-    boolean bButtonPad1 = false;
+    private double speed = 1;
+    private double direction = 1;
+    private boolean aButtonPad1 = false;
+    private boolean bButtonPad1 = false;
 
     private static final double HIGHSPEED = 1;
-    private static final double LOWSPEED = .50;
+    private static final double LOWSPEED = .75;
     private static final double TURNSENSITIVITY = 1.5;
 
     /* Constructor */
-    public BraunHardware(){
+    public Robot_Mecanum(){
 
     }
 
@@ -63,15 +64,17 @@ public class BraunHardware
         myOpMode = opMode;
 
         // Define and Initialize Motors
-        frontLeft        = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight       = myOpMode.hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft        = myOpMode.hardwareMap.get(DcMotor.class, "backLeft");
-        backRight        = myOpMode.hardwareMap.get(DcMotor.class, "backRight");
+        // Map global variables/ fields to config file on Robot Controller
+        frontLeft = myOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = myOpMode.hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = myOpMode.hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = myOpMode.hardwareMap.get(DcMotor.class, "backRight");
 
-        frontLeft.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        frontRight.setDirection(DcMotor.Direction.REVERSE);// Positive input rotates counter clockwise
-        backLeft.setDirection(DcMotor.Direction.FORWARD); // Positive input rotates counter clockwise
-        backRight.setDirection(DcMotor.Direction.REVERSE); // Positive input rotates counter clockwise
+        // Reverse motors if they don't drive forward
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         //use RUN_USING_ENCODERS because encoders are installed.
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -119,17 +122,18 @@ public class BraunHardware
      * This convention should NOT be changed.  Any new drive system should be configured to react accordingly.
      */
     public void moveRobot() {
-        // calculate required motor speeds to acheive axis motions
+        // Vector addition and algebra for the pwer to each motor
         double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
         double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
 
-        // normalize all motor speeds so no values exceeds 100%.
+        // Normalize all motor speeds so no value exceeds 100% power.
         double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
         max = Math.max(max, Math.abs(moveBackLeft));
         max = Math.max(max, Math.abs(moveBackRight));
 
+        // Proportional logic to reduce all motors to the highest value
         if (max > 1.0) {
             moveFrontLeft /= max;
             moveFrontRight /= max;
@@ -137,19 +141,11 @@ public class BraunHardware
             moveBackRight /= max;
         }
 
-        // Set drive motor power levels.
+        // Set drive motor power based on calculations
         frontLeft.setPower(moveFrontLeft);
         frontRight.setPower(moveFrontRight);
         backLeft.setPower(moveBackLeft);
         backRight.setPower(moveBackRight);
-
-        // Display Telemetry
-        myOpMode.telemetry.log().clear();
-        myOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", frontLeft.getCurrentPosition(), frontRight.getCurrentPosition(), backLeft.getCurrentPosition(), backRight.getCurrentPosition());
-        myOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", frontLeft.getTargetPosition(), frontRight.getTargetPosition(), backLeft.getTargetPosition(), backRight.getTargetPosition());
-        myOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-        myOpMode.telemetry.addData("Axes  ", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
-        myOpMode.telemetry.update();
     }
 
 

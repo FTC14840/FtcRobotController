@@ -274,6 +274,11 @@ public class BraunVuforiaNavigation extends LinearOpMode {
         // Tap the preview window to receive a fresh image.
 
         targetsUltimateGoal.activate();
+
+
+
+
+
         while (!isStopRequested()) {
 
             // check all the trackable targets to see which one (if any) is visible.
