@@ -22,8 +22,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl.Robot_OmniDrive;
-
 import java.util.ArrayList;
 import java.util.List;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
@@ -71,6 +69,7 @@ public class BraunMethods {
     private OpenGLMatrix lastLocation = null;
     private VuforiaLocalizer vuforia = null;
     private TFObjectDetector tfod = null;
+    private VuforiaTrackables   targets;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final String VUFORIA_KEY = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
     private static final float mmPerInch = 25.4f;
@@ -85,28 +84,12 @@ public class BraunMethods {
     public String getTfodDetected() {
         return tfodDetected;
     }
-
-    //Fields from example
-    /*******************************************************/
-
-     // Constants
-     private static final int     MAX_TARGETS    =   5;
-     private static final double  ON_AXIS        =  10;      // Within 1.0 cm of target center-line
-     private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
-
-     // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
-     //private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
-
-     public  static final double  YAW_GAIN       =  0.0180;   // Rate at which we respond to heading error
-     public  static final double  LATERAL_GAIN   =  0.0027;  // Rate at which we respond to off-axis error
-     public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
-
-     /* Private class members. */
-    //private LinearOpMode        myOpMode;       // Access to the OpMode object
-    //private Robot_OmniDrive     myRobot;        // Access to the Robot hardware
-    private VuforiaTrackables   targets;        // List of active targets
-
-    // Navigation data is only valid if targetFound == true;
+    private static final int     MAX_TARGETS    =   5;
+    private static final double  ON_AXIS        =  10;
+    private static final double  CLOSE_ENOUGH   =  20;
+    public  static final double  YAW_GAIN       =  0.0180;   // Rate at which we respond to heading error
+    public  static final double  LATERAL_GAIN   =  0.0027;  // Rate at which we respond to off-axis error
+    public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
     private boolean             targetFound;    // set to true if Vuforia is currently tracking a target
     private String              targetName;     // Name of the currently tracked target
     private double              robotX;         // X displacement from target center
@@ -115,9 +98,6 @@ public class BraunMethods {
     private double              targetRange;    // Range from robot's center to target in mm
     private double              targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double              relativeBearing;// Heading to the target from the robot's current bearing.
-    //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
-
-    /***********************************************************************/
 
     // Gyro fields
     IntegratingGyroscope gyro;
@@ -135,7 +115,6 @@ public class BraunMethods {
         robotBearing = 0;
         relativeBearing = 0;
     }
-
 
     /**
      * Hardware Methods
@@ -210,7 +189,6 @@ public class BraunMethods {
         int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        // parameters.cameraDirection = CAMERA_CHOICE;
         parameters.cameraName = webcamName;
         parameters.useExtendedTracking = false;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -333,7 +311,7 @@ public class BraunMethods {
         VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener)target.getListener();
         OpenGLMatrix location  = null;
 
-        // if we have a target, look for an updated robot position
+        // If we have a target, look for an updated robot position
         if ((target != null) && (listener != null) && listener.isVisible()) {
             targetFound = true;
             targetName = target.getName();
@@ -504,7 +482,6 @@ public class BraunMethods {
                     frontRight.setPower(power - error);
                     backLeft.setPower(power + error);
                     backRight.setPower(power - error);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -536,7 +513,6 @@ public class BraunMethods {
                     frontRight.setPower(power + error);
                     backLeft.setPower(power - error);
                     backRight.setPower(power + error);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -561,7 +537,6 @@ public class BraunMethods {
                     frontRight.setPower(power + error);
                     backLeft.setPower(power - error);
                     backRight.setPower(power - error);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -593,7 +568,6 @@ public class BraunMethods {
                     frontRight.setPower(power - error);
                     backLeft.setPower(power + error);
                     backRight.setPower(power + error);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -615,7 +589,6 @@ public class BraunMethods {
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -637,7 +610,6 @@ public class BraunMethods {
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    // driveTelemetry(botOpMode);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -748,41 +720,6 @@ public class BraunMethods {
             botOpMode.telemetry.addData("Detected", "None");
             botOpMode.telemetry.update();
         }
-    }
-
-    public void vuforiaTelemetry() {
-        // check all the trackable targets to see which one (if any) is visible.
-        targetVisible = false;
-        for (VuforiaTrackable trackable : allTrackables) {
-            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                botOpMode.telemetry.addData("Visible Target", trackable.getName());
-                targetVisible = true;
-
-                // getUpdatedRobotLocation() will return null if no new information is available since
-                // the last time that call was made, or if the trackable is not currently visible.
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                if (robotLocationTransform != null) {
-                    lastLocation = robotLocationTransform;
-                }
-                break;
-            }
-        }
-
-        // Provide feedback as to where the robot is located (if we know).
-        if (targetVisible) {
-            // express position (translation) of robot in inches.
-            VectorF translation = lastLocation.getTranslation();
-            botOpMode.telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-            // express the rotation of the robot in degrees.
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-            botOpMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-        }
-        else {
-            botOpMode.telemetry.addData("Visible Target", "none");
-        }
-        botOpMode.telemetry.update();
     }
 
     public void cruiseControlTelemetry() {
