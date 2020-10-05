@@ -1,5 +1,7 @@
+// Package name
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
+// Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -8,62 +10,42 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // @Disabled
 
-// Begin class and extend methods for LinearOpMode - Place your name first
+// Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunAutoWithMethods extends LinearOpMode {
 
-    // Create a new instance of the hardware class
+    // Create a new instance of the methods class
     BraunMethods robot = new BraunMethods();
 
     // Override the method runOpMode from LinearOpMode
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // Run method from hardware class
+        // Run these init methods from the hardware class
         robot.initHardware(this);
         robot.initTfod(this);
         robot.calibrateGyro(this);
 
+        // While waiting for the driver to press play, show TFOD telemety
         while (!isStarted()) {
             robot.tfodTelemetry(this);
         }
 
-        // Wait for the drive to press play
+        // Press play to begin
         waitForStart();
 
+        // Deactivate TFOD to save resources
         robot.deactivateTfod();
 
-        // Still need to research threads so we can do two things at once.
+        // We still need to research threads so we can do two things at once.
 
-        // Example Movements
+        /** Example Movements
         // robot.gyroForward(12, .20, 0, 5000);
         // robot.gyroReverse(12, .20, 0, 5000);
         // robot.gyroStrafeLeft(12, .20, 0, 5000);
         // robot.gyroStrafeRight(12, .20, 0, 5000);
         // robot.gyroLeft(.20, -90, 5000);
         // robot.gyroRight(.20, 90, 5000);
-
-        if (robot.getTfodDetected() == "None") { //Default
-
-            telemetry.log().clear();
-            telemetry.addData("Detected", "None");
-            telemetry.update();
-            robot.stopTfod(this);
-            // robot.driveTelemetry(this);
-
-            robot.gyroForward(12, .20, 0, 5000);
-        }
-
-        if (robot.getTfodDetected() == "Single") {
-
-            telemetry.log().clear();
-            telemetry.addData("Detected", "Single");
-            telemetry.update();
-            robot.stopTfod(this);
-            // robot.driveTelemetry(this);
-
-            robot.gyroLeft(.20, -90, 5000);
-
-        }
+        **/
 
         if (robot.getTfodDetected() == "Quad") {
 
@@ -71,9 +53,27 @@ public class BraunAutoWithMethods extends LinearOpMode {
             telemetry.addData("Detected", "Quad");
             telemetry.update();
             robot.stopTfod(this);
-            // robot.driveTelemetry(this);
 
             robot.gyroRight(.20, 90, 5000);
+
+        } else if (robot.getTfodDetected() == "Single") {
+
+            telemetry.log().clear();
+            telemetry.addData("Detected", "Single");
+            telemetry.update();
+            robot.stopTfod(this);
+
+            robot.gyroLeft(.20, -90, 5000);
+
+        } else {
+
+            telemetry.log().clear();
+            telemetry.addData("Detected", "None");
+            telemetry.update();
+            robot.stopTfod(this);
+
+            robot.gyroForward(12, .20, 0, 5000);
+
         }
     }
 }

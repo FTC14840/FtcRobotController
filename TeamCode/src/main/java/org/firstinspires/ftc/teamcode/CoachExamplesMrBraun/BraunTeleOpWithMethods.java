@@ -2,17 +2,19 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Register class as TeleOp on Driver Station - Place your name first
-@TeleOp(name ="Braun Test TeleOp")
+@TeleOp(name="Braun Test Teleop")
 
-// @Disabled
+//@Disabled
 
-// Begin class and extend methods for LinearOpMode - Place your name first
+// Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunTeleOpWithMethods extends LinearOpMode {
+
+    // Hold robot's center 400 mm from target
+    final double TARGET_DISTANCE =  1524.0;
 
     // Create a new instance of the hardware class
     BraunMethods robot = new BraunMethods();
@@ -21,37 +23,33 @@ public class BraunTeleOpWithMethods extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // Run method from hardware class
+        // Run these init methods from the hardware class
         robot.initHardware(this);
-        //robot.initVuforiaTracking(this);
-        robot.initVuforiaVision(this);
-        robot.calibrateGyro(this);
+        robot.initVisionTracking(this);
+        robot.activateCruiseControl();
 
-        // Do this code block until play is pressed
-        while (!isStarted()) {
-            robot.vuforiaTelemetry();
-        }
-
-        // Wait for the drive to press play
+        // Press play to begin
         waitForStart();
 
-        //robot.deactiveTfod();
-
-        // Repeat this code once play is pressed until stop is pressed
+        // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            if (gamepad1.left_bumper) {
-                robot.cruiseControl(400);
+            // Add message for cruise control
+            telemetry.addData(">", "Press Left Bumper to track target");
 
-            } else if(gamepad1.right_bumper){
-                robot.cruiseControl(800);
-
+            // logic for manual and cruise control
+            if (robot.targetsAreVisible() && gamepad1.left_bumper) {
+                robot.cruiseControl(TARGET_DISTANCE);
             } else {
                 robot.manualDrive();
             }
 
+            // Build telemetry messages with Navigation Information;
+            robot.cruiseControlTelemetry();
+
+            //  Move the robot according to the pre-determined axis motions
             robot.moveRobot();
-            robot.driveTelemetry(this);
+            telemetry.update();
         }
     }
 }

@@ -97,7 +97,7 @@ public class BraunMethods {
      // Select which camera you want use.  The FRONT camera is the one on the same side as the screen.  Alt. is BACK
      //private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = VuforiaLocalizer.CameraDirection.FRONT;
 
-     public  static final double  YAW_GAIN       =  0.018;   // Rate at which we respond to heading error
+     public  static final double  YAW_GAIN       =  0.0180;   // Rate at which we respond to heading error
      public  static final double  LATERAL_GAIN   =  0.0027;  // Rate at which we respond to off-axis error
      public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
 
@@ -184,7 +184,7 @@ public class BraunMethods {
         tfodParameters.minResultConfidence = 0.8f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfod.setZoom(2.5, 1.78);
+        // tfod.setZoom(2.5, 1.78);
         if (tfod != null) {
             tfod.activate();
         }
@@ -202,87 +202,8 @@ public class BraunMethods {
         tfod.deactivate();
     }
 
-    public void initVuforiaTracking(LinearOpMode opMode) throws InterruptedException {
-
-        botOpMode = opMode;
-        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = webcamName;
-        parameters.useExtendedTracking = false;
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        VuforiaTrackables targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
-        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
-        blueTowerGoalTarget.setName("Blue Tower Goal Target");
-        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
-        redTowerGoalTarget.setName("Red Tower Goal Target");
-        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
-        redAllianceTarget.setName("Red Alliance Target");
-        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
-        blueAllianceTarget.setName("Blue Alliance Target");
-        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
-        frontWallTarget.setName("Front Wall Target");
-        allTrackables.addAll(targetsUltimateGoal);
-
-        /**
-         * If you are standing in the Red Alliance Station looking towards the center of the field,
-         *     - The X axis runs from your left to the right. (positive from the center to the right)
-         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
-         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
-         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
-         * Before being transformed, each target image is conceptually located at the origin of the field's
-         * coordinate system (the center of the field), facing up.
-         */
-
-        redAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, -halfField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
-        blueAllianceTarget.setLocation(OpenGLMatrix
-                .translation(0, halfField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
-        frontWallTarget.setLocation(OpenGLMatrix
-                .translation(-halfField, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
-        blueTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
-        redTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, -quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
-
-        // Translate the camera lens to where it is on the robot.
-        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
-        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
-
-        /**
-        Info:  The coordinate frame for the robot looks the same as the field.
-        The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
-        Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
-        The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
-        pointing to the LEFT side of the Robot.
-        We need to rotate the camera around it's long axis to bring the correct camera forward.
-        **/
-
-        final float PHONE_X_ROTATE = 90;  // Webcam is face down, turn it up.  Considered back of phone.
-        final float PHONE_Y_ROTATE = 0; // Already in landscape
-        final float PHONE_Z_ROTATE = -90; // Webcan is facing out the left side of bot, turn it to forward
-
-        OpenGLMatrix robotFromCamera = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
-
-        /**  Let all the trackable listeners know where the phone is.  */
-        for (VuforiaTrackable trackable : allTrackables) {
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
-        }
-
-        targetsUltimateGoal.activate();
-    }
-
-    public void initVuforiaVision(LinearOpMode opMode) throws InterruptedException {
+    // This method is from the cruise control example and sets the targets relative to the bot.
+    public void initVisionTracking(LinearOpMode opMode) throws InterruptedException {
 
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -299,40 +220,110 @@ public class BraunMethods {
         targets.get(2).setName("Red Alliance Target");
         targets.get(3).setName("Blue Alliance Target");
         targets.get(4).setName("Front Wall Target");
+
+//        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//        VuforiaTrackables targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
+//        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
+//        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+//        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
+//        redTowerGoalTarget.setName("Red Tower Goal Target");
+//        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
+//        redAllianceTarget.setName("Red Alliance Target");
+//        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
+//        blueAllianceTarget.setName("Blue Alliance Target");
+//        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
+//        frontWallTarget.setName("Front Wall Target");
+//        allTrackables.addAll(targetsUltimateGoal);
+
+        /**
+         * If you are standing in the Red Alliance Station looking towards the center of the field,
+         *     - The X axis runs from your left to the right. (positive from the center to the right)
+         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
+         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
+         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
+         * Before being transformed, each target image is conceptually located at the origin of the field's
+         * coordinate system (the center of the field), facing up.
+         */
+
+//        redAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, -halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+//        blueAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+//        frontWallTarget.setLocation(OpenGLMatrix
+//                .translation(-halfField, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+//        blueTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, quadField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+//        redTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, -quadField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+
         allTrackables.addAll(targets);
         OpenGLMatrix targetOrientation = OpenGLMatrix
                 .translation(0, 0, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.XYZ,
                         AngleUnit.DEGREES, 90, 0, -90));
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
+
+        // Translate the camera lens to where it is on the robot.
+        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+        final float CAMERA_FORWARD_DISPLACEMENT  = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_LEFT_DISPLACEMENT     = -.50f;     // eg: Camera is ON the robot's center line
+        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+
+        /**
+         Info:  The coordinate frame for the robot looks the same as the field.
+         The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
+         Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
+         The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
+         pointing to the LEFT side of the Robot.
+         We need to rotate the camera around it's long axis to bring the correct camera forward.
+         **/
+
+        final float PHONE_X_ROTATE = 90;
+        final float PHONE_Y_ROTATE = -90;
+        final float PHONE_Z_ROTATE = 0;
+
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.YZX,
-                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.BACK ? 90 : -90, 0, 0));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+
+//        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
+//        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
+//        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.YZX,
+//                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.BACK ? 90 : -90, 0, 0));
+
         for (VuforiaTrackable trackable : allTrackables)
         {
             trackable.setLocation(targetOrientation);
             ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
-
         targets.activate();
+    }
 
+    public void activateCruiseControl() {
+        if (targets != null)
+            targets.activate();
 
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
+        botOpMode.telemetry.update();
     }
 
     public boolean targetsAreVisible()  {
 
+        // This method cycles through the targets until it finds one.
         int targetTestID = 0;
-
-        // Check each target in turn, but stop looking when the first target is found.
         while ((targetTestID < MAX_TARGETS) && !targetIsVisible(targetTestID)) {
             targetTestID++ ;
         }
-
         return (targetFound);
     }
 
@@ -369,7 +360,7 @@ public class BraunMethods {
                 targetBearing = Math.toDegrees(-Math.asin(robotY / targetRange));
 
                 // Target relative bearing is the target Heading relative to the direction the robot is pointing.
-                relativeBearing = targetBearing - robotBearing;
+                relativeBearing = targetBearing - robotBearing + 90;
             }
             targetFound = true;
         }
@@ -403,6 +394,18 @@ public class BraunMethods {
     /**
      * TeleOp Methods
      **/
+
+    public boolean cruiseControl (double standOffDistance) {
+        boolean closeEnough;
+        double Y  = (relativeBearing * YAW_GAIN);
+        double L  = (robotY * LATERAL_GAIN);
+        double A  = (-(robotX + standOffDistance) * AXIAL_GAIN);
+        setYaw(Y);
+        setAxial(A);
+        setLateral(L);
+        closeEnough = ( (Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        return (closeEnough);
+    }
 
     public void manualDrive() {
         // Setting three motions to stick movements
@@ -480,37 +483,6 @@ public class BraunMethods {
         setLateral(lateral);
         setYaw(yaw);
         moveRobot();
-    }
-
-    public boolean cruiseControl (double standOffDistance) {
-        boolean closeEnough;
-
-        // Priority #1 Rotate to always be pointing at the target (for best target retention).
-        double Y  = (relativeBearing * YAW_GAIN);
-
-        // Priority #2  Drive laterally based on distance from X axis (same as y value)
-        double L  =(robotY * LATERAL_GAIN);
-
-        // Priority #3 Drive forward based on the desiredHeading target standoff distance
-        double A  = (-(robotX + standOffDistance) * AXIAL_GAIN);
-
-        // Send the desired axis motions to the robot hardware.
-        setYaw(Y);
-        setAxial(A);
-        setLateral(L);
-
-        // Determine if we are close enough to the target for action.
-        closeEnough = ( (Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) &&
-                (Math.abs(robotY) < ON_AXIS));
-
-        return (closeEnough);
-    }
-
-    public void cruiseControlTracking() {
-
-        // Start tracking any of the defined targets
-        if (targets != null)
-            targets.activate();
     }
 
     /**
