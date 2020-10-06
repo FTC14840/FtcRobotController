@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
 
 @TeleOp(name="Launcher Test")
@@ -18,6 +19,7 @@ public class LauncherTest extends LinearOpMode {
     // Declare OpMode members.
     private DcMotor backLauncher = null;
     private DcMotor frontLauncher = null;
+    private static final double INCREMENT = .05;
 
     @Override
     public void runOpMode() {
@@ -32,14 +34,22 @@ public class LauncherTest extends LinearOpMode {
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        backLauncher.setDirection(DcMotor.Direction.FORWARD);
-        frontLauncher.setDirection(DcMotor.Direction.FORWARD);
+        backLauncher.setDirection(FORWARD);
+        frontLauncher.setDirection(FORWARD);
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             backLauncher.setPower(1);
             frontLauncher.setPower(1);
+        }
+        if (gamepad1.dpad_down){
+            backLauncher.setPower(backLauncher.getPower()-INCREMENT);
+            frontLauncher.setPower(frontLauncher.getPower()-INCREMENT);
+        }
+        if (gamepad1.dpad_up){
+            backLauncher.setPower(backLauncher.getPower()+INCREMENT);
+            frontLauncher.setPower(frontLauncher.getPower()+INCREMENT);
         }
     }
 }
