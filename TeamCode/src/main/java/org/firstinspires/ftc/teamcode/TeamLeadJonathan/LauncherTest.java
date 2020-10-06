@@ -19,9 +19,9 @@ public class LauncherTest extends LinearOpMode {
     // Declare OpMode members.
     private DcMotor backLauncher = null;
     private DcMotor frontLauncher = null;
-    private static final double INCREMENT = .05;
+    private static final double INCREMENT = 0.001;
 
-    @Override
+
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -32,24 +32,30 @@ public class LauncherTest extends LinearOpMode {
         backLauncher = hardwareMap.get(DcMotor.class, "backLauncher");
         frontLauncher = hardwareMap.get(DcMotor.class, "frontLauncher");
 
+
         // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery
+        // Reverse the motor that runs backwards when connected directly to the battery\
+
+        waitForStart();
         backLauncher.setDirection(FORWARD);
         frontLauncher.setDirection(FORWARD);
+        backLauncher.setPower(1);
+        frontLauncher.setPower(1);
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            backLauncher.setPower(1);
-            frontLauncher.setPower(1);
+
+            if (gamepad1.dpad_down) {
+                backLauncher.setPower(backLauncher.getPower() - INCREMENT);
+                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
+            }
+            if (gamepad1.dpad_up) {
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
+            }
         }
-        if (gamepad1.dpad_down){
-            backLauncher.setPower(backLauncher.getPower()-INCREMENT);
-            frontLauncher.setPower(frontLauncher.getPower()-INCREMENT);
-        }
-        if (gamepad1.dpad_up){
-            backLauncher.setPower(backLauncher.getPower()+INCREMENT);
-            frontLauncher.setPower(frontLauncher.getPower()+INCREMENT);
-        }
+        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }

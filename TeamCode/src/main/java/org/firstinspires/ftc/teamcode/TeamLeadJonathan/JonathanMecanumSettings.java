@@ -137,6 +137,13 @@ public class JonathanMecanumSettings {
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+        backLauncher.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLauncher.setDirection(DcMotorSimple.Direction.FORWARD);
+
+
+        // Power Up Launcher
+        backLauncher.setPower(1);
+        frontLauncher.setPower(1);
 
         // Reset encoders
         stopAndResetEncoder();
@@ -369,10 +376,8 @@ public class JonathanMecanumSettings {
             direction = -direction;
         }
         // Decreasing and Increasing Launcher Speed
-        frontLauncher.setPower(1);
-        backLauncher.setPower(1);
-        frontLauncher.setDirection(DcMotor.Direction.FORWARD);
-        backLauncher.setDirection(DcMotor.Direction.FORWARD);
+
+
         if (botOpMode.gamepad1.dpad_down) {
             frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
             backLauncher.setPower(backLauncher.getPower() - INCREMENT);
