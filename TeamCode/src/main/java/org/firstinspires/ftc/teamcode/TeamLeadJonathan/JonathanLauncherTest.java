@@ -14,7 +14,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
 @TeleOp(name="Launcher Test")
 
-public class LauncherTest extends LinearOpMode {
+public class JonathanLauncherTest extends LinearOpMode {
 
     // Declare OpMode members.
     private DcMotor backLauncher = null;
