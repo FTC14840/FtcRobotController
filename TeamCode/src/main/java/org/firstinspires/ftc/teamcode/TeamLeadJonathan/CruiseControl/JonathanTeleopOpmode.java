@@ -62,9 +62,9 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl.Robot_O
  *
  */
 
-@TeleOp(name="Vuforia Tracking Demo", group="main")
+@TeleOp(name="Jonathan Vuforia Tracking Demo", group="main")
 
-@Disabled
+
 
 public class JonathanTeleopOpmode extends LinearOpMode {
 

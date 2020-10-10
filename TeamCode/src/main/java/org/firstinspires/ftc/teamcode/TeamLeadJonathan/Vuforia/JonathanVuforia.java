@@ -87,7 +87,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 @TeleOp(name="Jonathan Vuforia Navigation")
 
-@Disabled
+
 
 public class JonathanVuforia extends LinearOpMode {
 
