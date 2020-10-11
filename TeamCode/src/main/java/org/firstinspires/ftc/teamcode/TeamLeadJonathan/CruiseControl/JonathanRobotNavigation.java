@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeamLeadJonathan.CruiseControl;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -31,7 +32,7 @@ import java.util.List;
  * - Priority #3 Drive forward based on the desired target standoff distance
  *
  */
-
+@Disabled
 public class JonathanRobotNavigation
 {
     // Constants

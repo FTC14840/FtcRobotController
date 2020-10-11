@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeamLeadJonathan.CruiseControl;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
@@ -25,9 +26,10 @@ import com.qualcomm.robotcore.util.Range;
  * - Yaw      Rotating               +ve = CCW
  */
 
-
+@Disabled
 public class JonathanRobotOmniDrive
 {
+
     // Private Members
     private LinearOpMode myOpMode;
 
