@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
-
+@Disabled
 @TeleOp(name="Launcher Test")
 
 public class JonathanLauncherTest extends LinearOpMode {
