@@ -22,30 +22,32 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initTfod(this);
+        robot.initVisionTracking(this);
         robot.activateCruiseControl();
         robot.calibrateGyro(this);
 
         // While waiting for the driver to press play, show TFOD telemety
         while (!isStarted()) {
-            robot.tfodTelemetry(this);
+            //robot.tfodTelemetry(this);
         }
 
         // Press play to begin
         waitForStart();
 
+        //robot.zoomTfod();
+
         // Deactivate TFOD to save resources
-        robot.deactivateTfod();
+        //robot.stopTfod(this);
 
         // Working: We still need to research threads so we can do two things at once.
         // Create an instance for a new thread
-        Thread braunRunnableThread = new Thread (new BraunRunnableThread());
+//        Thread braunRunnableThread = new Thread (new BraunRunnableThread());
 
         // Start the thread
-        braunRunnableThread.start();
+//        braunRunnableThread.start();
 
         // Interrupt the second thread
-        braunRunnableThread.interrupt();
+//        braunRunnableThread.interrupt();
 
         // To run the tread again, you need a new instance.  The same instance cannot be run again.
 
@@ -65,38 +67,7 @@ public class BraunAutoWithMethods extends LinearOpMode {
             telemetry.update();
             robot.stopTfod(this);
 
-//            robot.gyroRight(.20, 5, 0);
-//            robot.gyroForward(30,.20,-5,0);
-//            robot.gyroForward(30,.20,5,0);
-
-            while (robot.targetsAreVisible()) {
-                if (robot.cruiseControl(1500)) {
-                break;
-                } else {
-                    robot.gyroReverse(12, .20, 0, 5000);
-
-
-
-
-//                    robot.cruiseControl(1500);
-//                    robot.moveRobot();
-//                    robot.cruiseControlTelemetry();
-//                    Thread.sleep(1000);
-                }
-            }
-
-//            while (true) {
-//                if (robot.targetsAreVisible()) {
-//                robot.cruiseControl(1500);
-//                robot.moveRobot();
-//                robot.cruiseControlTelemetry();
-//                } else if (robot.targetsAreVisible() && robot.cruiseControl(1500)) {
-//                   break;
-//                }
-//            }
-
-            Thread.sleep(50000);
-            
+            robot.gyroRight(.20, 5, 0);
 
         } else if (robot.getTfodDetected() == "Single") {
 
@@ -114,8 +85,19 @@ public class BraunAutoWithMethods extends LinearOpMode {
             telemetry.update();
             robot.stopTfod(this);
 
-            robot.gyroForward(12, .20, 0, 5000);
+            // robot.gyroForward(12, .20, 0, 5000);
 
+            while (robot.targetsAreVisible()) {
+                robot.cruiseControlTelemetry();
+                if (robot.cruiseControl(1500)) {
+                    break;
+                } else {
+                    robot.cruiseControl(1500);
+                    robot.moveRobot();
+                    robot.cruiseControlTelemetry();
+                    Thread.sleep(1000);
+                }
+            }
         }
     }
 }

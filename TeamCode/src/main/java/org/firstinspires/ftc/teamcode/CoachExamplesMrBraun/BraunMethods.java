@@ -200,7 +200,7 @@ public class BraunMethods {
         tfodParameters.minResultConfidence = 0.8f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfod.setZoom(2.5, 1.78);
+        //tfod.setZoom(2.5, 1.78);
         if (tfod != null) {
             tfod.activate();
         }
@@ -299,8 +299,8 @@ public class BraunMethods {
     }
 
 
-    public void deactivateTfod() {
-        tfod.deactivate();
+    public void zoomTfod() {
+        tfod.setZoom(1.0, 1.78);
     }
 
     public void stopTfod(LinearOpMode opMode) throws InterruptedException {
