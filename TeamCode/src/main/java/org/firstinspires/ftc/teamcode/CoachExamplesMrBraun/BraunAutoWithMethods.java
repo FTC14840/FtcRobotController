@@ -38,10 +38,13 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
         // Working: We still need to research threads so we can do two things at once.
         // Create an instance for a new thread
-        Thread braunThread = new BraunThread();
+        Thread braunRunnableThread = new Thread (new BraunRunnableThread());
 
-        // Begin the thread
-        // braunThread.start();
+        // Start the thread
+        braunRunnableThread.start();
+
+        // Interrupt the second thread
+        braunRunnableThread.interrupt();
 
         // To run the tread again, you need a new instance.  The same instance cannot be run again.
 
