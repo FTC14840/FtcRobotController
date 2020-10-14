@@ -156,13 +156,34 @@ public class BraunMethods {
         moveRobot(0, 0, 0);
     }
 
+//    public void initTfod(LinearOpMode opMode) throws InterruptedException {
+//
+//        botOpMode = opMode;
+//        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+//        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+//        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+//        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+//        tfodParameters.minResultConfidence = 0.8f;
+//        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+//        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+//        tfod.setZoom(2.5, 1.78);
+//        if (tfod != null) {
+//            tfod.activate();
+//        }
+//    }
+
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
 
         botOpMode = opMode;
+        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraName = webcamName;
+        parameters.useExtendedTracking = false;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
@@ -173,7 +194,100 @@ public class BraunMethods {
         if (tfod != null) {
             tfod.activate();
         }
+
+        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        targets.get(0).setName("Blue Tower Goal Target");
+        targets.get(1).setName("Red Tower Goal Target");
+        targets.get(2).setName("Red Alliance Target");
+        targets.get(3).setName("Blue Alliance Target");
+        targets.get(4).setName("Front Wall Target");
+
+//        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//        VuforiaTrackables targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
+//        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
+//        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+//        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
+//        redTowerGoalTarget.setName("Red Tower Goal Target");
+//        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
+//        redAllianceTarget.setName("Red Alliance Target");
+//        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
+//        blueAllianceTarget.setName("Blue Alliance Target");
+//        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
+//        frontWallTarget.setName("Front Wall Target");
+//        allTrackables.addAll(targetsUltimateGoal);
+
+        /**
+         * If you are standing in the Red Alliance Station looking towards the center of the field,
+         *     - The X axis runs from your left to the right. (positive from the center to the right)
+         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
+         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
+         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
+         * Before being transformed, each target image is conceptually located at the origin of the field's
+         * coordinate system (the center of the field), facing up.
+         */
+
+//        redAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, -halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
+//        blueAllianceTarget.setLocation(OpenGLMatrix
+//                .translation(0, halfField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
+//        frontWallTarget.setLocation(OpenGLMatrix
+//                .translation(-halfField, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+//        blueTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, quadField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+//        redTowerGoalTarget.setLocation(OpenGLMatrix
+//                .translation(halfField, -quadField, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+
+        allTrackables.addAll(targets);
+        OpenGLMatrix targetOrientation = OpenGLMatrix
+                .translation(0, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
+                        AngleUnit.DEGREES, 90, 0, -90));
+
+        // Translate the camera lens to where it is on the robot.
+        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
+        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+
+        /**
+         Info:  The coordinate frame for the robot looks the same as the field.
+         The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
+         Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
+         The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
+         pointing to the LEFT side of the Robot.
+         We need to rotate the camera around it's long axis to bring the correct camera forward.
+         **/
+
+        final float PHONE_X_ROTATE = 90;
+        final float PHONE_Y_ROTATE = -90;
+        final float PHONE_Z_ROTATE = 0;
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+
+//        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
+//        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
+//        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.YZX,
+//                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.BACK ? 90 : -90, 0, 0));
+
+        for (VuforiaTrackable trackable : allTrackables) {
+            trackable.setLocation(targetOrientation);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+        targets.activate();
     }
+
 
     public void deactivateTfod() {
         tfod.deactivate();
@@ -587,8 +701,7 @@ public class BraunMethods {
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                double invertGyroHeading = gyroHeading * -1;
-                if (invertGyroHeading > angle) {
+                if (gyroHeading < angle) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
@@ -608,8 +721,7 @@ public class BraunMethods {
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                double invertGyroHeading = gyroHeading * -1;
-                if (invertGyroHeading < angle) {
+                if (gyroHeading > angle) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
                     backLeft.setPower(-power);

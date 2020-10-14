@@ -50,11 +50,24 @@ public class BraunAutoWithMethods extends LinearOpMode {
         if (robot.getTfodDetected() == "Quad") {
 
             telemetry.log().clear();
-            telemetry.addData("Detected", "Quad");
+            telemetry.addData("Detected", "Quad - Tfod Worked");
             telemetry.update();
             robot.stopTfod(this);
 
-            robot.gyroRight(.20, 90, 5000);
+//            robot.gyroRight(.20, 5, 0);
+//            robot.gyroForward(30,.20,-5,0);
+//            robot.gyroForward(30,.20,5,0);
+            while (robot.targetsAreVisible() && (!robot.cruiseControl(1500))) {
+
+                if (robot.targetsAreVisible()) {
+                    robot.cruiseControl(1500);
+                }
+
+                robot.moveRobot();
+                telemetry.update();
+            }
+            Thread.sleep(50000);
+            
 
         } else if (robot.getTfodDetected() == "Single") {
 
