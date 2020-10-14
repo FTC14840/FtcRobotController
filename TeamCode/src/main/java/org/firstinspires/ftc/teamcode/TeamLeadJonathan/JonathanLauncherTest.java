@@ -23,7 +23,7 @@ public class JonathanLauncherTest extends LinearOpMode {
 
 
     public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Revving Up", "Prepare to Fire");
         telemetry.update();
 
         // Initialize the hardware variables. Note that the strings used here as parameters
