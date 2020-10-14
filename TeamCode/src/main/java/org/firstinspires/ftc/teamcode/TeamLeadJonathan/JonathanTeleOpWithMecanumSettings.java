@@ -5,8 +5,9 @@ package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.configuration.annotations.DigitalIoDeviceType;
 
-
+@Disabled
 
 // Register class as TeleOp on Driver Station
 @TeleOp(name ="Jonathan Test TeleOp")
