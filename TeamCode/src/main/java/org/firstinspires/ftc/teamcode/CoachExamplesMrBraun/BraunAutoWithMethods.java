@@ -23,6 +23,7 @@ public class BraunAutoWithMethods extends LinearOpMode {
         // Run these init methods from the hardware class
         robot.initHardware(this);
         robot.initTfod(this);
+        robot.activateCruiseControl();
         robot.calibrateGyro(this);
 
         // While waiting for the driver to press play, show TFOD telemety
@@ -67,15 +68,28 @@ public class BraunAutoWithMethods extends LinearOpMode {
 //            robot.gyroRight(.20, 5, 0);
 //            robot.gyroForward(30,.20,-5,0);
 //            robot.gyroForward(30,.20,5,0);
-            while (robot.targetsAreVisible() && (!robot.cruiseControl(1500))) {
 
-                if (robot.targetsAreVisible()) {
+            while (robot.targetsAreVisible()) {
+                if (robot.cruiseControl(1500)) {
+                break;
+                } else {
                     robot.cruiseControl(1500);
+                    robot.moveRobot();
+                    robot.cruiseControlTelemetry();
+                    Thread.sleep(1000);
                 }
-
-                robot.moveRobot();
-                telemetry.update();
             }
+
+//            while (true) {
+//                if (robot.targetsAreVisible()) {
+//                robot.cruiseControl(1500);
+//                robot.moveRobot();
+//                robot.cruiseControlTelemetry();
+//                } else if (robot.targetsAreVisible() && robot.cruiseControl(1500)) {
+//                   break;
+//                }
+//            }
+
             Thread.sleep(50000);
             
 
