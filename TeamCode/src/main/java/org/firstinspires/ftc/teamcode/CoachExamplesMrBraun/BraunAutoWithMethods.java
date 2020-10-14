@@ -36,7 +36,14 @@ public class BraunAutoWithMethods extends LinearOpMode {
         // Deactivate TFOD to save resources
         robot.deactivateTfod();
 
-        // We still need to research threads so we can do two things at once.
+        // Working: We still need to research threads so we can do two things at once.
+        // Create an instance for a new thread
+        Thread braunThread = new BraunThread();
+
+        // Begin the thread
+        // braunThread.start();
+
+        // To run the tread again, you need a new instance.  The same instance cannot be run again.
 
         /** Example Movements
         // robot.gyroForward(12, .20, 0, 5000);
@@ -77,3 +84,7 @@ public class BraunAutoWithMethods extends LinearOpMode {
         }
     }
 }
+
+
+
+

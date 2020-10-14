@@ -103,6 +103,16 @@ public class BraunMethods {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
 
+    // Fields for ramping motor speeds
+    static final double INCREMENT   = 0.01;     // amount to ramp motor each CYCLE_MS cycle
+    static final int    CYCLE_MS    =   50;     // period of each cycle
+    static final double MAX_FWD     =  1.0;     // Maximum FWD power applied to motor
+    static final double MAX_REV     = -1.0;     // Maximum REV power applied to motor
+    DcMotor motor;
+    double  power   = 0;
+    boolean rampUp  = true;
+
+
     /* Constructor for Cruise Control */
     public BraunMethods(){
         targetFound = false;
@@ -367,6 +377,41 @@ public class BraunMethods {
             botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
             botOpMode.telemetry.update();
         }
+    }
+
+    // This is pulled fro the FTC example code and is unedited except botOpMode
+    public void rampMotorSpeeds(LinearOpMode opMode) throws InterruptedException {
+        // Connect to motor (Assume standard left wheel)
+        // Change the text in quotes to match any motor name on your robot.
+        motor = botOpMode.hardwareMap.get(DcMotor.class, "left_drive");
+
+        // Ramp the motors, according to the rampUp variable.
+        if (rampUp) {
+            // Keep stepping up until we hit the max value.
+            power += INCREMENT ;
+            if (power >= MAX_FWD ) {
+                power = MAX_FWD;
+                rampUp = !rampUp;   // Switch ramp direction
+            }
+        }
+        else {
+            // Keep stepping down until we hit the min value.
+            power -= INCREMENT ;
+            if (power <= MAX_REV ) {
+                power = MAX_REV;
+                rampUp = !rampUp;  // Switch ramp direction
+            }
+        }
+
+        // Display the current value
+        botOpMode.telemetry.addData("Motor Power", "%5.2f", power);
+        botOpMode.telemetry.addData(">", "Press Stop to end test." );
+        botOpMode.telemetry.update();
+
+        // Set the motor to the new power and pause;
+        motor.setPower(power);
+        botOpMode.sleep(CYCLE_MS);
+        botOpMode.idle();
     }
 
     /**
