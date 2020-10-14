@@ -73,10 +73,15 @@ public class BraunAutoWithMethods extends LinearOpMode {
                 if (robot.cruiseControl(1500)) {
                 break;
                 } else {
-                    robot.cruiseControl(1500);
-                    robot.moveRobot();
-                    robot.cruiseControlTelemetry();
-                    Thread.sleep(1000);
+                    robot.gyroReverse(12, .20, 0, 5000);
+
+
+
+
+//                    robot.cruiseControl(1500);
+//                    robot.moveRobot();
+//                    robot.cruiseControlTelemetry();
+//                    Thread.sleep(1000);
                 }
             }
 
