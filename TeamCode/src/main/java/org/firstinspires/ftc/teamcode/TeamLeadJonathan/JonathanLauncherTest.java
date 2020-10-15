@@ -10,8 +10,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-@Disabled
+// @Disabled
 @TeleOp(name="Launcher Test")
 
 public class JonathanLauncherTest extends LinearOpMode {
@@ -37,8 +38,8 @@ public class JonathanLauncherTest extends LinearOpMode {
         // Reverse the motor that runs backwards when connected directly to the battery\
 
         waitForStart();
-        backLauncher.setDirection(FORWARD);
-        frontLauncher.setDirection(FORWARD);
+        backLauncher.setDirection(REVERSE);
+        frontLauncher.setDirection(REVERSE);
         backLauncher.setPower(1);
         frontLauncher.setPower(1);
 
