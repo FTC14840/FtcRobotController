@@ -55,9 +55,7 @@ public class JonathanLauncherTest extends LinearOpMode {
                 frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
             }
         }
-        stop(); {
-            backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
+        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }
