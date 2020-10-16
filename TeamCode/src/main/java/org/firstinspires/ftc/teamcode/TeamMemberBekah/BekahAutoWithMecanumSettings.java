@@ -1,23 +1,19 @@
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberBekah;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-
-import java.util.List;
-
-
-// @Disabled
+@Disabled
 
 // Register class as Autonomous on Driver Station
-@Autonomous(name = "Braun Autonomous")
+@Autonomous(name = "Bekah Test Autonomous")
 
     // Begin class and extend methods for LinearOpMode
-    public class BraunAutoWithMecanumSettings extends LinearOpMode {
+    public class BekahAutoWithMecanumSettings extends LinearOpMode {
 
         // Create a new instance of the hardware class
-        BraunMecanumSettings robot = new BraunMecanumSettings();
+        BekahMecanumSettings robot = new BekahMecanumSettings();
 
         // Override the method runOpMode from LinearOpMode
         @Override
@@ -27,7 +23,6 @@ import java.util.List;
 
             robot.initHardware(this);
             robot.calibrateGyro(this);
-            robot.activateTfod();
             //robot.tfodTelemetry();
 
             while (!isStarted()) {
@@ -37,7 +32,7 @@ import java.util.List;
             // Wait for the drive to press play
             waitForStart();
 
-            robot.deactivedTfod();
+            robot.deactivateTfod();
 
             // Repeat this code once play is pressed until stop is pressed
             while (opModeIsActive()) {

@@ -1,25 +1,46 @@
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.CruiseControl;
 
-        import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-        import org.firstinspires.ftc.robotcore.external.ClassFactory;
-        import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-        import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-        import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-        import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-        import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-        import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-        import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-        import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-        import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-        import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.robot.Robot;
 
-        import java.util.ArrayList;
-        import java.util.List;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.R;
 
-public class BraunVuforiaNavigation
+import java.util.ArrayList;
+import java.util.List;
+
+import static android.R.attr.angle;
+import static android.R.attr.targetName;
+import static android.view.View.X;
+
+/**
+ * This is NOT an opmode.
+ *
+ * This class is used to define all the specific navigation tasks for the Target Tracking Demo
+ * It focuses on setting up and using the Vuforia Library, which is part of the 2016-2017 FTC SDK
+ *
+ * Once a target is identified, its information is displayed as telemetry data.
+ * To approach the target, three motion priorities are created:
+ * - Priority #1 Rotate so the robot is pointing at the target (for best target retention).
+ * - Priority #2 Drive laterally based on distance from target center-line
+ * - Priority #3 Drive forward based on the desired target standoff distance
+ *
+ */
+
+public class Robot_Navigation
 {
     // Constants
-    private static final int     MAX_TARGETS    =   5;
+    private static final int     MAX_TARGETS    =   4;
     private static final double  ON_AXIS        =  10;      // Within 1.0 cm of target center-line
     private static final double  CLOSE_ENOUGH   =  20;      // Within 2.0 cm of final target standoff
 
@@ -31,9 +52,9 @@ public class BraunVuforiaNavigation
     public  static final double  AXIAL_GAIN     =  0.0017;  // Rate at which we respond to target distance errors
 
     /* Private class members. */
-    private LinearOpMode myOpMode;       // Access to the OpMode object
-    private BraunVuforiaHardware myRobot;        // Access to the Robot hardware
-    private VuforiaTrackables targets;        // List of active targets
+    private LinearOpMode        myOpMode;       // Access to the OpMode object
+    private Robot_OmniDrive     myRobot;        // Access to the Robot hardware
+    private VuforiaTrackables   targets;        // List of active targets
 
     // Navigation data is only valid if targetFound == true;
     private boolean             targetFound;    // set to true if Vuforia is currently tracking a target
@@ -47,7 +68,7 @@ public class BraunVuforiaNavigation
     //   eg: a Positive RelativeBearing means the robot must turn CCW to point at the target image.
 
     /* Constructor */
-    public BraunVuforiaNavigation(){
+    public Robot_Navigation(){
 
         targetFound = false;
         targetName = null;
@@ -131,7 +152,7 @@ public class BraunVuforiaNavigation
      * @param opMode    pointer to OpMode
      * @param robot     pointer to Robot hardware class
      */
-    public void initVuforia(LinearOpMode opMode, BraunVuforiaHardware robot) {
+    public void initVuforia(LinearOpMode opMode, Robot_OmniDrive robot) {
 
         // Save reference to OpMode and Hardware map
         myOpMode = opMode;
@@ -148,26 +169,22 @@ public class BraunVuforiaNavigation
 
         // Get your own Vuforia key at  https://developer.vuforia.com/license-manager
         // and paste it here...
-        parameters.vuforiaLicenseKey = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
+        parameters.vuforiaLicenseKey = "Afbu2Uv/////AAAAGVouNdSAD0P8la+sq37vCdQ6uLVH8NWrBLnfZ1R5rObJQpVVHJzqvIgMZO5gTqXG6DYJZcgwtSVZXU2g20FAJobxCog9Wc5vtqgJJmrsJ0NOABRbi9vy4Y9IzBVfaDoRsQTmjxxFf62Z9slttsb44KopGpVGTQ83iHnTo/wDvnZBWRhmckG6IKuqkbRYCFD+w1hHvVLuDoIYLgfpa1Rw1Pc7rszP/CDzUfeO9KwodFpEsfZHIZI8KHIYzfRIOhg1Tg0T4eRsLCO8s9vfZd6vfTuUA/sZkID3N7BsrlLaL6vUqheGPvsbPuQQsMqgPNYTqbhvv3KI/SR5WxUaccuVHnpVMhAjkdpruWVliCCZqp1t";
 
         parameters.cameraDirection = CAMERA_CHOICE;
         parameters.useExtendedTracking = false;
-        VuforiaLocalizer vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        // VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        VuforiaLocalizer vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
         /**
          * Load the data sets that for the trackable objects we wish to track.
          * These particular data sets are stored in the 'assets' part of our application
          * They represent the four image targets used in the 2016-17 FTC game.
          */
-
-        // targets = vuforia.loadTrackablesFromAsset("Ultimate Goal");
-        VuforiaTrackables UltimateGoal = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        VuforiaTrackable redGoal = UltimateGoal.get(0);
-        redGoal.setName("RedGoal");  // Red Goal
-
-        VuforiaTrackable blueGoal  = UltimateGoal.get(1);
-        blueGoal.setName("Blue Goal");  // Blue Goal
+        targets = vuforia.loadTrackablesFromAsset("FTC_2016-17");
+        targets.get(0).setName("Blue Near");
+        targets.get(1).setName("Red Far");
+        targets.get(2).setName("Blue Far");
+        targets.get(3).setName("Red Near");
 
         /** For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -294,5 +311,4 @@ public class BraunVuforiaNavigation
         return targetFound;
     }
 }
-
 

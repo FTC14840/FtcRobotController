@@ -1,5 +1,5 @@
 // Package name
-package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
+package org.firstinspires.ftc.teamcode.TeamMemberTatem;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -9,13 +9,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @Disabled
 
 // Register class as TeleOp on Driver Station
-@TeleOp(name ="Braun TeleOp")
+@TeleOp(name ="Tatem Test TeleOp")
 
 // Begin class and extend methods for LinearOpMode
-public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
+public class TatemTeleOpWithMecanumSettings extends LinearOpMode {
+
+
 
     // Create a new instance of the hardware class
-    BraunMecanumSettings robot = new BraunMecanumSettings();
+    TatemMecanumSettings robot = new TatemMecanumSettings();
 
     // Override the method runOpMode from LinearOpMode
     @Override
@@ -23,27 +25,34 @@ public class BraunTeleOpWithMecanumSettings extends LinearOpMode {
 
         // Run method from hardware class
         robot.initHardware(this);
-        robot.activateTfod();
+        robot.initVision(this);
         robot.calibrateGyro(this);
 
         // Do this code block until play is pressed
         while (!isStarted()) {
-            robot.tfodTelemetry();
+            robot.targetsAreVisible();
         }
 
         // Wait for the drive to press play
         waitForStart();
 
-        robot.deactivedTfod();
+        robot.deactivateTfod();
 
         // Repeat this code once play is pressed until stop is pressed
         while (opModeIsActive()) {
 
-            // Run these methods from the hardware setup to move the bot
-            robot.manualDrive();
-            robot.moveRobot();
-            robot.driveTelemetry(this);
+            if (robot.targetsAreVisible() && gamepad1.left_bumper) {
+                robot.cruiseControl(robot.PRIMARYDISTANCE);
 
+            } else if(robot.targetsAreVisible() && gamepad1.right_bumper){
+                robot.cruiseControl(robot.SECONDARYDISTANCE);
+
+            } else {
+                robot.manualDrive();
+            }
+
+            robot.moveRobot();
+            robot.navigationTelemetry();
         }
     }
 }

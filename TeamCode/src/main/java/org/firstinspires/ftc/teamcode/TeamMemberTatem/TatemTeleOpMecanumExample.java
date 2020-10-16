@@ -1,16 +1,17 @@
 // FTC package name
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeamMemberTatem;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 // Name under TeleOp List
-@TeleOp(name ="TeleOpMecanumExample")
-
+@TeleOp(name ="Tatem TeleOpMecanumExample")
+@Disabled
 // Begin of LinearOpMode Class
-public class TeleOpMecanumExample extends LinearOpMode {
+public class TatemTeleOpMecanumExample extends LinearOpMode {
 
     // DEfining our Global variables for Java
     private DcMotor frontLeft;
