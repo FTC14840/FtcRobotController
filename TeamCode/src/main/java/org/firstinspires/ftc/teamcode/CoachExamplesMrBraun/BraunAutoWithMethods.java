@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 // Register class as Autonomous on Driver Station - Place your name first
 @Autonomous(name = "Braun Test Autonomous")
