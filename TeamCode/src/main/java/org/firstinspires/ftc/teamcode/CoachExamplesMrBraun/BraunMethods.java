@@ -121,9 +121,7 @@ public class BraunMethods {
 
     /* Constructor for Cruise Control */
 
-    public BraunMethods(VuforiaTrackables targets, boolean targetFound, String targetName, double robotX,
-                        double robotY, double robotBearing, double targetRange, double targetBearing,
-                        double relativeBearing) {
+    public BraunMethods() {
         this.targets = targets;
         this.targetFound = targetFound;
         this.targetName = targetName;
