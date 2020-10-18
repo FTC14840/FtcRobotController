@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.TeamMemberNoah;
 
 // Imports
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMethods;
 // Register class as TeleOp on Driver Station - Place your name first
 @TeleOp(name="Noah Test Teleop")
 
-//@Disabled
+@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class NoahTeleOpWithMethods extends LinearOpMode {

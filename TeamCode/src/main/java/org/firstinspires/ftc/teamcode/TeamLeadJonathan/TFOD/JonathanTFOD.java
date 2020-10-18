@@ -53,7 +53,7 @@ import java.util.List;
  */
 @TeleOp(name = "Jonathan TFOD")
 
-
+@Disabled
 
 public class JonathanTFOD extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";

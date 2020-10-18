@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMethods;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.BraunMethods;
 // Register class as Autonomous on Driver Station - Place your name first
 @Autonomous(name = "Jonathan Test Autonomous")
 
-// @Disabled
+@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class JonathanAutoWithMethods extends LinearOpMode {

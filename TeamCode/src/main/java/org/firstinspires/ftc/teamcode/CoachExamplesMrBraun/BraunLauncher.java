@@ -1,23 +1,17 @@
-package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+@TeleOp(name="Braun Launcher Test")
 
-@TeleOp(name="Jonathan Launcher Test")
+// @Disabled
 
-@Disabled
-
-public class JonathanLauncherTest extends LinearOpMode {
+public class BraunLauncher extends LinearOpMode {
 
     // Declare OpMode members.
     private DcMotor backLauncher = null;
