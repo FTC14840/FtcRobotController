@@ -23,7 +23,8 @@ public class JonathanLauncherTest extends LinearOpMode {
     private static final double INCREMENT = 0.001;
 
 
-    public void runOpMode() {
+
+    public void runOpMode() throws InterruptedException{
         telemetry.addData("Revving Up", "Prepare to Fire");
         telemetry.update();
 
@@ -40,12 +41,17 @@ public class JonathanLauncherTest extends LinearOpMode {
         waitForStart();
         backLauncher.setDirection(REVERSE);
         frontLauncher.setDirection(REVERSE);
-        backLauncher.setPower(1);
-        frontLauncher.setPower(1);
+        backLauncher.setPower(.58);
+        frontLauncher.setPower(.58);
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            telemetry.log().clear();
+            telemetry.addData("Encoder", "Launcher: %2d", frontLauncher.getCurrentPosition());
+            telemetry.addData("Encoder", "Launcher: %2d", backLauncher.getCurrentPosition());
+            telemetry.addData("Power", "Launcher: %.2f,", frontLauncher.getPower());
+            telemetry.update();
 
             if (gamepad1.dpad_down) {
                 backLauncher.setPower(backLauncher.getPower() - INCREMENT);
