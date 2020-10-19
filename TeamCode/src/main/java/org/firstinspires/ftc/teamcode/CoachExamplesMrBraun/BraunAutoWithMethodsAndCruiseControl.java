@@ -3,18 +3,18 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-// Register class as Autonomous on Driver Station - Place your name first
-@Autonomous(name = "Braun Test Autonomous")
+// Register class as TeleOp on Driver Station - Place your name first
+@Autonomous(name="Braun Cruise Control Test")
 
-@Disabled
+//@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
-public class BraunAutoWithMethods extends LinearOpMode {
+public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
 
-    // Create a new instance of the methods class
+    // Create a new instance of the hardware class
     BraunMethods robot = new BraunMethods();
 
     // Override the method runOpMode from LinearOpMode
@@ -23,7 +23,7 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initVisionTracking(this);
+        robot.initAllVision(this);
         robot.activateCruiseControl();
         robot.calibrateGyro(this);
 
@@ -36,33 +36,24 @@ public class BraunAutoWithMethods extends LinearOpMode {
         waitForStart();
 
         robot.zoomReset();
-        Thread.sleep(30000);
-
-        // Working: We still need to research threads so we can do two things at once.
-        // Create an instance for a new thread
-//        Thread braunRunnableThread = new Thread (new BraunRunnableThread());
-
-        // Start the thread
-//        braunRunnableThread.start();
-
-        // Interrupt the second thread
-//        braunRunnableThread.interrupt();
-
-        // To run the tread again, you need a new instance.  The same instance cannot be run again.
 
         /** Example Movements
-        // robot.gyroForward(12, .20, 0, 5000);
-        // robot.gyroReverse(12, .20, 0, 5000);
-        // robot.gyroStrafeLeft(12, .20, 0, 5000);
-        // robot.gyroStrafeRight(12, .20, 0, 5000);
-        // robot.gyroLeft(.20, -90, 5000);
-        // robot.gyroRight(.20, 90, 5000);
-        **/
+        robot.gyroForward(12, .20, 0, 5000);
+        robot.gyroReverse(12, .20, 0, 5000);
+        robot.gyroStrafeLeft(12, .20, 0, 5000);
+        robot.gyroStrafeRight(12, .20, 0, 5000);
+        robot.gyroLeft(.20, -90, 5000);
+        robot.gyroRight(.20, 90, 5000);
+
+        while (opModeIsActive() && robot.targetsAreVisible() && !robot.cruiseControl(TARGET_DISTANCE)) {
+            robot.autoCruiseControl();
+        }
+         **/
 
         if (robot.getTfodDetected() == "Quad") {
 
             telemetry.log().clear();
-            telemetry.addData("Detected", "Quad - Tfod Worked");
+            telemetry.addData("Detected", "Quad");
             telemetry.update();
 
             //robot.gyroRight(.20, 5, 0);
@@ -83,6 +74,13 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
             // robot.gyroForward(12, .20, 0, 5000);
 
+            while (opModeIsActive() && robot.targetsAreVisible() && !robot.cruiseControl(1500)) {
+                robot.autoCruiseControl(1500);
+            }
+
+
+
+
 //            while (robot.targetsAreVisible()) {
 //                robot.cruiseControlTelemetry();
 //                if (robot.cruiseControl(1500)) {
@@ -94,10 +92,15 @@ public class BraunAutoWithMethods extends LinearOpMode {
 //                    Thread.sleep(1000);
 //                }
 //            }
+//
+//        while (opModeIsActive() && robot.targetsAreVisible() && !robot.cruiseControl(TARGET_DISTANCE)) {
+//            if (robot.targetsAreVisible()) {
+//                robot.cruiseControl(TARGET_DISTANCE);
+//                robot.moveRobot();
+//                robot.cruiseControlTelemetry();
+//                telemetry.update();
+//            }
+//
         }
     }
 }
-
-
-
-

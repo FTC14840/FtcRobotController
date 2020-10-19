@@ -1,23 +1,17 @@
-package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
+@TeleOp(name="Braun Launcher Test")
 
-@TeleOp(name="Jonathan Launcher Test")
+// @Disabled
 
-@Disabled
-
-public class JonathanLauncherTest extends LinearOpMode {
+public class BraunLauncher extends LinearOpMode {
 
     // Declare OpMode members.
     private DcMotor backLauncher = null;
@@ -25,8 +19,7 @@ public class JonathanLauncherTest extends LinearOpMode {
     private static final double INCREMENT = 0.001;
 
 
-
-    public void runOpMode() throws InterruptedException{
+    public void runOpMode() {
         telemetry.addData("Revving Up", "Prepare to Fire");
         telemetry.update();
 
@@ -43,17 +36,12 @@ public class JonathanLauncherTest extends LinearOpMode {
         waitForStart();
         backLauncher.setDirection(REVERSE);
         frontLauncher.setDirection(REVERSE);
-        backLauncher.setPower(.58);
-        frontLauncher.setPower(.58);
+        backLauncher.setPower(1);
+        frontLauncher.setPower(1);
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            telemetry.log().clear();
-            telemetry.addData("Encoder", "Launcher: %2d", frontLauncher.getCurrentPosition());
-            telemetry.addData("Encoder", "Launcher: %2d", backLauncher.getCurrentPosition());
-            telemetry.addData("Power", "Launcher: %.2f,", frontLauncher.getPower());
-            telemetry.update();
 
             if (gamepad1.dpad_down) {
                 backLauncher.setPower(backLauncher.getPower() - INCREMENT);
