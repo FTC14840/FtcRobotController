@@ -22,7 +22,8 @@ public class JonathanLauncherTest extends LinearOpMode {
     // Declare OpMode members.
     private DcMotor backLauncher = null;
     private DcMotor frontLauncher = null;
-    private static final double INCREMENT = 0.001;
+    private static final double INCREMENT1 = 0.001;
+    private static final double INCREMENT2 = 0.005;
 
 
 
@@ -56,12 +57,20 @@ public class JonathanLauncherTest extends LinearOpMode {
             telemetry.update();
 
             if (gamepad1.dpad_down) {
-                backLauncher.setPower(backLauncher.getPower() - INCREMENT);
-                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
+                backLauncher.setPower(backLauncher.getPower() - INCREMENT1);
+                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT1);
             }
             if (gamepad1.dpad_up) {
-                backLauncher.setPower(backLauncher.getPower() + INCREMENT);
-                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT1);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT1);
+            }
+            if (gamepad1.dpad_left){
+                backLauncher.setPower(backLauncher.getPower() - INCREMENT2);
+                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT2);
+            }
+            if (gamepad1.dpad_right){
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT2);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT2);
             }
         }
         backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
