@@ -43,8 +43,8 @@ public class JonathanLauncherTest extends LinearOpMode {
         waitForStart();
         backLauncher.setDirection(REVERSE);
         frontLauncher.setDirection(REVERSE);
-        backLauncher.setPower(.58);
-        frontLauncher.setPower(.58);
+        backLauncher.setPower(.80);
+        frontLauncher.setPower(.80);
 
 
         // run until the end of the match (driver presses STOP)
