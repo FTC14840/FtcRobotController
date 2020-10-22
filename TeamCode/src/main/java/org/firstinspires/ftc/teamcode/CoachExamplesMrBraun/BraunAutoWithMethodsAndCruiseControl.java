@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Register class as TeleOp on Driver Station - Place your name first
 @Autonomous(name="Braun Cruise Control Test")
@@ -56,7 +55,7 @@ public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
             telemetry.addData("Detected", "Quad");
             telemetry.update();
 
-            //robot.gyroRight(.20, 5, 0);
+            robot.gyroRight(.20, 5, 0);
 
         } else if (robot.getTfodDetected() == "Single") {
 
@@ -64,7 +63,7 @@ public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
             telemetry.addData("Detected", "Single");
             telemetry.update();
 
-            //robot.gyroLeft(.20, -90, 5000);
+            robot.gyroLeft(.20, -90, 5000);
 
         } else {
 
@@ -72,35 +71,13 @@ public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
             telemetry.addData("Detected", "None");
             telemetry.update();
 
-            // robot.gyroForward(12, .20, 0, 5000);
+//            robot.gyroForward(12, .20, 0, 5000);
+//
+//            Thread.sleep(5000);
 
             while (opModeIsActive() && robot.targetsAreVisible() && !robot.cruiseControl(1500)) {
                 robot.autoCruiseControl(1500);
             }
-
-
-
-
-//            while (robot.targetsAreVisible()) {
-//                robot.cruiseControlTelemetry();
-//                if (robot.cruiseControl(1500)) {
-//                    break;
-//                } else {
-//                    robot.cruiseControl(1500);
-//                    robot.moveRobot();
-//                    robot.cruiseControlTelemetry();
-//                    Thread.sleep(1000);
-//                }
-//            }
-//
-//        while (opModeIsActive() && robot.targetsAreVisible() && !robot.cruiseControl(TARGET_DISTANCE)) {
-//            if (robot.targetsAreVisible()) {
-//                robot.cruiseControl(TARGET_DISTANCE);
-//                robot.moveRobot();
-//                robot.cruiseControlTelemetry();
-//                telemetry.update();
-//            }
-//
         }
     }
 }

@@ -7,52 +7,53 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-@TeleOp(name="Braun Launcher Test")
+@TeleOp(name="Braun Launcher")
 
 // @Disabled
 
 public class BraunLauncher extends LinearOpMode {
 
-    // Declare OpMode members.
     private DcMotor backLauncher = null;
     private DcMotor frontLauncher = null;
     private static final double INCREMENT = 0.001;
 
-
     public void runOpMode() {
-        telemetry.addData("Revving Up", "Prepare to Fire");
+
+        telemetry.log().clear();
+        telemetry.addData("Spinning Up", "Prepare to Launch");
         telemetry.update();
 
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
         backLauncher = hardwareMap.get(DcMotor.class, "backLauncher");
         frontLauncher = hardwareMap.get(DcMotor.class, "frontLauncher");
 
-
-        // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery\
-
-        waitForStart();
         backLauncher.setDirection(REVERSE);
         frontLauncher.setDirection(REVERSE);
-        backLauncher.setPower(1);
-        frontLauncher.setPower(1);
 
+        backLauncher.setPower(.60);
+        frontLauncher.setPower(.60);
 
-        // run until the end of the match (driver presses STOP)
+        waitForStart();
+
         while (opModeIsActive()) {
+
+            if (gamepad1.dpad_up) {
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
+            }
 
             if (gamepad1.dpad_down) {
                 backLauncher.setPower(backLauncher.getPower() - INCREMENT);
                 frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
             }
-            if (gamepad1.dpad_up) {
-                backLauncher.setPower(backLauncher.getPower() + INCREMENT);
-                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
-            }
+
+            telemetry.log().clear();
+            telemetry.addData("Launcher", "Front: %.2f, Back: %.2f", frontLauncher.getPower(), backLauncher.getPower());
+            telemetry.update();
+
         }
+
         backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
     }
 }
