@@ -22,10 +22,12 @@ public class JonathanLauncherTest extends LinearOpMode {
     // Declare OpMode members.
     private DcMotor backLauncher = null;
     private DcMotor frontLauncher = null;
-    private static final double INCREMENT = 0.001;
+    private static final double INCREMENT1 = 0.001;
+    private static final double INCREMENT2 = 0.005;
 
 
-    public void runOpMode() {
+
+    public void runOpMode() throws InterruptedException{
         telemetry.addData("Revving Up", "Prepare to Fire");
         telemetry.update();
 
@@ -42,20 +44,33 @@ public class JonathanLauncherTest extends LinearOpMode {
         waitForStart();
         backLauncher.setDirection(REVERSE);
         frontLauncher.setDirection(REVERSE);
-        backLauncher.setPower(1);
-        frontLauncher.setPower(1);
+        backLauncher.setPower(.80);
+        frontLauncher.setPower(.80);
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            telemetry.log().clear();
+            telemetry.addData("Encoder", "Launcher: %2d", frontLauncher.getCurrentPosition());
+            telemetry.addData("Encoder", "Launcher: %2d", backLauncher.getCurrentPosition());
+            telemetry.addData("Power", "Launcher: %.2f,", frontLauncher.getPower());
+            telemetry.update();
 
             if (gamepad1.dpad_down) {
-                backLauncher.setPower(backLauncher.getPower() - INCREMENT);
-                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT);
+                backLauncher.setPower(backLauncher.getPower() - INCREMENT1);
+                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT1);
             }
             if (gamepad1.dpad_up) {
-                backLauncher.setPower(backLauncher.getPower() + INCREMENT);
-                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT);
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT1);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT1);
+            }
+            if (gamepad1.dpad_left){
+                backLauncher.setPower(backLauncher.getPower() - INCREMENT2);
+                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT2);
+            }
+            if (gamepad1.dpad_right){
+                backLauncher.setPower(backLauncher.getPower() + INCREMENT2);
+                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT2);
             }
         }
         backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
