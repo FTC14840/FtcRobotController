@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 // Imports
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // Register class as TeleOp on Driver Station - Place your name first
 @Autonomous(name="Braun Cruise Control Test")
 
-//@Disabled
+@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
@@ -22,8 +23,8 @@ public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initAllVision(this);
-        robot.activateCruiseControl();
+        //robot.initAllVision(this);
+        robot.activateCruiseControl(this);
         robot.calibrateGyro(this);
 
         // While waiting for the driver to press play, show TFOD telemety
@@ -34,7 +35,7 @@ public class BraunAutoWithMethodsAndCruiseControl extends LinearOpMode {
         // Press play to begin
         waitForStart();
 
-        robot.zoomReset();
+        //robot.zoomReset();
 
         /** Example Movements
         robot.gyroForward(12, .20, 0, 5000);

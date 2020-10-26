@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +10,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 @TeleOp(name="Braun Launcher")
 
-// @Disabled
+@Disabled
 
 public class BraunLauncher extends LinearOpMode {
 

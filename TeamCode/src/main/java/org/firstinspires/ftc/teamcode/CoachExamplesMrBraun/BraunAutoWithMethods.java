@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 // Register class as Autonomous on Driver Station - Place your name first
 @Autonomous(name = "Braun Test Autonomous")
 
-@Disabled
+//@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunAutoWithMethods extends LinearOpMode {
@@ -23,8 +23,9 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initVisionTracking(this);
-        robot.activateCruiseControl();
+        robot.initTracking(this);
+        robot.activateCruiseControl(this);
+        robot.initTfod(this);
         robot.calibrateGyro(this);
 
         // While waiting for the driver to press play, show TFOD telemety
@@ -35,8 +36,10 @@ public class BraunAutoWithMethods extends LinearOpMode {
         // Press play to begin
         waitForStart();
 
-        robot.zoomReset();
-        Thread.sleep(30000);
+        robot.stopTfod(this);
+
+        //robot.zoomReset();
+        //Thread.sleep(30000);
 
         // Working: We still need to research threads so we can do two things at once.
         // Create an instance for a new thread
@@ -62,38 +65,44 @@ public class BraunAutoWithMethods extends LinearOpMode {
         if (robot.getTfodDetected() == "Quad") {
 
             telemetry.log().clear();
-            telemetry.addData("Detected", "Quad - Tfod Worked");
+            telemetry.addData("Running", "Quad Program");
+            robot.cruiseControlTelemetry();
             telemetry.update();
+            sleep(30000);
 
             //robot.gyroRight(.20, 5, 0);
 
         } else if (robot.getTfodDetected() == "Single") {
 
             telemetry.log().clear();
-            telemetry.addData("Detected", "Single");
+            telemetry.addData("Running", "Single Program");
+            robot.cruiseControlTelemetry();
             telemetry.update();
+            sleep(30000);
 
             //robot.gyroLeft(.20, -90, 5000);
 
         } else {
 
             telemetry.log().clear();
-            telemetry.addData("Detected", "None");
+            telemetry.addData("Running", "Default Program");
+            //robot.cruiseControlTelemetry();
             telemetry.update();
+            //sleep(30000);
 
             // robot.gyroForward(12, .20, 0, 5000);
 
-//            while (robot.targetsAreVisible()) {
-//                robot.cruiseControlTelemetry();
-//                if (robot.cruiseControl(1500)) {
-//                    break;
-//                } else {
-//                    robot.cruiseControl(1500);
-//                    robot.moveRobot();
-//                    robot.cruiseControlTelemetry();
-//                    Thread.sleep(1000);
-//                }
-//            }
+            while (robot.targetsAreVisible()) {
+                robot.cruiseControlTelemetry();
+                if (robot.cruiseControl(1500)) {
+                    break;
+                } else {
+                    robot.cruiseControl(1500);
+                    robot.moveRobot();
+                    robot.cruiseControlTelemetry();
+                    Thread.sleep(1000);
+                }
+            }
         }
     }
 }

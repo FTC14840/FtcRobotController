@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
@@ -68,19 +69,44 @@ public class BraunMethods {
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
 
     // Vuforia fields
-    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
-    WebcamName webcamName = null;
-    private OpenGLMatrix lastLocation = null;
-    private VuforiaLocalizer vuforia = null;
-    private TFObjectDetector tfod = null;
-    private VuforiaTrackables targets;
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
+    // https://developer.vuforia.com/license-manager
     private static final String VUFORIA_KEY = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
-    private static final float mmPerInch = 25.4f;
-    private static final float mmTargetHeight = (6) * mmPerInch;
-    private static final float halfField = 72 * mmPerInch;
-    private static final float quadField = 36 * mmPerInch;
-    private boolean targetVisible = false;
+    private static final float MM_PER_INCH = 25.4f;
+    private static final float TARGET_HEIGHT = MM_PER_INCH * 6;  // Center of target is 6 inches above the ground
+    private static final float HALF_FIELD = MM_PER_INCH * 72;  // (12*12)/2
+    private static final float QUARTER_FIELD = MM_PER_INCH * 36;  // (12*12)/4
+    private static final float CAMERA_FORWARD = MM_PER_INCH * 9;  // Inches forward from center of bot
+    private static final float CAMERA_LATERAL = MM_PER_INCH * 0;  // Inches left(-) or right(+) of bot's midline
+    private static final float CAMERA_VERTICAL = MM_PER_INCH * 6;  // Inches above the ground
+    private static final float CAMERA_U_Rotation = 90;  // Webcam/Back = 90 or Front = -90
+    private static final float CAMERA_V_Rotation = 0;
+    private static final float CAMERA_W_Rotation = -90;
+
+    WebcamName webcamName;
+    VuforiaLocalizer vuforia;
+    VuforiaLocalizer.Parameters vuforiaParametersTfod;
+    VuforiaLocalizer.Parameters vuforiaParametersTracking;
+    VuforiaTrackableDefaultListener vuforiaListener;
+    VuforiaTrackables vuforiaTargets;
+    //    VuforiaTrackable blueTowerGoal = vuforiaTargets.get(0);
+//    VuforiaTrackable RedTowerGoal = vuforiaTargets.get(1);
+    OpenGLMatrix phoneLocation;
+    OpenGLMatrix robotsLastKnownLocation;
+    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+
+//    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+//    private OpenGLMatrix lastLocation = null;
+//    private VuforiaLocalizer vuforia = null;
+    private TFObjectDetector tfod = null;
+//    private VuforiaTrackables targets;
+//    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+//    private static final String VUFORIA_KEY = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
+//    private static final float mmPerInch = 25.4f;
+//    private static final float mmTargetHeight = (6) * mmPerInch;
+//    private static final float halfField = 72 * mmPerInch;
+//    private static final float quadField = 36 * mmPerInch;
+//    private boolean targetVisible = false;
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
@@ -122,7 +148,7 @@ public class BraunMethods {
     /* Constructor for Cruise Control */
 
     public BraunMethods() {
-        this.targets = targets;
+        this.vuforiaTargets = vuforiaTargets;
         this.targetFound = targetFound;
         this.targetName = targetName;
         this.robotX = robotX;
@@ -165,201 +191,78 @@ public class BraunMethods {
 
         // Set all motor power to zero
         moveRobot(0, 0, 0);
+
+        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
     }
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
 
         botOpMode = opMode;
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
+        int tfodMonitorViewIdTfod = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewIdTfod", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewIdTfod);
+        tfodParameters.minResultConfidence = 0.6f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfod.setZoom(2.5, 1.78);
-        if (tfod != null) {
-            tfod.activate();
-        }
-    }
-
-    public void initAllVision(LinearOpMode opMode) throws InterruptedException {
-
-        botOpMode = opMode;
-        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = webcamName;
-        parameters.useExtendedTracking = false;
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfod.setZoom(2.5, 1.78);
-        if (tfod != null) {
-            tfod.activate();
-        }
-
-
-        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        targets.get(0).setName("Blue Tower Goal Target");
-        targets.get(1).setName("Red Tower Goal Target");
-        targets.get(2).setName("Red Alliance Target");
-        targets.get(3).setName("Blue Alliance Target");
-        targets.get(4).setName("Front Wall Target");
-
-        allTrackables.addAll(targets);
-        OpenGLMatrix targetOrientation = OpenGLMatrix
-                .translation(0, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
-                        AngleUnit.DEGREES, 90, 0, -90));
-
-        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float PHONE_X_ROTATE = 90;
-        final float PHONE_Y_ROTATE = -90;
-        final float PHONE_Z_ROTATE = 0;
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
-
-        for (VuforiaTrackable trackable : allTrackables) {
-            trackable.setLocation(targetOrientation);
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
-        }
-        targets.activate();
-    }
-
-
-    public void zoomReset() {
         tfod.setZoom(1.0, 1.78);
+        if (tfod != null) {
+            tfod.activate();
+        }
     }
 
-    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
-
-        // Set opMode to one defined above
-        botOpMode = opMode;
-
+    public void stopTfod(LinearOpMode opMode) {
         tfod.deactivate();
+        tfod.shutdown();
     }
 
-    // This method is from the cruise control example and sets the targets relative to the bot.
-    public void initVisionTracking(LinearOpMode opMode) throws InterruptedException {
+    public void initTracking(LinearOpMode opMode) throws InterruptedException {
 
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = webcamName;
-        parameters.useExtendedTracking = false;
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        targets.get(0).setName("Blue Tower Goal Target");
-        targets.get(1).setName("Red Tower Goal Target");
-        targets.get(2).setName("Red Alliance Target");
-        targets.get(3).setName("Blue Alliance Target");
-        targets.get(4).setName("Front Wall Target");
+        int cameraMonitorViewIdTracking = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewIdTracking", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        vuforiaParametersTracking = new VuforiaLocalizer.Parameters(cameraMonitorViewIdTracking);
+        vuforiaParametersTracking.vuforiaLicenseKey = VUFORIA_KEY;
+        vuforiaParametersTracking.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        vuforiaParametersTracking.useExtendedTracking = false;
+        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParametersTracking);
 
-//        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-//        VuforiaTrackables targetsUltimateGoal = this.vuforia.loadTrackablesFromAsset("UltimateGoal");
-//        VuforiaTrackable blueTowerGoalTarget = targetsUltimateGoal.get(0);
-//        blueTowerGoalTarget.setName("Blue Tower Goal Target");
-//        VuforiaTrackable redTowerGoalTarget = targetsUltimateGoal.get(1);
-//        redTowerGoalTarget.setName("Red Tower Goal Target");
-//        VuforiaTrackable redAllianceTarget = targetsUltimateGoal.get(2);
-//        redAllianceTarget.setName("Red Alliance Target");
-//        VuforiaTrackable blueAllianceTarget = targetsUltimateGoal.get(3);
-//        blueAllianceTarget.setName("Blue Alliance Target");
-//        VuforiaTrackable frontWallTarget = targetsUltimateGoal.get(4);
-//        frontWallTarget.setName("Front Wall Target");
-//        allTrackables.addAll(targetsUltimateGoal);
+        vuforiaTargets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        // Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS,5);
 
-        /**
-         * If you are standing in the Red Alliance Station looking towards the center of the field,
-         *     - The X axis runs from your left to the right. (positive from the center to the right)
-         *     - The Y axis runs from the Red Alliance Station towards the other side of the field
-         *       where the Blue Alliance Station is. (Positive is from the center, towards the BlueAlliance station)
-         *     - The Z axis runs from the floor, upwards towards the ceiling.  (Positive is above the floor)
-         * Before being transformed, each target image is conceptually located at the origin of the field's
-         * coordinate system (the center of the field), facing up.
-         */
+        vuforiaTargets.get(0).setName("Blue Tower Goal Target");
+        //vuforiaTargets.get(0).setLocation(createMatrix(HALF_FIELD, QUARTER_FIELD, TARGET_HEIGHT,90, 0 , -90));
 
-//        redAllianceTarget.setLocation(OpenGLMatrix
-//                .translation(0, -halfField, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 180)));
-//        blueAllianceTarget.setLocation(OpenGLMatrix
-//                .translation(0, halfField, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
-//        frontWallTarget.setLocation(OpenGLMatrix
-//                .translation(-halfField, 0, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
-//        blueTowerGoalTarget.setLocation(OpenGLMatrix
-//                .translation(halfField, quadField, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
-//        redTowerGoalTarget.setLocation(OpenGLMatrix
-//                .translation(halfField, -quadField, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
+        vuforiaTargets.get(1).setName("Red Tower Goal Target");
+        //vuforiaTargets.get(1).setLocation(createMatrix(HALF_FIELD, -QUARTER_FIELD, TARGET_HEIGHT,90, 0 , -90));
 
-        allTrackables.addAll(targets);
-        OpenGLMatrix targetOrientation = OpenGLMatrix
-                .translation(0, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
-                        AngleUnit.DEGREES, 90, 0, -90));
+        vuforiaTargets.get(2).setName("Red Alliance Target");
+        //vuforiaTargets.get(2).setLocation(createMatrix(0, -HALF_FIELD, TARGET_HEIGHT,90, 0 , 180));
 
-        // Translate the camera lens to where it is on the robot.
-        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        vuforiaTargets.get(3).setName("Blue Alliance Target");
+        //vuforiaTargets.get(3).setLocation(createMatrix(0, HALF_FIELD, TARGET_HEIGHT,90, 0 , 0));
 
-        /**
-         Info:  The coordinate frame for the robot looks the same as the field.
-         The robot's "forward" direction is facing out along X axis, with the LEFT side facing out along the Y axis.
-         Z is UP on the robot.  This equates to a bearing angle of Zero degrees.
-         The phone starts out lying flat, with the screen facing Up and with the physical top of the phone
-         pointing to the LEFT side of the Robot.
-         We need to rotate the camera around it's long axis to bring the correct camera forward.
-         **/
+        vuforiaTargets.get(4).setName("Front Wall Target");
+        //vuforiaTargets.get(4).setLocation(createMatrix(-HALF_FIELD, 0, TARGET_HEIGHT,90, 0 , 90));
 
-        final float PHONE_X_ROTATE = 90;
-        final float PHONE_Y_ROTATE = -90;
-        final float PHONE_Z_ROTATE = 0;
+        // vuforiaListener = (VuforiaTrackableDefaultListener) target.getListener();
+        // vuforiaListener.setPhoneInformation(phoneLocation,vuforiaParameters.cameraDirection);
 
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+        allTrackables.addAll(vuforiaTargets);
+        OpenGLMatrix targetOrientation = createMatrix(0,0, TARGET_HEIGHT,90,0,0);
 
-//        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // Camera is 110 mm in front of robot center
-//        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // Camera is 200 mm above ground
-//        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // Camera is ON the robots center line
-//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        AxesReference.EXTRINSIC, AxesOrder.YZX,
-//                        AngleUnit.DEGREES, CAMERA_CHOICE == VuforiaLocalizer.CameraDirection.BACK ? 90 : -90, 0, 0));
+        phoneLocation = createMatrix (CAMERA_FORWARD,CAMERA_LATERAL,CAMERA_VERTICAL,CAMERA_U_Rotation,CAMERA_V_Rotation,CAMERA_W_Rotation);
 
         for (VuforiaTrackable trackable : allTrackables) {
             trackable.setLocation(targetOrientation);
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocation, vuforiaParametersTracking.cameraDirection);
         }
-        targets.activate();
+        vuforiaTargets.activate();
     }
 
-    public void activateCruiseControl() {
-        if (targets != null)
-            targets.activate();
+    public void activateCruiseControl(LinearOpMode opMode) {
+
+        botOpMode = opMode;
+        if (vuforiaTargets != null)
+            vuforiaTargets.activate();
 
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
@@ -378,7 +281,7 @@ public class BraunMethods {
 
     public boolean targetIsVisible(int targetId) {
 
-        VuforiaTrackable target = targets.get(targetId);
+        VuforiaTrackable target = vuforiaTargets.get(targetId);
         VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) target.getListener();
         OpenGLMatrix location = null;
 
@@ -835,17 +738,26 @@ public class BraunMethods {
         if (targetFound) {
             // Display the current visible target name, robot info, target info, and required robot action.
             botOpMode.telemetry.addData("Visible", targetName);
-            botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
+            botOpMode.telemetry.addData("Robot", "X:Y:B [%5.0fmm]:[%5.0fmm] (%4.0f°)",
                     robotX, robotY, robotBearing);
-            botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)",
+            botOpMode.telemetry.addData("Target", "R:B:RB [%5.0fmm] (%4.0f°):(%4.0f°)",
                     targetRange, targetBearing, relativeBearing);
             botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
             botOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             botOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
         } else {
+            botOpMode.telemetry.addData("Robot Location",formatMatrix(robotsLastKnownLocation));
             botOpMode.telemetry.addData("Visible", "- - - -");
         }
-        botOpMode.telemetry.update();
+        // botOpMode.telemetry.update();
+    }
+
+    OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w){
+        return OpenGLMatrix.translation(x,y,z).multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, u, v, w));
+    }
+
+    String formatMatrix (OpenGLMatrix matrix) {
+        return matrix.formatAsTransform();
     }
 
 }
