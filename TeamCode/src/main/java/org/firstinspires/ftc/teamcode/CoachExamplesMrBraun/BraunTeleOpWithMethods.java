@@ -26,8 +26,7 @@ public class BraunTeleOpWithMethods extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initTracking(this);
-        robot.activateCruiseControl(this);
+        robot.activateCruiseControl();
 
         // Press play to begin
         waitForStart();

@@ -23,20 +23,20 @@ public class BraunAutoWithMethods extends LinearOpMode {
 
         // Run these init methods from the hardware class
         robot.initHardware(this);
-        robot.initTracking(this);
-        robot.activateCruiseControl(this);
-        robot.initTfod(this);
+        //robot.initTracking(this);
+        //robot.activateCruiseControl(this);
+        //robot.initTfod(this);
         robot.calibrateGyro(this);
 
         // While waiting for the driver to press play, show TFOD telemety
         while (!isStarted()) {
-            robot.tfodTelemetry(this);
+            //robot.tfodTelemetry(this);
         }
 
         // Press play to begin
         waitForStart();
 
-        robot.stopTfod(this);
+        //robot.stopTfod(this);
 
         //robot.zoomReset();
         //Thread.sleep(30000);
@@ -90,19 +90,24 @@ public class BraunAutoWithMethods extends LinearOpMode {
             telemetry.update();
             //sleep(30000);
 
-            // robot.gyroForward(12, .20, 0, 5000);
+             robot.gyroForward(12, .20, 0, 0);
+             robot.gyroReverse(12, .20, 0, 0);
+             robot.gyroStrafeLeft(12, .20, 0, 0);
+             robot.gyroStrafeRight(12, .20, 0, 0);
+             robot.gyroLeft(.20, -90, 0);
+             robot.gyroRight(.20, 90, 0);
 
-            while (robot.targetsAreVisible()) {
-                robot.cruiseControlTelemetry();
-                if (robot.cruiseControl(1500)) {
-                    break;
-                } else {
-                    robot.cruiseControl(1500);
-                    robot.moveRobot();
-                    robot.cruiseControlTelemetry();
-                    Thread.sleep(1000);
-                }
-            }
+//            while (robot.targetsAreVisible()) {
+//                robot.cruiseControlTelemetry();
+//                if (robot.cruiseControl(1500)) {
+//                    break;
+//                } else {
+//                    robot.cruiseControl(1500);
+//                    robot.moveRobot();
+//                    robot.cruiseControlTelemetry();
+//                    Thread.sleep(1000);
+//                }
+//            }
         }
     }
 }
