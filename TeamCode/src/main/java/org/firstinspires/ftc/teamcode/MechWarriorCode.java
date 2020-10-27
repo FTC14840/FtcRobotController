@@ -62,7 +62,7 @@ public class MechWarriorCode {
     private static final double TURNSENSITIVITY = 1.5;
 
     // Tick to inches conversion
-    private static final double TICKS = 1440; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
+    private static final double TICKS = 537.6; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
     private static final double GEARREDUCTION = 1.0; // Greater than 1.0; Less than 1.0 if geared up
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
@@ -588,10 +588,10 @@ public class MechWarriorCode {
      * Telemetry Methods
      **/
 
-    public void driveTelemetry(LinearOpMode opMode) throws InterruptedException {
+    public void driveTelemetry() throws InterruptedException {
 
         // Set opMode to one defined above
-        botOpMode = opMode;
+        //botOpMode = opMode;
 
         if (botOpMode.gamepad1.y) {
             stopAndResetEncoder();

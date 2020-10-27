@@ -39,7 +39,7 @@ public class AutoLeftBlue extends LinearOpMode {
             telemetry.addData("Running", "Quad Program");
             telemetry.update();
 
-            robot.gyroRight(.20, 5, 0);
+            robot.gyroRight(.20, 90, 0);
 
         } else if (robot.getTfodDetected() == "Single") {
 
