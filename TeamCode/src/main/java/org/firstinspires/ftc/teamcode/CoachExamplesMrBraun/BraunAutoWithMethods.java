@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 // Register class as Autonomous on Driver Station - Place your name first
 @Autonomous(name = "Braun Test Autonomous")
 
-//@Disabled
+@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunAutoWithMethods extends LinearOpMode {

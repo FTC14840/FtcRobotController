@@ -18,6 +18,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
 @TeleOp(name="Jonathan Launcher Test")
 
+@Disabled
 
 public class JonathanLauncherTest extends LinearOpMode {
 

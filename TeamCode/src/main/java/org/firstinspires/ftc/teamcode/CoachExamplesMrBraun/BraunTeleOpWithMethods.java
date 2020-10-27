@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // Register class as TeleOp on Driver Station - Place your name first
 @TeleOp(name="Braun Test Teleop")
 
-// @Disabled
+@Disabled
 
 // Begin class and extend methods from LinearOpMode - Place your name first
 public class BraunTeleOpWithMethods extends LinearOpMode {
