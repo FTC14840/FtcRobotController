@@ -29,6 +29,8 @@ public class ShortTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            robot.startBlinkinLeds();
+
             if (robot.targetsAreVisible() && gamepad1.left_bumper) {
                 robot.cruiseControl(TARGET_DISTANCE);
             } else {
