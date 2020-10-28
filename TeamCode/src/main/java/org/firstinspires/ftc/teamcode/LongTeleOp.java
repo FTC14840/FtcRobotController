@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="FinalTeleOp")
+@TeleOp(name="LongTeleOp")
 
 @Disabled
 
@@ -23,7 +23,6 @@ public class LongTeleOp extends LinearOpMode {
 
         robot.initHardware(this);
         robot.initVisionTracking(this);
-        robot.activateCruiseControl(this);
 
         while (!isStarted()) {
             robot.initTelemetry();

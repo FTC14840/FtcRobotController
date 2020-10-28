@@ -367,7 +367,7 @@ public class MechWarriorCode {
 
     // Calculations for the power to each motor
     public void moveRobot() {
-        // Vector addition and algebra for the pwer to each motor
+        // Vector addition and algebra for the power to each motor
         double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
         double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));

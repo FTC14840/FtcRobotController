@@ -4,22 +4,55 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Disabled
+@Autonomous (name ="AutoRightBlue")
 
-@Autonomous (name ="Auto Right Blue")
+@Disabled
 
 public class AutoRightBlue extends LinearOpMode {
 
-
+    MechWarriorCode robot = new MechWarriorCode();
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
+        robot.initHardware(this);
+        robot.initTfod(this);
+        robot.calibrateGyro(this);
 
+        while (!isStarted()) {
+            robot.tfodInitTelemetry();
+        }
 
-        while (opModeIsActive()) {
+        waitForStart();
 
+        robot.stopTfod(this);
 
+        /** Example Movements
+         // robot.gyroForward(12, .20, 0, 500);
+         // robot.gyroReverse(12, .20, 0, 500);
+         // robot.gyroStrafeLeft(12, .20, 0, 500);
+         // robot.gyroStrafeRight(12, .20, 0, 000);
+         // robot.gyroLeft(.20, 90, 5000;
+         // robot.gyroRight(.20, 90, 500);
+         **/
+
+        if (robot.getTfodDetected() == "Quad") {
+
+            robot.tfodRunningTelemetry();
+            robot.gyroLeft(.20, 90, 500);
+            robot.gyroRight(.20, 90, 500);
+
+        } else if (robot.getTfodDetected() == "Single") {
+
+            robot.tfodRunningTelemetry();
+            robot.gyroRight(.20, 90, 500);
+            robot.gyroLeft(.20, 90, 500);
+
+        } else {
+
+            robot.tfodRunningTelemetry();
+            robot.gyroForward(12, .20, 0, 500);
+            robot.gyroReverse(12, .20, 0, 500);
 
         }
     }
