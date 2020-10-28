@@ -127,7 +127,9 @@ public class MechWarriorCode {
      **/
 
     public void initHardware(LinearOpMode opMode) throws InterruptedException {
+
         botOpMode = opMode;
+
         // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.log().add("Robot Initializing. Do Not Move The Bot...");
@@ -216,17 +218,18 @@ public class MechWarriorCode {
             trackable.setLocation(targetOrientation);
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
-        targets.activate();
-    }
 
-    public void activateCruiseControl(LinearOpMode opMode) {
-        botOpMode = opMode;
         if (targets != null)
             targets.activate();
 
-        botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
-        botOpMode.telemetry.update();
+    }
+
+    OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w) {
+        return OpenGLMatrix.translation(x,y,z).multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, u, v, w));
+    }
+
+    String formatMatrix (OpenGLMatrix matrix) {
+        return matrix.formatAsTransform();
     }
 
     public boolean targetsAreVisible() {
