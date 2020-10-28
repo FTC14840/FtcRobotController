@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode;
 
 // Imports
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -109,6 +111,9 @@ public class MechWarriorCode {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
 
+    RevBlinkinLedDriver ledLights;
+    int blinkinTimer = 0;
+
     /* Constructor for Cruise Control */
     public MechWarriorCode() {
         targetFound = false;
@@ -153,6 +158,9 @@ public class MechWarriorCode {
 
         // Set all motor power to zero
         moveRobot(0, 0, 0);
+
+        ledLights = botOpMode.hardwareMap.get(RevBlinkinLedDriver.class,"ledLights");
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
     }
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
@@ -305,6 +313,40 @@ public class MechWarriorCode {
     /**
      * TeleOp Methods
      **/
+
+    public void startBlinkinBlue() {
+
+        if (blinkinTimer == 0) {
+            botOpMode.resetStartTime();
+            blinkinTimer = 1;
+        }
+
+        if(botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+        } else if(botOpMode.time >= 110 && botOpMode.time < 120) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+        } else {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        }
+
+    }
+
+    public void startBlinkinRed() {
+
+        if (blinkinTimer == 0) {
+            botOpMode.resetStartTime();
+            blinkinTimer = 1;
+        }
+
+        if(botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+        } else if(botOpMode.time >= 110 && botOpMode.time < 120) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+        } else {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }
+
+    }
 
     // Place code for controllers here.  This will work during Cruise Control and Manual Drive
     public void auxilaryControls() {
@@ -517,16 +559,36 @@ public class MechWarriorCode {
 
     public void gyroLeft(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
+            double halfPower = power/2;
+            double quarterPower = power/4;
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                double invertGyroHeading = gyroHeading * -1;
-                if (invertGyroHeading > angle) {
+                if (gyroHeading < angle - 60) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
+                    botOpMode.sleep(250);
+                } else if(gyroHeading < angle - 40) {
+                    frontLeft.setPower(halfPower);
+                    frontRight.setPower(-halfPower);
+                    backLeft.setPower(halfPower);
+                    backRight.setPower(-halfPower);
+                    botOpMode.sleep(250);
+                } else if(gyroHeading < angle - 20) {
+                    frontLeft.setPower(quarterPower);
+                    frontRight.setPower(-quarterPower);
+                    backLeft.setPower(quarterPower);
+                    backRight.setPower(-quarterPower);
+                    botOpMode.sleep(500);
+                } else if(gyroHeading > angle) {
+                    frontLeft.setPower(-quarterPower);
+                    frontRight.setPower(quarterPower);
+                    backLeft.setPower(-quarterPower);
+                    backRight.setPower(quarterPower);
+                    botOpMode.sleep(500);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -538,16 +600,36 @@ public class MechWarriorCode {
 
     public void gyroRight(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
+            double halfPower = power/2;
+            double quarterPower = power/4;
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                double invertGyroHeading = gyroHeading * -1;
-                if (invertGyroHeading < angle) {
+                if (gyroHeading > angle + 60) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
+                    botOpMode.sleep(250);
+                } else if (gyroHeading > angle + 40) {
+                    frontLeft.setPower(-halfPower);
+                    frontRight.setPower(halfPower);
+                    backLeft.setPower(-halfPower);
+                    backRight.setPower(halfPower);
+                    botOpMode.sleep(250);
+                } else if (gyroHeading > angle + 20 ) {
+                    frontLeft.setPower(-quarterPower);
+                    frontRight.setPower(quarterPower);
+                    backLeft.setPower(-quarterPower);
+                    backRight.setPower(quarterPower);
+                    botOpMode.sleep(500);
+                } else if (gyroHeading < angle) {
+                    frontLeft.setPower(quarterPower);
+                    frontRight.setPower(-quarterPower);
+                    backLeft.setPower(quarterPower);
+                    backRight.setPower(-quarterPower);
+                    botOpMode.sleep(500);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -619,7 +701,7 @@ public class MechWarriorCode {
         botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
         botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
         botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -frontLeft.getTargetPosition(), -frontRight.getTargetPosition(), -backLeft.getTargetPosition(), -backRight.getTargetPosition());
-        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", frontLeft.getPower(), frontRight.getPower(), backLeft.getPower(), backRight.getPower());
+        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
         botOpMode.telemetry.addData("Axes", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
         botOpMode.telemetry.update();
     }
@@ -628,6 +710,7 @@ public class MechWarriorCode {
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
         botOpMode.telemetry.update();
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
     }
 
     public void tfodInitTelemetry() throws InterruptedException {

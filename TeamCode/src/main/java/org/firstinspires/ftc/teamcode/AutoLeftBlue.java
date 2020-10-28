@@ -28,31 +28,38 @@ public class AutoLeftBlue extends LinearOpMode {
         robot.stopTfod(this);
 
         /** Example Movements
-         // robot.gyroForward(12, .20, 0, 500);
-         // robot.gyroReverse(12, .20, 0, 500);
-         // robot.gyroStrafeLeft(12, .20, 0, 500);
-         // robot.gyroStrafeRight(12, .20, 0, 000);
-         // robot.gyroLeft(.20, 90, 5000;
-         // robot.gyroRight(.20, 90, 500);
+         robot.gyroForward(12, .50, 0, 500);
+         robot.gyroReverse(12, .50, 0, 500);
+         robot.gyroStrafeLeft(12, .50, 0, 500);
+         robot.gyroStrafeRight(12, .50, 0, 500);
+         robot.gyroLeft(.50, 90, 500);
+         robot.gyroRight(.50, -90, 500);
+         robot.gyroLeft(.50,0,500);
          **/
 
         if (robot.getTfodDetected() == "Quad") {
 
             robot.tfodRunningTelemetry();
-            robot.gyroLeft(.20, 90, 500);
-            robot.gyroRight(.20, 90, 500);
+            robot.gyroLeft(.50, 90, 500);
 
         } else if (robot.getTfodDetected() == "Single") {
 
             robot.tfodRunningTelemetry();
-            robot.gyroRight(.20, 90, 500);
-            robot.gyroLeft(.20, 90, 500);
+            robot.gyroRight(.50, -90, 500);
 
         } else {
 
             robot.tfodRunningTelemetry();
-            robot.gyroForward(12, .20, 0, 500);
-            robot.gyroReverse(12, .20, 0, 500);
+            robot.gyroReverse(100, .50, 0, 500);
+
+
+//             robot.gyroForward(12, .50, 0, 500);
+//             robot.gyroReverse(12, .50, 0, 500);
+//             robot.gyroStrafeLeft(12, .50, 0, 500);
+//             robot.gyroStrafeRight(12, .50, 0, 500);
+//             robot.gyroLeft(.50, 90, 500);
+//             robot.gyroRight(.50, -90, 500);
+//             robot.gyroLeft(.50,0,500);
 
         }
     }

@@ -4,9 +4,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="ShortTeleOp")
+@TeleOp(name="TeleOpShortBlue")
 
-public class ShortTeleOp extends LinearOpMode {
+public class TeleOpShortBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
@@ -29,7 +29,7 @@ public class ShortTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            robot.startBlinkinLeds();
+            robot.startBlinkinBlue();
 
             if (robot.targetsAreVisible() && gamepad1.left_bumper) {
                 robot.cruiseControl(TARGET_DISTANCE);
