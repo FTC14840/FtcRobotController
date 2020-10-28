@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="MeasureTeleOp")
 
-public class MeasureTeleOp extends LinearOpMode {
+// @Disabled
 
-    final double TARGET_DISTANCE =  1524.0;
+public class MeasureTeleOp extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
@@ -17,17 +18,17 @@ public class MeasureTeleOp extends LinearOpMode {
         robot.initHardware(this);
         robot.calibrateGyro(this);
 
+        while (!isStarted()) {
+            robot.initTelemetry();
+        }
 
         waitForStart();
 
         while (opModeIsActive()) {
 
-            telemetry.addData(">", "Press Left Bumper to track target");
-
             robot.manualDrive();
             robot.moveRobot();
             robot.driveTelemetry();
-            telemetry.update();
         }
     }
 }

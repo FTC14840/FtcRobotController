@@ -84,7 +84,7 @@ public class MechWarriorCode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
-    private String tfodDetected = "None";
+    private String tfodDetected = "Zero";
 
     public String getTfodDetected() {
         return tfodDetected;
@@ -302,6 +302,11 @@ public class MechWarriorCode {
     /**
      * TeleOp Methods
      **/
+
+    // Place code for controllers here.  This will work during Cruise Control and Manual Drive
+    public void auxilaryControls() {
+
+    }
 
     public boolean cruiseControl(double standOffDistance) {
         boolean closeEnough;
@@ -549,6 +554,10 @@ public class MechWarriorCode {
         }
     }
 
+    /**
+     *  Drive Train Methods
+     */
+
     public void stopDriving() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -590,19 +599,16 @@ public class MechWarriorCode {
 
     public void driveTelemetry() throws InterruptedException {
 
-        // Set opMode to one defined above
-        //botOpMode = opMode;
-
         if (botOpMode.gamepad1.y) {
             stopAndResetEncoder();
             runUsingEncoder();
         }
 
+        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
         double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
         double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
         double backRightInches = backRight.getCurrentPosition() / TICKSTOINCHES;
-        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
 
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Note", "--> Tap Y to reset encoders");
@@ -615,16 +621,13 @@ public class MechWarriorCode {
         botOpMode.telemetry.update();
     }
 
-    public void tfodTelemetry() throws InterruptedException {
+    public void initTelemetry() {
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
+        botOpMode.telemetry.update();
+    }
 
-        if (botOpMode.gamepad1.y) {
-            botOpMode.telemetry.log().clear();
-            botOpMode.telemetry.addData("Note", "Resetting TFOD");
-            botOpMode.telemetry.update();
-            tfod.deactivate();
-            tfod.activate();
-            Thread.sleep(1000);
-        }
+    public void tfodInitTelemetry() throws InterruptedException {
 
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
@@ -634,24 +637,30 @@ public class MechWarriorCode {
                 tfodDetected = recognition.getLabel();
                 botOpMode.telemetry.log().clear();
                 botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
-                botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
                 botOpMode.telemetry.addData(String.format("Detected (%d)", i), recognition.getLabel());
                 botOpMode.telemetry.update();
                 Thread.sleep(1000);
             }
         } else {
-            tfodDetected = "None";
+            tfodDetected = "Zero";
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData("Robot Initialized", "Press Play to Begin");
-            botOpMode.telemetry.addData("Note", "--> Tap Y to Reset TFOD");
-            botOpMode.telemetry.addData("Detected", "None");
+            botOpMode.telemetry.addData("Detected", "Zero");
             botOpMode.telemetry.update();
         }
+    }
+
+    public void tfodRunningTelemetry() {
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("Running", getTfodDetected() + " Program");
+        botOpMode.telemetry.update();
     }
 
     public void cruiseControlTelemetry() {
         if (targetFound) {
             // Display the current visible target name, robot info, target info, and required robot action.
+            botOpMode.telemetry.log().clear();
+            botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", targetName);
             botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
                     robotX, robotY, robotBearing);
@@ -660,8 +669,12 @@ public class MechWarriorCode {
             botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
             botOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             botOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
+            botOpMode.telemetry.update();
         } else {
+            botOpMode.telemetry.log().clear();
+            botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", "- - - -");
+            botOpMode.telemetry.update();
         }
     }
 

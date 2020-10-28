@@ -17,7 +17,7 @@ public class AutoLeftBlue extends LinearOpMode {
         robot.calibrateGyro(this);
 
         while (!isStarted()) {
-            robot.tfodTelemetry();
+            robot.tfodInitTelemetry();
         }
 
         waitForStart();
@@ -25,37 +25,31 @@ public class AutoLeftBlue extends LinearOpMode {
         robot.stopTfod(this);
 
         /** Example Movements
-         // robot.gyroForward(12, .20, 0, 5000);
-         // robot.gyroReverse(12, .20, 0, 5000);
-         // robot.gyroStrafeLeft(12, .20, 0, 5000);
-         // robot.gyroStrafeRight(12, .20, 0, 5000);
-         // robot.gyroLeft(.20, -90, 5000);
-         // robot.gyroRight(.20, 90, 5000);
+         // robot.gyroForward(12, .20, 0, 500);
+         // robot.gyroReverse(12, .20, 0, 500);
+         // robot.gyroStrafeLeft(12, .20, 0, 500);
+         // robot.gyroStrafeRight(12, .20, 0, 000);
+         // robot.gyroLeft(.20, 90, 5000;
+         // robot.gyroRight(.20, 90, 500);
          **/
 
         if (robot.getTfodDetected() == "Quad") {
 
-            telemetry.log().clear();
-            telemetry.addData("Running", "Quad Program");
-            telemetry.update();
-
-            robot.gyroRight(.20, 90, 0);
+            robot.tfodRunningTelemetry();
+            robot.gyroLeft(.20, 90, 500);
+            robot.gyroRight(.20, 90, 500);
 
         } else if (robot.getTfodDetected() == "Single") {
 
-            telemetry.log().clear();
-            telemetry.addData("Running", "Single Program");
-            telemetry.update();
-
-            robot.gyroLeft(.20, -90, 5000);
+            robot.tfodRunningTelemetry();
+            robot.gyroRight(.20, 90, 500);
+            robot.gyroLeft(.20, 90, 500);
 
         } else {
 
-            telemetry.log().clear();
-            telemetry.addData("Running", "Default Program");
-            telemetry.update();
-
-            robot.gyroForward(12, .20, 0, 0);
+            robot.tfodRunningTelemetry();
+            robot.gyroForward(12, .20, 0, 500);
+            robot.gyroReverse(12, .20, 0, 500);
 
         }
     }
