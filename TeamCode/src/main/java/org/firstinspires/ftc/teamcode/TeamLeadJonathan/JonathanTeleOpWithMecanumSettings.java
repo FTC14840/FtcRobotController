@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.configuration.annotations.DigitalIoDevice
 @TeleOp(name ="Jonathan Test TeleOp")
 
 // Begin class and extend methods for LinearOpMode
-public class JonathanTeleOpWithMecanumSettings extends LinearOpMode {
+public class  JonathanTeleOpWithMecanumSettings extends LinearOpMode {
 
 
 
