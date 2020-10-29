@@ -50,6 +50,8 @@ public class JonathanLauncherTest extends LinearOpMode {
         frontLauncher.setMode(STOP_AND_RESET_ENCODER);
         backLauncher.setMode(RUN_USING_ENCODER);
         frontLauncher.setMode(RUN_USING_ENCODER);
+        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
 
         // Most robots need the motor on one side to be reversed to drive forward
@@ -91,9 +93,7 @@ public class JonathanLauncherTest extends LinearOpMode {
             telemetry.addData("BackPower", "Launcher: %.2f,", backLauncher.getPower());
             telemetry.update();
         }
-
-        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        
 
     }
 }
