@@ -51,11 +51,8 @@ public class AutoLeftBlue extends LinearOpMode {
         } else {
 
             robot.tfodRunningTelemetry();
-            robot.gyroForward(20,.5,0,250);
-
-            robot.gyroForward(13,.5,-45,250);
-
-            robot.gyroForward(32,.5,0,250);
+            robot.gyroForward(12, .20, 0, 500);
+            robot.gyroReverse(12, .20, 0, 500);
 
         }
     }
