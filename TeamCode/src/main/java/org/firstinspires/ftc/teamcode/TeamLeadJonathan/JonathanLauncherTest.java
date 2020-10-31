@@ -25,12 +25,12 @@ public class JonathanLauncherTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException{
         telemetry.addData("Revving Up", "Prepare to Fire");
         telemetry.update();
-
+        //Init specific launcher hardware for less confusion
         launcher.initLauncherHardwareOnly();
 
 
         waitForStart();
-
+        //Sets motors to full power
         launcher.startLauncher();
 
         while (opModeIsActive()) {
