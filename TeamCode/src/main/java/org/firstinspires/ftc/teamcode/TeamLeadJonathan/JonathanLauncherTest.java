@@ -59,8 +59,6 @@ public class JonathanLauncherTest extends LinearOpMode {
 
         waitForStart();
 
-
-
         backLauncher.setPower(1.0);
         frontLauncher.setPower(1.0);
 
@@ -71,10 +69,10 @@ public class JonathanLauncherTest extends LinearOpMode {
 
 
             if (gamepad1.dpad_down){
-                launcherSpeedUp();
+                launcherSpeedDown();
             }
             if (gamepad1.dpad_up) {
-               launcherSpeedDown();
+               launcherSpeedUp();
             }
             if (gamepad1.dpad_left) {
                 backLauncher.setPower(backLauncher.getPower() - INCREMENT2);
