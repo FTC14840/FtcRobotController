@@ -8,32 +8,36 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name = "BraunAutoBlinkinEndGameTimer")
 
-@Disabled
+//@Disabled
 
 public class BraunAutoBlinkinEndGameTimer extends LinearOpMode {
 
-    RevBlinkinLedDriver lights;
-    int temp;
+    RevBlinkinLedDriver ledLights;
+    int blinkinTimer = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        // https://www.revrobotics.com/content/docs/REV-11-1105-UM.pdf
+        ledLights = hardwareMap.get(RevBlinkinLedDriver.class, "ledLights");
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
 
         waitForStart();
 
-        if (temp ==1){
+        if (blinkinTimer == 0){
             resetStartTime();
-            temp = 2;
+            blinkinTimer = 1;
         }
 
-        if(time >= 90 && time < 115){
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
-        } else if(time >= 115 && time < 120) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        while(opModeIsActive()) {
+
+            if(time >= 90 && time < 110){
+                ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.LIGHT_CHASE_GRAY);
+            } else if(time >= 110 && time < 120) {
+                ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+            } else {
+                ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            }
         }
     }
 }

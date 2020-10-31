@@ -46,10 +46,13 @@ public class BraunAutoEncoder extends LinearOpMode {
         while(leftDriveMotor.isBusy() && rightDriveMotor.isBusy()){
 
         }
+
+        resetEncoders();
+
     }
 
     void driveForward (double power, double ticks){
-        while(leftDriveMotor.getCurrentPosition() < ticks && rightDriveMotor.getCurrentPosition() < ticks){
+        while(opModeIsActive() && leftDriveMotor.getCurrentPosition() < ticks && rightDriveMotor.getCurrentPosition() < ticks){
             leftDriveMotor.setPower(power);
             rightDriveMotor.setPower(power);
         }
@@ -61,9 +64,8 @@ public class BraunAutoEncoder extends LinearOpMode {
         leftDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightDriveMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Might not need this?
         leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 }

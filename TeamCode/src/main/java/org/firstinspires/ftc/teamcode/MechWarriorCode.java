@@ -152,6 +152,12 @@ public class MechWarriorCode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        // Set to Break or Float
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Reset encoders
         stopAndResetEncoder();
         runUsingEncoder();
@@ -321,12 +327,24 @@ public class MechWarriorCode {
             blinkinTimer = 1;
         }
 
-        if(botOpMode.time >= 90 && botOpMode.time < 110){
+        if(targetName == "Blue Tower Goal Target"  && botOpMode.time < 80) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 80 && botOpMode.time < 90){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
+        } else if(botOpMode.time >= 80 && botOpMode.time < 90){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
+        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        } else if(botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 110 && botOpMode.time < 120) {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
         } else if(botOpMode.time >= 110 && botOpMode.time < 120) {
-            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
+        } else if(botOpMode.time >= 120) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
         } else {
-            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
 
     }
@@ -338,12 +356,24 @@ public class MechWarriorCode {
             blinkinTimer = 1;
         }
 
-        if(botOpMode.time >= 90 && botOpMode.time < 110){
+        if(targetName == "Red Tower Goal Target"  && botOpMode.time < 80) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 80 && botOpMode.time < 90){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
+        } else if(botOpMode.time >= 80 && botOpMode.time < 90){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
+        } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        } else if(botOpMode.time >= 90 && botOpMode.time < 110){
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
+        } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 110 && botOpMode.time < 120) {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
         } else if(botOpMode.time >= 110 && botOpMode.time < 120) {
-            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_WHITE);
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
+        } else if(botOpMode.time >= 120) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
         } else {
-            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
 
     }
@@ -447,10 +477,17 @@ public class MechWarriorCode {
      * Autonomous Methods
      **/
 
+    public void signalBlueAlliance() {
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+        }
+
+    public void signalRedAlliance() {
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+        }
+
     public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
-            runUsingEncoder();
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
@@ -481,7 +518,6 @@ public class MechWarriorCode {
     public void gyroReverse(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
-            runUsingEncoder();
             driveByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
@@ -505,7 +541,6 @@ public class MechWarriorCode {
     public void gyroStrafeLeft(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
-            runUsingEncoder();
             strafeByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
@@ -536,7 +571,6 @@ public class MechWarriorCode {
     public void gyroStrafeRight(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
-            runUsingEncoder();
             strafeByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
@@ -561,6 +595,7 @@ public class MechWarriorCode {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
             double quarterPower = power/4;
+            int cyckeTime = 100;
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
@@ -570,25 +605,25 @@ public class MechWarriorCode {
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
-                    botOpMode.sleep(250);
+                    Thread.sleep(cyckeTime);
                 } else if(gyroHeading < angle - 40) {
                     frontLeft.setPower(halfPower);
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
-                    botOpMode.sleep(250);
+                    Thread.sleep(cyckeTime);
                 } else if(gyroHeading < angle - 20) {
                     frontLeft.setPower(quarterPower);
                     frontRight.setPower(-quarterPower);
                     backLeft.setPower(quarterPower);
                     backRight.setPower(-quarterPower);
-                    botOpMode.sleep(500);
+                    Thread.sleep(cyckeTime * 2);
                 } else if(gyroHeading > angle) {
                     frontLeft.setPower(-quarterPower);
                     frontRight.setPower(quarterPower);
                     backLeft.setPower(-quarterPower);
                     backRight.setPower(quarterPower);
-                    botOpMode.sleep(500);
+                    Thread.sleep(cyckeTime * 2);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -602,6 +637,7 @@ public class MechWarriorCode {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
             double quarterPower = power/4;
+            int cyckeTime = 100;
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
@@ -611,25 +647,25 @@ public class MechWarriorCode {
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    botOpMode.sleep(250);
+                    Thread.sleep(cyckeTime);
                 } else if (gyroHeading > angle + 40) {
                     frontLeft.setPower(-halfPower);
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
-                    botOpMode.sleep(250);
+                    Thread.sleep(cyckeTime);
                 } else if (gyroHeading > angle + 20 ) {
                     frontLeft.setPower(-quarterPower);
                     frontRight.setPower(quarterPower);
                     backLeft.setPower(-quarterPower);
                     backRight.setPower(quarterPower);
-                    botOpMode.sleep(500);
+                    Thread.sleep(cyckeTime * 2);
                 } else if (gyroHeading < angle) {
                     frontLeft.setPower(quarterPower);
                     frontRight.setPower(-quarterPower);
                     backLeft.setPower(quarterPower);
                     backRight.setPower(-quarterPower);
-                    botOpMode.sleep(500);
+                    Thread.sleep(cyckeTime * 2);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -704,6 +740,8 @@ public class MechWarriorCode {
         botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
         botOpMode.telemetry.addData("Axes", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
         botOpMode.telemetry.update();
+
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
     }
 
     public void initTelemetry() {
@@ -734,6 +772,9 @@ public class MechWarriorCode {
             botOpMode.telemetry.addData("Detected", "Zero");
             botOpMode.telemetry.update();
         }
+
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+
     }
 
     public void tfodRunningTelemetry() {
@@ -763,5 +804,4 @@ public class MechWarriorCode {
             botOpMode.telemetry.update();
         }
     }
-
 }

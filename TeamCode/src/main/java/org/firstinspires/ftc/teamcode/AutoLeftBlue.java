@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous(name = "AutoLeftBlue")
 
-// @Disabled
+@Disabled
 
 public class AutoLeftBlue extends LinearOpMode {
 

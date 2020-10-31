@@ -30,6 +30,9 @@ public class BraunAutoServo extends LinearOpMode {
 
         testServo.setPosition(0.0);  // between 0 and 1
         sleep(1000);
+
+        // Discuss for loops to get servos to slow down in their movement
+
         testCrServo.setPower(-1.0);  // between -1.0 and 1.0
 
 

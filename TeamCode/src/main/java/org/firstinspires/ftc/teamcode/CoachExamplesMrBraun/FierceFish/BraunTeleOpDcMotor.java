@@ -11,28 +11,28 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class BraunTeleOpDcMotor extends LinearOpMode {
 
-    DcMotor testMotor;
+    DcMotor firstTestMotor;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        testMotor = hardwareMap.dcMotor.get("testMotor");
-        testMotor.setDirection(DcMotor.Direction.REVERSE);
-        testMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        firstTestMotor = hardwareMap.get(DcMotor.class, "testMotor");
+        firstTestMotor.setDirection(DcMotor.Direction.REVERSE);
+        firstTestMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
-        while(opModeIsActive()){
+        while(opModeIsActive()) {
 
-            double motorPower = gamepad1.left_stick_y;
+            firstTestMotor.setPower(gamepad1.left_stick_y);
 
-            if(gamepad1.left_stick_y > 0.1 || gamepad1.left_stick_y < -0.1){
-                testMotor.setPower(motorPower);
-            } else {
-                testMotor.setPower(0.0);
+            // or
+
+            double firstTestMotorPower = gamepad1.left_stick_y;
+
+            if (firstTestMotorPower > 0.1 || firstTestMotorPower < -0.1) {
+                firstTestMotor.setPower(firstTestMotorPower);
             }
-
         }
-
     }
 }
