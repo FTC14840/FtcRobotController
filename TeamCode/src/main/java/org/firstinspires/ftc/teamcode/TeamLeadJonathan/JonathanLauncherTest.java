@@ -5,17 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
-import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 
 @TeleOp(name="Jonathan Launcher Test")
@@ -31,8 +25,14 @@ public class JonathanLauncherTest extends LinearOpMode {
     private static final double INCREMENT1 = 0.001;
     private static final double INCREMENT2 = 0.005;
 
-
-
+    public void launcherSpeedUp(){
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower()+INCREMENT1,0,1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower()+INCREMENT1,0,1));
+    }
+    public void launcherSpeedDown(){
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower()-INCREMENT1,0,1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower()-INCREMENT1,0,1));
+    }
 
 
     public void runOpMode() throws InterruptedException{
@@ -70,13 +70,11 @@ public class JonathanLauncherTest extends LinearOpMode {
         while (opModeIsActive()) {
 
 
-            if (gamepad1.dpad_down) {
-                backLauncher.setPower(backLauncher.getPower() - INCREMENT1);
-                frontLauncher.setPower(frontLauncher.getPower() - INCREMENT1);
+            if (gamepad1.dpad_down){
+                launcherSpeedUp();
             }
             if (gamepad1.dpad_up) {
-                backLauncher.setPower(backLauncher.getPower() + INCREMENT1);
-                frontLauncher.setPower(frontLauncher.getPower() + INCREMENT1);
+               launcherSpeedDown();
             }
             if (gamepad1.dpad_left) {
                 backLauncher.setPower(backLauncher.getPower() - INCREMENT2);
