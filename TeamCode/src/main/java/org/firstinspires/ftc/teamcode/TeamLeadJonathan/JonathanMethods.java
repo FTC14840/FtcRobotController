@@ -28,6 +28,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
@@ -44,6 +47,8 @@ public class JonathanMethods {
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+    private DcMotor backLauncher;
+    private DcMotor frontLauncher;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -60,6 +65,8 @@ public class JonathanMethods {
     private static final double HIGHSPEED = 1;
     private static final double LOWSPEED = .75;
     private static final double TURNSENSITIVITY = 1.5;
+    private static final double INCREMENT1 = 0.001;
+    private static final double INCREMENT2 = 0.005;
 
     // Tick to inches conversion
     private static final double TICKS = 1440; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
@@ -125,7 +132,18 @@ public class JonathanMethods {
     /**
      * Hardware Methods
      **/
-
+    public void initLauncherHardwareOnly(){
+        backLauncher = botOpMode.hardwareMap.get(DcMotor.class, "backLauncher");
+        frontLauncher = botOpMode.hardwareMap.get(DcMotor.class, "frontLauncher");
+        backLauncher.setDirection(REVERSE);
+        frontLauncher.setDirection(REVERSE);
+        backLauncher.setMode(STOP_AND_RESET_ENCODER);
+        frontLauncher.setMode(STOP_AND_RESET_ENCODER);
+        backLauncher.setMode(RUN_USING_ENCODER);
+        frontLauncher.setMode(RUN_USING_ENCODER);
+        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
     public void initHardware(LinearOpMode opMode) throws InterruptedException {
 
         // Set opMode to one defined above
@@ -141,12 +159,22 @@ public class JonathanMethods {
         frontRight = botOpMode.hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = botOpMode.hardwareMap.get(DcMotor.class, "backLeft");
         backRight = botOpMode.hardwareMap.get(DcMotor.class, "backRight");
+        backLauncher = botOpMode.hardwareMap.get(DcMotor.class, "backLauncher");
+        frontLauncher = botOpMode.hardwareMap.get(DcMotor.class, "frontLauncher");
 
         // Reverse motors if they don't drive forward
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+        backLauncher.setDirection(REVERSE);
+        frontLauncher.setDirection(REVERSE);
+        backLauncher.setMode(STOP_AND_RESET_ENCODER);
+        frontLauncher.setMode(STOP_AND_RESET_ENCODER);
+        backLauncher.setMode(RUN_USING_ENCODER);
+        frontLauncher.setMode(RUN_USING_ENCODER);
+        backLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // Reset encoders
         stopAndResetEncoder();
@@ -689,6 +717,14 @@ public class JonathanMethods {
         botOpMode.telemetry.update();
     }
 
+    public void launcherTelemetry(LinearOpMode opMode) {
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("FrontPower", "Launcher: %.2f,", frontLauncher.getPower());
+        botOpMode.telemetry.addData("BackPower", "Launcher: %.2f,", backLauncher.getPower());
+        botOpMode.telemetry.update();
+    }
+
+
     public void tfodTelemetry(LinearOpMode opMode) throws InterruptedException {
 
         // Set opMode to one defined above
@@ -741,5 +777,30 @@ public class JonathanMethods {
             botOpMode.telemetry.addData("Visible", "- - - -");
         }
     }
+    //I know everything is out of order I'll fix it later
+    public void launcherSpeedUp() {
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT1, 0, 1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT1, 0, 1));
+    }
 
+    public void launcherSpeedDown() {
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT1, 0, 1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT1, 0, 1));
+    }
+
+    public void launcherUpButLikeMore() {
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT2, 0, 1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT2, 0, 1));
+    }
+
+    public void launcherDownButLikeMore() {
+        frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT2, 0, 1));
+        backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT2, 0, 1));
+
+    }
+
+    public void startLauncher(){
+        backLauncher.setPower(1.0);
+        frontLauncher.setPower(1.0);
+    }
 }
