@@ -111,11 +111,11 @@ public class MechWarriorCode {
     }
 
     private static final int MAX_TARGETS = 5;
-    private static final double ON_AXIS = 10;
-    private static final double CLOSE_ENOUGH = 20;
-    public static final double YAW_GAIN = 0.0180;   // Rate at which we respond to heading error
-    public static final double LATERAL_GAIN = 0.0027;  // Rate at which we respond to off-axis error
-    public static final double AXIAL_GAIN = 0.0017;  // Rate at which we respond to target distance errors
+    private static final double ON_AXIS = 5;
+    private static final double CLOSE_ENOUGH = 10;
+    public static final double YAW_GAIN = 0.0400;   // Rate at which we respond to heading error
+    public static final double LATERAL_GAIN = 0; //0.0027;  // Rate at which we respond to off-axis error
+    public static final double AXIAL_GAIN = 0.0030;  // Rate at which we respond to target distance errors
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
@@ -260,9 +260,12 @@ public class MechWarriorCode {
             ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
         }
 
-        if (targets != null)
+        if (targets != null) {
             targets.activate();
+        }
 
+        stopAndResetEncoder();
+        runWithoutEncoder();
     }
 
     OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w) {
@@ -405,15 +408,39 @@ public class MechWarriorCode {
 
     }
 
-    public boolean cruiseControl(double standOffDistance) {
+    public boolean cruiseControl(double targetDistance) {
         boolean closeEnough;
         double Y = (relativeBearing * YAW_GAIN);
         double L = (robotY * LATERAL_GAIN);
-        double A = (-(robotX + standOffDistance) * AXIAL_GAIN);
+        double A = (-(robotX + targetDistance) * AXIAL_GAIN);
         setYaw(Y);
         setAxial(A);
         setLateral(L);
-        closeEnough = ((Math.abs(robotX + standOffDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        closeEnough = ((Math.abs(robotX + targetDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        return (closeEnough);
+    }
+
+    public boolean bluePowerShot(double axialDistance, double lateralOffset, double yawAngle) {
+        boolean closeEnough;
+        double Y = ((relativeBearing + yawAngle) * YAW_GAIN);
+        double L = ((robotY + lateralOffset) * LATERAL_GAIN);
+        double A = (-(robotX + axialDistance) * AXIAL_GAIN);
+        setYaw(Y);
+        setAxial(A);
+        setLateral(L);
+        closeEnough = ((Math.abs(robotX + axialDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        return (closeEnough);
+    }
+
+    public boolean redPowerShot(double axialDistance, double lateralOffset, double yawAngle) {
+        boolean closeEnough;
+        double Y = ((relativeBearing + yawAngle) * YAW_GAIN);
+        double L = ((robotY + lateralOffset) * LATERAL_GAIN);
+        double A = (-(robotX + axialDistance) * AXIAL_GAIN);
+        setYaw(Y);
+        setAxial(A);
+        setLateral(L);
+        closeEnough = ((Math.abs(robotX + axialDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
         return (closeEnough);
     }
 
@@ -496,14 +523,14 @@ public class MechWarriorCode {
     }
 
     // Place code for controllers here.  This will work during Cruise Control and Manual Drive
-//    public void startauxiliaryControls() {
-//
-//        leftLauncher.setPower(1.0);
-//        rightLauncher.setPower(1.0);
-//
-//    }
-//
-//    public void auxiliaryControls() {
+    public void initAuxiliaryControls(double launcherSpeed) {
+
+//        leftLauncher.setPower(launcherSpeed);
+//        rightLauncher.setPower(launcherSpeed);
+
+    }
+
+    public void auxiliaryControls() {
 //        if (botOpMode.gamepad1.dpad_down){
 //            launcherSpeedDown();
 //        }
@@ -516,8 +543,8 @@ public class MechWarriorCode {
 //        if (botOpMode.gamepad1.dpad_right) {
 //            launcherSpeedDownMore();
 //        }
-//    }
-//
+    }
+
 //    public void launcherSpeedUp() {
 //        leftLauncher.setPower(Range.clip(leftLauncher.getPower() + INCREMENT1, 0, 1));
 //        rightLauncher.setPower(Range.clip(rightLauncher.getPower() + INCREMENT1, 0, 1));
