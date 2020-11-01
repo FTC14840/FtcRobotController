@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -28,7 +27,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -47,6 +45,9 @@ public class MechWarriorCode {
     private DcMotor backLeft;
     private DcMotor backRight;
 
+//    private DcMotor leftLauncher;
+//    private DcMotor rightLauncher;
+
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
     private double driveLateral = 0;  // Positive is right
@@ -63,11 +64,28 @@ public class MechWarriorCode {
     private static final double LOWSPEED = .75;
     private static final double TURNSENSITIVITY = 1.5;
 
+    // Speed changed for launcher
+    private static final double INCREMENT1 = 0.001;
+    private static final double INCREMENT2 = 0.005;
+
     // Tick to inches conversion
     private static final double TICKS = 537.6; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
     private static final double GEARREDUCTION = 1.0; // Greater than 1.0; Less than 1.0 if geared up
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
+
+    private static final double LAUNCHERTICKS = 1120; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
+    double frontLeftZero = 0;
+    double frontLeftOne = 0;
+    double frontLeftDisplacement = frontLeftOne - frontLeftZero;
+    double frontRightZero = 0;
+    double frontRightOne = 0;
+    double frontRightDisplacement = frontRightOne - frontRightZero;
+    double timeZero = 0;
+    double timeOne = 0;
+    double changeInTime = timeOne - timeZero;
+    double frontLeftRpm = (frontLeftDisplacement / LAUNCHERTICKS) / (changeInTime * 60);
+    double frontRightRpm = (frontRightDisplacement / LAUNCHERTICKS) / (changeInTime * 60);
 
     // Vuforia fields
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -164,6 +182,15 @@ public class MechWarriorCode {
 
         // Set all motor power to zero
         moveRobot(0, 0, 0);
+
+//        leftLauncher = botOpMode.hardwareMap.get(DcMotor.class, "leftLauncher");
+//        rightLauncher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
+//
+//        leftLauncher.setDirection(DcMotor.Direction.REVERSE);
+//        rightLauncher.setDirection(DcMotor.Direction.REVERSE);
+//
+//        leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+//        rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         ledLights = botOpMode.hardwareMap.get(RevBlinkinLedDriver.class,"ledLights");
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
@@ -378,11 +405,6 @@ public class MechWarriorCode {
 
     }
 
-    // Place code for controllers here.  This will work during Cruise Control and Manual Drive
-    public void auxilaryControls() {
-
-    }
-
     public boolean cruiseControl(double standOffDistance) {
         boolean closeEnough;
         double Y = (relativeBearing * YAW_GAIN);
@@ -472,6 +494,49 @@ public class MechWarriorCode {
         setYaw(yaw);
         moveRobot();
     }
+
+    // Place code for controllers here.  This will work during Cruise Control and Manual Drive
+//    public void startauxiliaryControls() {
+//
+//        leftLauncher.setPower(1.0);
+//        rightLauncher.setPower(1.0);
+//
+//    }
+//
+//    public void auxiliaryControls() {
+//        if (botOpMode.gamepad1.dpad_down){
+//            launcherSpeedDown();
+//        }
+//        if (botOpMode.gamepad1.dpad_up) {
+//            launcherSpeedUp();
+//        }
+//        if (botOpMode.gamepad1.dpad_left) {
+//            launcherSpeedUpMore();
+//        }
+//        if (botOpMode.gamepad1.dpad_right) {
+//            launcherSpeedDownMore();
+//        }
+//    }
+//
+//    public void launcherSpeedUp() {
+//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() + INCREMENT1, 0, 1));
+//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() + INCREMENT1, 0, 1));
+//    }
+//
+//    public void launcherSpeedDown() {
+//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() - INCREMENT1, 0, 1));
+//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() - INCREMENT1, 0, 1));
+//    }
+//
+//    public void launcherSpeedUpMore() {
+//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() + INCREMENT2, 0, 1));
+//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() + INCREMENT2, 0, 1));
+//    }
+//
+//    public void launcherSpeedDownMore() {
+//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() - INCREMENT2, 0, 1));
+//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() - INCREMENT2, 0, 1));
+//    }
 
     /**
      * Autonomous Methods
@@ -736,9 +801,8 @@ public class MechWarriorCode {
         botOpMode.telemetry.addData("Heading", "%.2f", gyroHeading);
         botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
         botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
-        botOpMode.telemetry.addData("Target", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -frontLeft.getTargetPosition(), -frontRight.getTargetPosition(), -backLeft.getTargetPosition(), -backRight.getTargetPosition());
-        botOpMode.telemetry.addData("Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-        botOpMode.telemetry.addData("Axes", "A: %.2f, L: %.2f, Y: %.2f", driveAxial, driveLateral, driveYaw);
+        botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+//        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
         botOpMode.telemetry.update();
 
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
