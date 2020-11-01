@@ -34,20 +34,11 @@ public class JonathanLauncherTest extends LinearOpMode {
         launcher.startLauncher();
 
         while (opModeIsActive()) {
-
-            if (gamepad1.dpad_down){
-                launcher.launcherSpeedDown();
-            }
-            if (gamepad1.dpad_up) {
-               launcher.launcherSpeedUp();
-            }
-            if (gamepad1.dpad_left) {
-                launcher.launcherDownButLikeMore();
-            }
-            if (gamepad1.dpad_right) {
-                launcher.launcherUpButLikeMore();
-            }
-
+            launcher.launcherSpeedDown();
+            launcher.launcherSpeedUp();
+            launcher.launcherDownButLikeMore();
+            launcher.launcherUpButLikeMore();
+            launcher.assigningTestButtons();
             launcher.launcherTelemetry(this);
         }
         

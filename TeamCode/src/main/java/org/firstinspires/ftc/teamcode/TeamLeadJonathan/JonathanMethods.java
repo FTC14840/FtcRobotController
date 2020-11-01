@@ -670,6 +670,8 @@ public class JonathanMethods {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLauncher.setMode(RUN_USING_ENCODER);
+        backLauncher.setMode(RUN_USING_ENCODER);
     }
 
     public void runWithoutEncoder() {
@@ -719,8 +721,8 @@ public class JonathanMethods {
 
     public void launcherTelemetry(LinearOpMode opMode) {
         botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.addData("FrontPower", "Launcher: %.2f,", frontLauncher.getPower());
-        botOpMode.telemetry.addData("BackPower", "Launcher: %.2f,", backLauncher.getPower());
+        botOpMode.telemetry.addData("FrontPower", "Launcher: %2f,", frontLauncher.getPower());
+        botOpMode.telemetry.addData("BackPower", "Launcher: %2f,", backLauncher.getPower());
         botOpMode.telemetry.update();
     }
 
@@ -779,28 +781,53 @@ public class JonathanMethods {
     }
     //I know everything is out of order I'll fix it later
     public void launcherSpeedUp() {
-        frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT1, 0, 1));
-        backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT1, 0, 1));
+        if (botOpMode.gamepad1.dpad_up) {
+            frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT1, 0, 1));
+            backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT1, 0, 1));
+        }
     }
 
     public void launcherSpeedDown() {
-        frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT1, 0, 1));
-        backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT1, 0, 1));
+        if (botOpMode.gamepad1.dpad_down) {
+            frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT1, 0, 1));
+            backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT1, 0, 1));
+        }
     }
 
     public void launcherUpButLikeMore() {
-        frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT2, 0, 1));
-        backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT2, 0, 1));
+        if (botOpMode.gamepad1.dpad_right) {
+            frontLauncher.setPower(Range.clip(frontLauncher.getPower() + INCREMENT2, 0, 1));
+            backLauncher.setPower(Range.clip(backLauncher.getPower() + INCREMENT2, 0, 1));
+        }
     }
 
     public void launcherDownButLikeMore() {
-        frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT2, 0, 1));
-        backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT2, 0, 1));
-
+        if (botOpMode.gamepad1.dpad_left) {
+            frontLauncher.setPower(Range.clip(frontLauncher.getPower() - INCREMENT2, 0, 1));
+            backLauncher.setPower(Range.clip(backLauncher.getPower() - INCREMENT2, 0, 1));
+        }
     }
 
     public void startLauncher(){
         backLauncher.setPower(1.0);
         frontLauncher.setPower(1.0);
+    }
+    public void assigningTestButtons(){
+        if (botOpMode.gamepad1.a){
+            backLauncher.setPower(1);
+            frontLauncher.setPower(1);
+        }
+        if (botOpMode.gamepad1.x){
+            backLauncher.setPower(0.8);
+            frontLauncher.setPower(0.8);
+        }
+        if (botOpMode.gamepad1.y){
+            backLauncher.setPower(0.6);
+            frontLauncher.setPower(0.6);
+        }
+        if (botOpMode.gamepad1.x){
+            backLauncher.setPower(0.4);
+            frontLauncher.setPower(0.4);
+        }
     }
 }
