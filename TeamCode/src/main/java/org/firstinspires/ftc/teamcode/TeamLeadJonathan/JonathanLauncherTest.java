@@ -15,8 +15,8 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.opM
 
 @TeleOp(name="Jonathan Launcher Test")
 
-@Disabled
 
+//total rpm for launcher configuration is 5,340rpms
 public class JonathanLauncherTest extends LinearOpMode {
 
     JonathanMethods launcher = new JonathanMethods();
