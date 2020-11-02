@@ -846,7 +846,7 @@ public class JonathanMethods {
         intakeMotor.setPower(.03);
     }
     public void adjustIntake(){
-        if (botOpMode.gamepad1.dpad_up){
+        if (botOpMode.gamepad2.dpad_up){
             intakeMotor.setPower(Range.clip(intakeMotor.getPower() + INCREMENT1, 0, 1));
         }
         if (botOpMode.gamepad2.dpad_down){
