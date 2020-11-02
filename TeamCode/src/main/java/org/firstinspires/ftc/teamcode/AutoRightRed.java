@@ -25,7 +25,7 @@ public class AutoRightRed extends LinearOpMode {
 
         waitForStart();
 
-        robot.stopTfod(this);
+        //robot.stopTfod(this);
 
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 500);

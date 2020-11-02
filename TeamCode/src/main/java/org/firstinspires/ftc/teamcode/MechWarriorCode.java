@@ -74,19 +74,6 @@ public class MechWarriorCode {
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
 
-    private static final double LAUNCHERTICKS = 1120; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
-    double frontLeftZero = 0;
-    double frontLeftOne = 0;
-    double frontLeftDisplacement = frontLeftOne - frontLeftZero;
-    double frontRightZero = 0;
-    double frontRightOne = 0;
-    double frontRightDisplacement = frontRightOne - frontRightZero;
-    double timeZero = 0;
-    double timeOne = 0;
-    double changeInTime = timeOne - timeZero;
-    double frontLeftRpm = (frontLeftDisplacement / LAUNCHERTICKS) / (changeInTime * 60);
-    double frontRightRpm = (frontRightDisplacement / LAUNCHERTICKS) / (changeInTime * 60);
-
     // Vuforia fields
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     WebcamName webcamName = null;
@@ -113,9 +100,6 @@ public class MechWarriorCode {
     private static final int MAX_TARGETS = 5;
     private static final double ON_AXIS = 5;
     private static final double CLOSE_ENOUGH = 10;
-    public static final double YAW_GAIN = 0.0400;   // Rate at which we respond to heading error
-    public static final double LATERAL_GAIN = 0; //0.0027;  // Rate at which we respond to off-axis error
-    public static final double AXIAL_GAIN = 0.0030;  // Rate at which we respond to target distance errors
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
@@ -124,6 +108,7 @@ public class MechWarriorCode {
     private double targetRange;    // Range from robot's center to target in mm
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
+
 
     // Gyro fields
     IntegratingGyroscope gyro;
@@ -199,10 +184,10 @@ public class MechWarriorCode {
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
         int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        vuforiaParameters.vuforiaLicenseKey = VUFORIA_KEY;
+        vuforiaParameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
         int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.7f;
@@ -212,13 +197,59 @@ public class MechWarriorCode {
         if (tfod != null) {
             tfod.activate();
         }
+
+        //webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        //parameters.cameraName = webcamName;
+        //vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        vuforiaParameters.useExtendedTracking = false;
+        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        targets.get(0).setName("Blue Tower Goal Target");
+        targets.get(1).setName("Red Tower Goal Target");
+        targets.get(2).setName("Red Alliance Target");
+        targets.get(3).setName("Blue Alliance Target");
+        targets.get(4).setName("Front Wall Target");
+
+        allTrackables.addAll(targets);
+        OpenGLMatrix targetOrientation = OpenGLMatrix
+                .translation(0, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
+                        AngleUnit.DEGREES, 90, 0, -90));
+
+        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
+        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float PHONE_X_ROTATE = 90;
+        final float PHONE_Y_ROTATE = -90;
+        final float PHONE_Z_ROTATE = 0;
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+
+        for (VuforiaTrackable trackable : allTrackables) {
+            trackable.setLocation(targetOrientation);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, vuforiaParameters.cameraDirection);
+        }
+
+        if (targets != null) {
+            targets.activate();
+        }
+
+        stopAndResetEncoder();
+        runWithoutEncoder();
     }
 
-    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
-        botOpMode = opMode;
-        tfod.deactivate();
-        tfod.shutdown();
-    }
+//    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
+//        botOpMode = opMode;
+//        tfod.deactivate();
+//        tfod.shutdown();
+//    }
+
+
 
     // This method is from the cruise control example and sets the targets relative to the bot.
     public void initVisionTracking(LinearOpMode opMode) throws InterruptedException {
@@ -408,39 +439,29 @@ public class MechWarriorCode {
 
     }
 
-    public boolean cruiseControl(double targetDistance) {
+    public boolean cruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
+                                 double cruiseControlAxialGain, double cruiseControlLateralGain, double cruiseControlYawGain) {
         boolean closeEnough;
-        double Y = (relativeBearing * YAW_GAIN);
-        double L = (robotY * LATERAL_GAIN);
-        double A = (-(robotX + targetDistance) * AXIAL_GAIN);
+        double Y = ((relativeBearing + cruisecontrolAngle) * cruiseControlYawGain);
+        double L = ((robotY + cruiseControlOffet) * cruiseControlLateralGain);
+        double A = (-(robotX + cruiseControlRange) * cruiseControlAxialGain);
         setYaw(Y);
         setAxial(A);
         setLateral(L);
-        closeEnough = ((Math.abs(robotX + targetDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        closeEnough = ((Math.abs(robotX + cruiseControlRange) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
         return (closeEnough);
     }
 
-    public boolean bluePowerShot(double axialDistance, double lateralOffset, double yawAngle) {
+    public boolean powerShot(double powerShotRange, double powershotOffset, double powershotAngle,
+                                 double powerShotAxialGain, double powershotLateralGain,double powershotYawGain) {
         boolean closeEnough;
-        double Y = ((relativeBearing + yawAngle) * YAW_GAIN);
-        double L = ((robotY + lateralOffset) * LATERAL_GAIN);
-        double A = (-(robotX + axialDistance) * AXIAL_GAIN);
+        double Y = ((relativeBearing + powershotAngle) * powershotYawGain);
+        double L = ((robotY + powershotOffset) * powershotLateralGain);
+        double A = (-(robotX + powerShotRange) * powerShotAxialGain);
         setYaw(Y);
         setAxial(A);
         setLateral(L);
-        closeEnough = ((Math.abs(robotX + axialDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
-        return (closeEnough);
-    }
-
-    public boolean redPowerShot(double axialDistance, double lateralOffset, double yawAngle) {
-        boolean closeEnough;
-        double Y = ((relativeBearing + yawAngle) * YAW_GAIN);
-        double L = ((robotY + lateralOffset) * LATERAL_GAIN);
-        double A = (-(robotX + axialDistance) * AXIAL_GAIN);
-        setYaw(Y);
-        setAxial(A);
-        setLateral(L);
-        closeEnough = ((Math.abs(robotX + axialDistance) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        closeEnough = ((Math.abs(robotX + powerShotRange) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
         return (closeEnough);
     }
 
@@ -571,11 +592,26 @@ public class MechWarriorCode {
 
     public void signalBlueAlliance() {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-        }
+    }
 
     public void signalRedAlliance() {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
+    }
+
+    public void initAutonomousPowerUp(double launcherSpeed) {
+
+//        leftLauncher.setPower(launcherSpeed);
+//        rightLauncher.setPower(launcherSpeed);
+
+    }
+
+    public boolean readyToShot(double powershotRange) {
+        if (Math.abs(powershotRange) < 10 && Math.abs(relativeBearing) < 1) {
+            return true;
+        } else {
+            return false;
         }
+    }
 
     public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
@@ -829,7 +865,8 @@ public class MechWarriorCode {
         botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
         botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
         botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-//        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
+        botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        //        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
         botOpMode.telemetry.update();
 
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
@@ -880,14 +917,14 @@ public class MechWarriorCode {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", targetName);
-            botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)",
-                    robotX, robotY, robotBearing);
-            botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)",
-                    targetRange, targetBearing, relativeBearing);
+            botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)", robotX, robotY, robotBearing);
+            botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)", targetRange, targetBearing, relativeBearing);
             botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
             botOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             botOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
+            botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
             botOpMode.telemetry.update();
+
         } else {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");

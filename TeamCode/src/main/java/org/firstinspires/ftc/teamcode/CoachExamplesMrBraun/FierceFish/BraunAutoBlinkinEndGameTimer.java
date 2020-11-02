@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name = "BraunAutoBlinkinEndGameTimer")
 
-//@Disabled
+@Disabled
 
 public class BraunAutoBlinkinEndGameTimer extends LinearOpMode {
 

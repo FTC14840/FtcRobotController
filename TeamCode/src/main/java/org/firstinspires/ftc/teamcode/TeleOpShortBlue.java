@@ -10,17 +10,27 @@ public class TeleOpShortBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double TARGET_DISTANCE =  1650;  // 64 inches (1625.6 mm) sets at edge of white line inside launch area.
-    final double LAUNCHER_SPEED = 0.80;  // Set default launcher speed
-    final double POWERSHOT_DISTANCE = 1800;
-    final double POWERSHOT_OFFSET = 500;  // Zero places the bot on the mid-line perpendicular to the target
-    final double POWERSHOT_BEARING = -10;  // Adjust the orientation of the bot in relation to offset
+    final double LAUNCHER_SPEED = 0.80;
+
+    final double CRUISE_CONTROL_RANGE = 1500;
+    final double CRUISE_CONTROL_OFFSET = 0;
+    final double CRUISE_CONTROL_ANGLE = 0;
+    final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
+    final double CRUISE_CONTROL_LATERAL_GAIN = 0;
+    final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
+
+    final double POWERSHOT_RANGE = 1500;
+    final double POWERSHOT_OFFSET = 0;
+    final double POWERSHOT_ANGLE = -10;
+    final double POWERSHOT_RANGE_AXIAL_GAIN = 0.0030;
+    final double POWERSHOT_RANGE_LATERAL_GAIN = 0;
+    final double POWERSHOT_RANGE_YAW_GAIN = 0.0400;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         robot.initHardware(this);
-        robot.initVisionTracking(this);
+        robot.initTfod(this);
 
         while (!isStarted()) {
             robot.initTelemetry();
@@ -35,9 +45,11 @@ public class TeleOpShortBlue extends LinearOpMode {
             robot.startBlinkinBlue();
 
             if (robot.targetsAreVisible() && gamepad1.left_bumper) {
-                robot.cruiseControl(TARGET_DISTANCE);
+                robot.cruiseControl(CRUISE_CONTROL_RANGE, CRUISE_CONTROL_OFFSET, CRUISE_CONTROL_ANGLE,
+                        CRUISE_CONTROL_AXIAL_GAIN, CRUISE_CONTROL_LATERAL_GAIN, CRUISE_CONTROL_YAW_GAIN);
             } else if(robot.targetsAreVisible() && gamepad1.right_bumper) {
-                robot.bluePowerShot(POWERSHOT_DISTANCE, POWERSHOT_OFFSET, POWERSHOT_BEARING);
+                robot.powerShot(POWERSHOT_RANGE, POWERSHOT_OFFSET, POWERSHOT_ANGLE,
+                        POWERSHOT_RANGE_AXIAL_GAIN, POWERSHOT_RANGE_LATERAL_GAIN, POWERSHOT_RANGE_YAW_GAIN);
             } else {
                     robot.manualDrive();
             }
