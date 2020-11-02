@@ -30,6 +30,7 @@ import java.util.List;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -49,6 +50,7 @@ public class JonathanMethods {
     private DcMotor backRight;
     private DcMotor backLauncher;
     private DcMotor frontLauncher;
+    private DcMotor intakeMotor;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -132,6 +134,10 @@ public class JonathanMethods {
     /**
      * Hardware Methods
      **/
+    public void iniitIntakeHardwareOnly(){
+        intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor.setDirection(FORWARD);
+    }
     public void initLauncherHardwareOnly(){
         backLauncher = botOpMode.hardwareMap.get(DcMotor.class, "backLauncher");
         frontLauncher = botOpMode.hardwareMap.get(DcMotor.class, "frontLauncher");
@@ -725,6 +731,11 @@ public class JonathanMethods {
         botOpMode.telemetry.addData("BackPower", "Launcher: %2f,", backLauncher.getPower());
         botOpMode.telemetry.update();
     }
+    public void intakeTelemetry(LinearOpMode opMode){
+        botOpMode.telemetry.log().clear();
+        botOpMode.telemetry.addData("BackPower", "Launcher: %2f,", intakeMotor.getPower());
+        botOpMode.telemetry.update();
+    }
 
 
     public void tfodTelemetry(LinearOpMode opMode) throws InterruptedException {
@@ -828,6 +839,18 @@ public class JonathanMethods {
         if (botOpMode.gamepad1.x){
             backLauncher.setPower(0.4);
             frontLauncher.setPower(0.4);
+        }
+    }
+
+    public void startIntake(){
+        intakeMotor.setPower(.03);
+    }
+    public void adjustIntake(){
+        if (botOpMode.gamepad1.dpad_up){
+            intakeMotor.setPower(Range.clip(intakeMotor.getPower() + INCREMENT1, 0, 1));
+        }
+        if (botOpMode.gamepad2.dpad_down){
+            intakeMotor.setPower(Range.clip(intakeMotor.getPower() - INCREMENT1, 0, 1));
         }
     }
 }
