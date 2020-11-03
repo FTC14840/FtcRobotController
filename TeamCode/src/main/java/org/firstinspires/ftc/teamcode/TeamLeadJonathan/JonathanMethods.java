@@ -7,6 +7,7 @@ import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -51,6 +52,8 @@ public class JonathanMethods {
     private DcMotor backLauncher;
     private DcMotor frontLauncher;
     private DcMotor intakeMotor;
+
+    private Servo intakeServo;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -136,6 +139,8 @@ public class JonathanMethods {
      **/
     public void iniitIntakeHardwareOnly(){
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeServo = botOpMode.hardwareMap.get(Servo.class, "intakeServo");
+        intakeServo.setPosition(0);
         intakeMotor.setDirection(FORWARD);
     }
     public void initLauncherHardwareOnly(){
@@ -733,7 +738,7 @@ public class JonathanMethods {
     }
     public void intakeTelemetry(LinearOpMode opMode){
         botOpMode.telemetry.log().clear();
-        botOpMode.telemetry.addData("BackPower", "Launcher: %2f,", intakeMotor.getPower());
+        botOpMode.telemetry.addData("Intake", "Intake: %2f,", intakeMotor.getPower());
         botOpMode.telemetry.update();
     }
 
