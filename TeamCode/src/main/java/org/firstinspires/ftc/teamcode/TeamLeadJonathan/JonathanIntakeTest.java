@@ -23,7 +23,7 @@ public class JonathanIntakeTest extends LinearOpMode {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeServo.setPosition(0);
         waitForStart();
-        intakeMotor.setPower(.8);
+        intakeMotor.setPower(1);
         while (opModeIsActive()){
             if (gamepad2.dpad_up){
                 intakeMotor.setPower(intakeMotor.getPower()+INCREMENT);

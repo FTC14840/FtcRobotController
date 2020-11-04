@@ -21,12 +21,7 @@ public class JonathanLauncherTest extends LinearOpMode {
     private DcMotor leftLauncher;
     private DcMotor rightLauncher;
 
-    double leftLauncherPower = 1.0;
-    double rightLauncherPower = 1.0;
-
-    private double INCREMENT2=.005;
-    private double INCREMENT1=.001;
-
+    double launcherPower = 0.9;
 
     public void runOpMode() throws InterruptedException{
         leftLauncher = hardwareMap.get(DcMotor.class, "backLauncher");
@@ -38,8 +33,8 @@ public class JonathanLauncherTest extends LinearOpMode {
         rightLauncher.setDirection(REVERSE);
         leftLauncher.setMode(STOP_AND_RESET_ENCODER);
         rightLauncher.setMode(STOP_AND_RESET_ENCODER);
-        leftLauncher.setMode(RUN_USING_ENCODER);
-        rightLauncher.setMode(RUN_USING_ENCODER);
+        leftLauncher.setMode(RUN_WITHOUT_ENCODER);
+        rightLauncher.setMode(RUN_WITHOUT_ENCODER);
         leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         leftLauncher.setPower(0.0);
@@ -47,44 +42,32 @@ public class JonathanLauncherTest extends LinearOpMode {
 
 
         waitForStart();
-        //Sets motors to full power
-        leftLauncher.setMode(STOP_AND_RESET_ENCODER);
-        rightLauncher.setMode(STOP_AND_RESET_ENCODER);
-        leftLauncher.setMode(RUN_WITHOUT_ENCODER);
-        rightLauncher.setMode(RUN_WITHOUT_ENCODER);
-//        leftLauncher.setMode(RUN_USING_ENCODER);
-//        rightLauncher.setMode(RUN_USING_ENCODER);
-        leftLauncher.setPower(leftLauncherPower);
-        rightLauncher.setPower(rightLauncherPower);
+
+        leftLauncher.setPower(launcherPower);
+        rightLauncher.setPower(launcherPower);
 
         while (opModeIsActive()) {
 
-            if (gamepad1.dpad_up) {
-                leftLauncher.setMode(RUN_WITHOUT_ENCODER);
-                rightLauncher.setMode(RUN_WITHOUT_ENCODER);
-                //leftLauncherPower = leftLauncherPower + INCREMENT1;
-                leftLauncherPower = Range.clip(leftLauncher.getPower() + INCREMENT1, 0, 1);
-                leftLauncher.setPower(leftLauncherPower);
-                //rightLauncherPower = rightLauncherPower + INCREMENT1;
-                rightLauncherPower = Range.clip(rightLauncher.getPower() + INCREMENT1, 0, 1);
-                rightLauncher.setPower(rightLauncherPower);
-                leftLauncher.setMode(RUN_USING_ENCODER);
-                rightLauncher.setMode(RUN_USING_ENCODER);
-
+            if (gamepad1.dpad_up && launcherPower <= 1.0) {
+                launcherPower = launcherPower + .001;
             }
 
-            if (gamepad1.dpad_down) {
-                leftLauncher.setMode(RUN_WITHOUT_ENCODER);
-                rightLauncher.setMode(RUN_WITHOUT_ENCODER);
-                //leftLauncherPower = leftLauncherPower - INCREMENT1;
-                leftLauncherPower = Range.clip(leftLauncher.getPower() - INCREMENT1, 0, 1);
-                leftLauncher.setPower(leftLauncherPower);
-                //rightLauncherPower = rightLauncherPower - INCREMENT1;
-                rightLauncherPower = Range.clip(rightLauncher.getPower() - INCREMENT1, 0, 1);
-                rightLauncher.setPower(rightLauncherPower);
-                leftLauncher.setMode(RUN_USING_ENCODER);
-                rightLauncher.setMode(RUN_USING_ENCODER);
+            if (gamepad1.dpad_down && launcherPower >= 0.0) {
+                launcherPower = launcherPower - .001;
             }
+
+            if (gamepad1.dpad_right) {
+                launcherPower = 1.0;
+            }
+
+            if (gamepad1.dpad_left) {
+                launcherPower = 0.0;
+            }
+
+//            launcherPower = Range.clip(leftLauncher.getPower(), 0, 1);
+//            launcherPower = Range.clip(rightLauncher.getPower(), 0, 1);
+            leftLauncher.setPower(launcherPower);
+            rightLauncher.setPower(launcherPower);
 
 
 //            if (gamepad1.dpad_down) {
@@ -120,10 +103,9 @@ public class JonathanLauncherTest extends LinearOpMode {
 //                rightLauncher.setPower(0.4);
 //            }
             telemetry.log().clear();
-            telemetry.addData("FrontPower", "Launcher: %.2f,", rightLauncher.getPower());
-            telemetry.addData("BackPower", "Launcher: %.2f,", leftLauncher.getPower());
-            telemetry.addData("FrontPower", "Launcher: %.2f,", rightLauncherPower);
-            telemetry.addData("BackPower", "Launcher: %.2f,", leftLauncherPower);
+            telemetry.addData("FrontPower", " %.2f,", rightLauncher.getPower());
+            telemetry.addData("BackPower", " %.2f,", leftLauncher.getPower());
+            telemetry.addData("LauncherPower", " %.2f,", launcherPower);
             telemetry.update();
         }
     }
