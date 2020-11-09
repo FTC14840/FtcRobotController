@@ -30,7 +30,8 @@ public class TeleOpShortBlue extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         robot.initHardware(this);
-        robot.initTfod(this);
+        robot.initVisionTracking(this);
+        robot.calibrateGyro(this);
 
         while (!isStarted()) {
             robot.initTelemetry();

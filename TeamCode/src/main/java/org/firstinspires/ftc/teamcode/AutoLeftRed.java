@@ -20,7 +20,7 @@ public class AutoLeftRed extends LinearOpMode {
         robot.calibrateGyro(this);
 
         while (!isStarted()) {
-            robot.tfodInitTelemetry();
+            robot.initTfodTelemetry();
         }
 
         waitForStart();

@@ -5,8 +5,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -39,14 +42,23 @@ public class MechWarriorCode {
     // Define OpMode for bot hardware
     private LinearOpMode botOpMode;
 
-    // Define DcMotors
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
+    // Left Control Hub
+    private DcMotor frontLeft; // 0
+    private DcMotor backLeft; // 1
+    private DcMotor leftLauncher; // 2
+    private DcMotor intakeMotor; // 3
+    private Servo blueWobbleGoal; // 0
 
-//    private DcMotor leftLauncher;
-//    private DcMotor rightLauncher;
+    // Right Expansion Hub
+    private DcMotor frontRight; // 0
+    private DcMotor backRight; // 1
+    private DcMotor rightLauncher; // 2
+    private Servo redWobbleGoal; // 0
+    private Servo intakeServo; // 1
+    private CRServo magazineServo; // 2
+    private Servo ringServo; // 3
+    TouchSensor bottomTouchSensor; // 0-1
+    TouchSensor topTouchSensor; // 2-3
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -54,19 +66,15 @@ public class MechWarriorCode {
     private double driveYaw = 0;  // Positive is Counterclockwise
 
     // Define global variables/fields for driver control
-    private double speed = 1;
-    private double direction = 1;
+    private double speed = 1.0;
+    private int direction = 1;
     private boolean aButtonPad1 = false;
     private boolean bButtonPad1 = false;
 
     // Constants for driver control
-    private static final double HIGHSPEED = 1;
-    private static final double LOWSPEED = .75;
+    private static final double HIGHSPEED = 1.0;
+    private static final double LOWSPEED = 0.75;
     private static final double TURNSENSITIVITY = 1.5;
-
-    // Speed changed for launcher
-    private static final double INCREMENT1 = 0.001;
-    private static final double INCREMENT2 = 0.005;
 
     // Tick to inches conversion
     private static final double TICKS = 537.6; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
@@ -109,7 +117,6 @@ public class MechWarriorCode {
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
-
     // Gyro fields
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
@@ -143,6 +150,9 @@ public class MechWarriorCode {
         botOpMode.telemetry.log().add("Robot Initializing. Do Not Move The Bot...");
         botOpMode.telemetry.update();
 
+        ledLights = botOpMode.hardwareMap.get(RevBlinkinLedDriver.class,"ledLights");
+        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+
         // Map global variables/ fields to config file on Robot Controller
         frontLeft = botOpMode.hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = botOpMode.hardwareMap.get(DcMotor.class, "frontRight");
@@ -155,30 +165,24 @@ public class MechWarriorCode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        // Set to Break or Float
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // Reset encoders
+        driveBreak();
         stopAndResetEncoder();
-        runUsingEncoder();
+        runWithoutEncoder();
 
         // Set all motor power to zero
         moveRobot(0, 0, 0);
 
-//        leftLauncher = botOpMode.hardwareMap.get(DcMotor.class, "leftLauncher");
-//        rightLauncher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
-//
-//        leftLauncher.setDirection(DcMotor.Direction.REVERSE);
-//        rightLauncher.setDirection(DcMotor.Direction.REVERSE);
-//
-//        leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//        rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftLauncher = botOpMode.hardwareMap.get(DcMotor.class, "leftLauncher");
+        rightLauncher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
+        leftLauncher.setDirection(DcMotor.Direction.REVERSE);
+        rightLauncher.setDirection(DcMotor.Direction.REVERSE);
+        leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        ledLights = botOpMode.hardwareMap.get(RevBlinkinLedDriver.class,"ledLights");
-        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+        bottomTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "bottomTouchSensor");
+        topTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "topTouchSensor");
+
+
     }
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
@@ -543,48 +547,13 @@ public class MechWarriorCode {
         moveRobot();
     }
 
-    // Place code for controllers here.  This will work during Cruise Control and Manual Drive
     public void initAuxiliaryControls(double launcherSpeed) {
-
-//        leftLauncher.setPower(launcherSpeed);
-//        rightLauncher.setPower(launcherSpeed);
 
     }
 
     public void auxiliaryControls() {
-//        if (botOpMode.gamepad1.dpad_down){
-//            launcherSpeedDown();
-//        }
-//        if (botOpMode.gamepad1.dpad_up) {
-//            launcherSpeedUp();
-//        }
-//        if (botOpMode.gamepad1.dpad_left) {
-//            launcherSpeedUpMore();
-//        }
-//        if (botOpMode.gamepad1.dpad_right) {
-//            launcherSpeedDownMore();
-//        }
-    }
 
-//    public void launcherSpeedUp() {
-//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() + INCREMENT1, 0, 1));
-//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() + INCREMENT1, 0, 1));
-//    }
-//
-//    public void launcherSpeedDown() {
-//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() - INCREMENT1, 0, 1));
-//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() - INCREMENT1, 0, 1));
-//    }
-//
-//    public void launcherSpeedUpMore() {
-//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() + INCREMENT2, 0, 1));
-//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() + INCREMENT2, 0, 1));
-//    }
-//
-//    public void launcherSpeedDownMore() {
-//        leftLauncher.setPower(Range.clip(leftLauncher.getPower() - INCREMENT2, 0, 1));
-//        rightLauncher.setPower(Range.clip(rightLauncher.getPower() - INCREMENT2, 0, 1));
-//    }
+    }
 
     /**
      * Autonomous Methods
@@ -598,14 +567,14 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
     }
 
-    public void initAutonomousPowerUp(double launcherSpeed) {
+    public void launcherPowerUp(double LAUNCHER_SPEED) {
 
-//        leftLauncher.setPower(launcherSpeed);
-//        rightLauncher.setPower(launcherSpeed);
+        leftLauncher.setPower(LAUNCHER_SPEED);
+        rightLauncher.setPower(LAUNCHER_SPEED);
 
     }
 
-    public boolean readyToShot(double powershotRange) {
+    public boolean readyToShoot(double powershotRange) {
         if (Math.abs(powershotRange) < 10 && Math.abs(relativeBearing) < 1) {
             return true;
         } else {
@@ -613,9 +582,57 @@ public class MechWarriorCode {
         }
     }
 
+    public void raiseMagazine() {
+
+        if (!topTouchSensor.isPressed()) {
+            magazineServo.setPower(1.0);
+        }
+
+        if (topTouchSensor.isPressed()) {
+            magazineServo.setPower(0.0);
+        }
+    }
+
+    public void lowerMagazine() {
+
+        if (!bottomTouchSensor.isPressed()) {
+            magazineServo.setPower(-1.0);
+        }
+
+        if (bottomTouchSensor.isPressed()) {
+            magazineServo.setPower(0.0);
+        }
+    }
+
+    public void shootLauncher() {
+        // Move servo forward
+        // Move servo back
+    }
+
+    public void dropBlueWobbleGoal() {
+
+    }
+
+    public void dropRedWobbleGoal() {
+
+    }
+
+    public void intakeOn() {
+
+    }
+
+    public void launcherForHighGoal() {
+
+    }
+
+    public void intakeOff() {
+
+    }
+
     public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             stopAndResetEncoder();
+            driveBreak();
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
@@ -636,6 +653,27 @@ public class MechWarriorCode {
         }
     }
 
+    public void gyroForwardFloat(int distance, double power, double angle) throws InterruptedException {
+        if (botOpMode.opModeIsActive()) {
+            driveFloat();
+            driveByInches(distance);
+            runToPosition();
+            while (botOpMode.opModeIsActive()) {
+                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double errorMultiple = 1.0;
+                double error = (errorMultiple * (gyroHeading - angle) / 100);
+                if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
+                    frontLeft.setPower(power + error);
+                    frontRight.setPower(power - error);
+                    backLeft.setPower(power + error);
+                    backRight.setPower(power - error);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
     public void driveByInches(int distance) {
         frontLeft.setTargetPosition(-distance * (int) TICKSTOINCHES);
         frontRight.setTargetPosition(-distance * (int) TICKSTOINCHES);
@@ -645,6 +683,7 @@ public class MechWarriorCode {
 
     public void gyroReverse(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
+            driveBreak();
             stopAndResetEncoder();
             driveByInches(-distance);
             runToPosition();
@@ -668,6 +707,7 @@ public class MechWarriorCode {
 
     public void gyroStrafeLeft(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
+            driveBreak();
             stopAndResetEncoder();
             strafeByInches(-distance);
             runToPosition();
@@ -698,6 +738,7 @@ public class MechWarriorCode {
 
     public void gyroStrafeRight(int distance, double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
+            driveBreak();
             stopAndResetEncoder();
             strafeByInches(distance);
             runToPosition();
@@ -722,39 +763,35 @@ public class MechWarriorCode {
     public void gyroLeft(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
-            double quarterPower = power/4;
-            int cyckeTime = 100;
+            int cutSpeed = 20;
+            int angleTolerance = 3;
+            int cyckeTime = 250;
+            driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                if (gyroHeading < angle - 60) {
+                if (angle - angleTolerance - cutSpeed > gyroHeading) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
                     backLeft.setPower(power);
                     backRight.setPower(-power);
-                    Thread.sleep(cyckeTime);
-                } else if(gyroHeading < angle - 40) {
+                } else if (angle - angleTolerance > gyroHeading) {
                     frontLeft.setPower(halfPower);
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
                     Thread.sleep(cyckeTime);
-                } else if(gyroHeading < angle - 20) {
-                    frontLeft.setPower(quarterPower);
-                    frontRight.setPower(-quarterPower);
-                    backLeft.setPower(quarterPower);
-                    backRight.setPower(-quarterPower);
-                    Thread.sleep(cyckeTime * 2);
-                } else if(gyroHeading > angle) {
-                    frontLeft.setPower(-quarterPower);
-                    frontRight.setPower(quarterPower);
-                    backLeft.setPower(-quarterPower);
-                    backRight.setPower(quarterPower);
-                    Thread.sleep(cyckeTime * 2);
+                } else if (angle + angleTolerance < gyroHeading) {
+                    frontLeft.setPower(-halfPower);
+                    frontRight.setPower(halfPower);
+                    backLeft.setPower(-halfPower);
+                    backRight.setPower(halfPower);
+                    Thread.sleep(cyckeTime);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
+                    driveTelemetry();
                     break;
                 }
             }
@@ -764,39 +801,115 @@ public class MechWarriorCode {
     public void gyroRight(double power, double angle, int pause) throws InterruptedException {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
-            double quarterPower = power/4;
-            int cyckeTime = 100;
+            int cutSpeed = 20;
+            int angleTolerance = 3;
+            int cyckeTime = 250;
+            driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
                 double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                if (gyroHeading > angle + 60) {
+                if (angle + angleTolerance + cutSpeed < gyroHeading) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
                     backLeft.setPower(-power);
                     backRight.setPower(power);
-                    Thread.sleep(cyckeTime);
-                } else if (gyroHeading > angle + 40) {
+                } else if (angle + angleTolerance < gyroHeading) {
                     frontLeft.setPower(-halfPower);
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
                     Thread.sleep(cyckeTime);
-                } else if (gyroHeading > angle + 20 ) {
-                    frontLeft.setPower(-quarterPower);
-                    frontRight.setPower(quarterPower);
-                    backLeft.setPower(-quarterPower);
-                    backRight.setPower(quarterPower);
-                    Thread.sleep(cyckeTime * 2);
-                } else if (gyroHeading < angle) {
-                    frontLeft.setPower(quarterPower);
-                    frontRight.setPower(-quarterPower);
-                    backLeft.setPower(quarterPower);
-                    backRight.setPower(-quarterPower);
-                    Thread.sleep(cyckeTime * 2);
+                } else if (angle - angleTolerance > gyroHeading) {
+                    frontLeft.setPower(halfPower);
+                    frontRight.setPower(-halfPower);
+                    backLeft.setPower(halfPower);
+                    backRight.setPower(-halfPower);
+                    Thread.sleep(cyckeTime);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
+                    driveTelemetry();
+                    break;
+                }
+            }
+        }
+    }
+
+    public void gyroLeftPowershot(double power, double angle, int pause) throws InterruptedException {
+        if (botOpMode.opModeIsActive()) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+            Thread.sleep(pause);
+            double halfPower = power/2;
+            int cutSpeed = 20;
+            int angleTolerance = 1;
+            int cyckeTime = 250;
+            driveBreak();
+            stopAndResetEncoder();
+            runUsingEncoder();
+            while (botOpMode.opModeIsActive()) {
+                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                if (angle - angleTolerance - cutSpeed > gyroHeading) {
+                    frontLeft.setPower(power);
+                    frontRight.setPower(-power);
+                    backLeft.setPower(power);
+                    backRight.setPower(-power);
+                } else if (angle - angleTolerance > gyroHeading) {
+                    frontLeft.setPower(halfPower);
+                    frontRight.setPower(-halfPower);
+                    backLeft.setPower(halfPower);
+                    backRight.setPower(-halfPower);
+                    Thread.sleep(cyckeTime);
+                } else if (angle + angleTolerance < gyroHeading) {
+                    frontLeft.setPower(-halfPower);
+                    frontRight.setPower(halfPower);
+                    backLeft.setPower(-halfPower);
+                    backRight.setPower(halfPower);
+                    Thread.sleep(cyckeTime);
+                } else {
+                    stopDriving();
+                    ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    Thread.sleep(pause * 2);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void gyroRightPowershot(double power, double angle, int pause) throws InterruptedException {
+        if (botOpMode.opModeIsActive()) {
+            ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+            Thread.sleep(pause);
+            double halfPower = power/2;
+            int cutSpeed = 20;
+            int angleTolerance = 1;
+            int cyckeTime = 250;
+            driveBreak();
+            stopAndResetEncoder();
+            runUsingEncoder();
+            while (botOpMode.opModeIsActive()) {
+                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                if (angle + angleTolerance + cutSpeed < gyroHeading) {
+                    frontLeft.setPower(-power);
+                    frontRight.setPower(power);
+                    backLeft.setPower(-power);
+                    backRight.setPower(power);
+                } else if (angle + angleTolerance < gyroHeading) {
+                    frontLeft.setPower(-halfPower);
+                    frontRight.setPower(halfPower);
+                    backLeft.setPower(-halfPower);
+                    backRight.setPower(halfPower);
+                    Thread.sleep(cyckeTime);
+                } else if (angle - angleTolerance > gyroHeading) {
+                    frontLeft.setPower(halfPower);
+                    frontRight.setPower(-halfPower);
+                    backLeft.setPower(halfPower);
+                    backRight.setPower(-halfPower);
+                    Thread.sleep(cyckeTime);
+                } else {
+                    stopDriving();
+                    ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    Thread.sleep(pause * 2);
                     break;
                 }
             }
@@ -842,6 +955,20 @@ public class MechWarriorCode {
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    public void driveBreak () {
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void driveFloat () {
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
     /**
      * Telemetry Methods
      **/
@@ -868,8 +995,6 @@ public class MechWarriorCode {
         botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
         //        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
         botOpMode.telemetry.update();
-
-        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
     }
 
     public void initTelemetry() {
@@ -879,7 +1004,7 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
     }
 
-    public void tfodInitTelemetry() throws InterruptedException {
+    public void initTfodTelemetry() throws InterruptedException {
 
         List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
