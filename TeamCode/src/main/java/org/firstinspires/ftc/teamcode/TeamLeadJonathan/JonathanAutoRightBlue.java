@@ -63,10 +63,9 @@ public class JonathanAutoRightBlue extends LinearOpMode {
         } else {
 
             robot.tfodRunningTelemetry();
-            robot.gyroForward(12, .20, 0, 500);
-            robot.gyroRight(.20, -30, 500);
-            robot.gyroForward(12, .20, -30, 500);
-            robot.gyroLeft(.20,0,500);
+            robot.gyroForward(45,.6,-28,50);
+            robot.gyroLeft(.5,14,0);
+            robot.gyroReverse(4,.6,0,250);
 
 
 //            while (robot.targetsAreVisible() && opModeIsActive()) {

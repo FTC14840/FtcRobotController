@@ -20,9 +20,9 @@ public class JonathanVelocityLauncher extends LinearOpMode {
     private DcMotorEx leftLauncher;
     private DcMotorEx rightLauncher;
 
-    double RPS = Math.abs(1780/60);
-    double TPS = Math.abs(RPS*103.6);
-    double launcherIncrement = Math.abs(TPS*.01);
+    double RPS = Math.abs(1780 / 60);
+    double TPS = Math.abs(RPS * 103.6);
+    double launcherIncrement = Math.abs(TPS * .01);
 
     public void runOpMode() throws InterruptedException {
         leftLauncher = hardwareMap.get(DcMotorEx.class, "backLauncher");
@@ -37,8 +37,10 @@ public class JonathanVelocityLauncher extends LinearOpMode {
         rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         waitForStart();
-        leftLauncher.setVelocity(Range.clip(leftLauncher.getVelocity(),0,TPS));
-        rightLauncher.setVelocity(Range.clip(rightLauncher.getVelocity(),0,TPS));
+        leftLauncher.setPower(1);
+        rightLauncher.setPower(1);
+        leftLauncher.setVelocity(TPS);
+        rightLauncher.setVelocity(TPS);
 
 
         while (opModeIsActive()) {
@@ -50,11 +52,22 @@ public class JonathanVelocityLauncher extends LinearOpMode {
                 leftLauncher.setVelocity(leftLauncher.getVelocity() - launcherIncrement);
                 rightLauncher.setVelocity(rightLauncher.getVelocity() - launcherIncrement);
             }
-
-            telemetry.addData("FrontPower", " %.2f,", rightLauncher.getVelocity());
-            telemetry.addData("BackPower", " %.2f,", leftLauncher.getVelocity());
-            telemetry.addData("LauncherPower", " %.2f,", launcherIncrement);
-            telemetry.update();
+            if (leftLauncher.getVelocity() > TPS) {
+                leftLauncher.setVelocity(TPS);
+            }
+            if (rightLauncher.getVelocity() > TPS) {
+                rightLauncher.setVelocity(TPS);
+            }
+            if (leftLauncher.getVelocity() < 0) {
+                leftLauncher.setVelocity(0);
+            }
+            if (leftLauncher.getVelocity() < 0) {
+                leftLauncher.setVelocity(0);
+            }
+                telemetry.addData("FrontPower", " %.2f,", rightLauncher.getVelocity()*3);
+                telemetry.addData("BackPower", " %.2f,", leftLauncher.getVelocity()*3);
+                telemetry.addData("LauncherPower", " %.2f,", launcherIncrement);
+                telemetry.update();
         }
     }
 }
