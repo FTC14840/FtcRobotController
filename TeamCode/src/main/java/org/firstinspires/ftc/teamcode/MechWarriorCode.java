@@ -42,14 +42,7 @@ public class MechWarriorCode {
     // Define OpMode for bot hardware
     private LinearOpMode botOpMode;
 
-    // Left Control Hub
-    private DcMotor frontLeft; // 0
-    private DcMotor backLeft; // 1
-    private DcMotor leftLauncher; // 2
-    private DcMotor intakeMotor; // 3
-    private Servo blueWobbleGoal; // 0
-
-    // Right Expansion Hub
+    // Right Control Hub
     private DcMotor frontRight; // 0
     private DcMotor backRight; // 1
     private DcMotor rightLauncher; // 2
@@ -59,6 +52,13 @@ public class MechWarriorCode {
     private Servo ringServo; // 3
     TouchSensor bottomTouchSensor; // 0-1
     TouchSensor topTouchSensor; // 2-3
+
+    // Left Expansion Hub
+    private DcMotor frontLeft; // 0
+    private DcMotor backLeft; // 1
+    private DcMotor leftLauncher; // 2
+    private DcMotor intakeMotor; // 3
+    private Servo blueWobbleGoal;// 0
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
