@@ -30,8 +30,7 @@ public class JonathanAutoRightBlue extends LinearOpMode {
         robot.calibrateGyro(this);
 
         while (!isStarted()) {
-// Commented out for build purposes MrK 11/10.  Uncommitted 11/11 before push.
-            robot.tfodInitTelemetry();
+            robot.initTfodTelemetry();
         }
 
         waitForStart();
@@ -39,8 +38,8 @@ public class JonathanAutoRightBlue extends LinearOpMode {
         //robot.stopTfod(this);
 
         //robot.signalBlueAlliance();
-// Commented out for build purposes MrK 11/10.  Uncommented 11/11 before push.
-        robot.initAutonomousPowerUp(LAUNCHER_SPEED);
+        
+        robot.launcherPowerUp(LAUNCHER_SPEED);
 
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 500);
