@@ -51,6 +51,8 @@ public class MechWarriorCode {
     private Servo intakeServo; // 2
     private CRServo magazineServo; // 3
     private Servo ringServo; // 4
+    // ledLights on ??
+    // navx on ??
     TouchSensor bottomTouchSensor; // 0-1
     TouchSensor topTouchSensor; // 2-3
 
@@ -61,8 +63,6 @@ public class MechWarriorCode {
     private DcMotor intakeMotor; // 3
     private Servo blueWobbleGoal; // 0
     private Servo blueCam; // 1
-    // navx
-    // LEDs
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
