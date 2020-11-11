@@ -7,6 +7,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -49,10 +50,10 @@ public class MechWarriorCode {
     private Servo redWobbleGoal; // 0
     private Servo redCam; // 1
     private Servo intakeServo; // 2
-    private CRServo magazineServo; // 3
-    private Servo ringServo; // 4
-    // ledLights on ??
-    // navx on ??
+    private Servo ringServo; // 3
+    // ledLights on 4
+    private CRServo magazineServo; // 5
+    // navx on IC2 Bus 0
     TouchSensor bottomTouchSensor; // 0-1
     TouchSensor topTouchSensor; // 2-3
 
@@ -149,8 +150,6 @@ public class MechWarriorCode {
 
         botOpMode = opMode;
 
-
-
         // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.log().add("Robot Initializing. Do Not Move The Bot...");
@@ -188,7 +187,7 @@ public class MechWarriorCode {
         rightLauncher.setPower(0.0);
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeMotor.setPower(0.0);
 
@@ -217,7 +216,7 @@ public class MechWarriorCode {
         ringServo.setPosition(0.0);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
-        intakeServo.setDirection(Servo.Direction.FORWARD);
+        intakeServo.setDirection(Servo.Direction.REVERSE);
         intakeServo.setPosition(0.0);
 
         bottomTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "bottomTouchSensor");
@@ -587,8 +586,15 @@ public class MechWarriorCode {
         moveRobot();
     }
 
-    public void initAuxiliaryControls(double launcherSpeed) {
+    public void initAuxiliaryControls(double launcherSpeed) throws InterruptedException {
+        double position = .01;
+        for (int i=0; i<100; i++) {
+            intakeServo.setPosition(position);
+            Thread.sleep(10);
+            position = position + .01;
+        }
 
+        intakeMotor.setPower(1.0);
     }
 
     public void auxiliaryControls() {

@@ -56,7 +56,7 @@ import static java.lang.Math.abs;
  *
  * */
 @TeleOp(name = "Speed Controlled Motor", group = "Concept")
-//@Disabled
+@Disabled
 public class SpeedControlledMotor extends LinearOpMode {
 
     // Define class members

@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MechWarriorCode;
 
 @Autonomous (name ="JonathanAutoRightBlue")
 
-//@Disabled
+@Disabled
 
 public class JonathanAutoRightBlue extends LinearOpMode {
 
