@@ -145,6 +145,8 @@ public class MechWarriorCode {
 
         botOpMode = opMode;
 
+
+
         // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.log().add("Robot Initializing. Do Not Move The Bot...");
