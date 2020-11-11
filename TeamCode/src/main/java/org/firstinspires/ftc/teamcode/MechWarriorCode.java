@@ -47,9 +47,10 @@ public class MechWarriorCode {
     private DcMotor backRight; // 1
     private DcMotor rightLauncher; // 2
     private Servo redWobbleGoal; // 0
-    private Servo intakeServo; // 1
-    private CRServo magazineServo; // 2
-    private Servo ringServo; // 3
+    private Servo redCam; // 1
+    private Servo intakeServo; // 2
+    private CRServo magazineServo; // 3
+    private Servo ringServo; // 4
     TouchSensor bottomTouchSensor; // 0-1
     TouchSensor topTouchSensor; // 2-3
 
@@ -58,7 +59,10 @@ public class MechWarriorCode {
     private DcMotor backLeft; // 1
     private DcMotor leftLauncher; // 2
     private DcMotor intakeMotor; // 3
-    private Servo blueWobbleGoal;// 0
+    private Servo blueWobbleGoal; // 0
+    private Servo blueCam; // 1
+    // navx
+    // LEDs
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -145,24 +149,6 @@ public class MechWarriorCode {
 
         botOpMode = opMode;
 
-        // Right Control Hub
-//        private DcMotor frontRight; // 0
-//        private DcMotor backRight; // 1
-//        private DcMotor rightLauncher; // 2
-//        private Servo redWobbleGoal; // 0
-//        private Servo intakeServo; // 1
-//        private CRServo magazineServo; // 2
-//        private Servo ringServo; // 3
-//        TouchSensor bottomTouchSensor; // 0-1
-//        TouchSensor topTouchSensor; // 2-3
-//
-//        // Left Expansion Hub
-//        private DcMotor frontLeft; // 0
-//        private DcMotor backLeft; // 1
-//        private DcMotor leftLauncher; // 2
-//        private DcMotor intakeMotor; // 3
-//        private Servo blueWobbleGoal;// 0
-//
         // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.log().add("Robot Initializing. Do Not Move The Bot...");
@@ -196,22 +182,44 @@ public class MechWarriorCode {
         rightLauncher.setDirection(DcMotor.Direction.REVERSE);
         leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftLauncher.setPower(0.0);
+        rightLauncher.setPower(0.0);
+
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        intakeMotor.setPower(0.0);
+
+        magazineServo = botOpMode.hardwareMap.get(CRServo.class,"magazineServo");
+        magazineServo.setDirection(CRServo.Direction.FORWARD);
+        magazineServo.setPower(0.0);
 
         blueWobbleGoal = botOpMode.hardwareMap.get(Servo.class, "blueWobbleGoal");
+        blueWobbleGoal.setDirection(Servo.Direction.FORWARD);
+        blueWobbleGoal.setPosition(0.0);
+
+        blueCam = botOpMode.hardwareMap.get(Servo.class, "blueCam");
+        blueCam.setDirection(Servo.Direction.FORWARD);
+        blueCam.setPosition(0.0);
+
         redWobbleGoal = botOpMode.hardwareMap.get(Servo.class, "redWobbleGoal");
+        redWobbleGoal.setDirection(Servo.Direction.FORWARD);
+        redWobbleGoal.setPosition(0.0);
+
+        redCam = botOpMode.hardwareMap.get(Servo.class, "redCam");
+        redCam.setDirection(Servo.Direction.FORWARD);
+        redCam.setPosition(0.0);
+
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
-        magazineServo = botOpMode.hardwareMap.get(CRServo.class,"magazineServo");
+        ringServo.setDirection(Servo.Direction.FORWARD);
+        ringServo.setPosition(0.0);
+
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
+        intakeServo.setDirection(Servo.Direction.FORWARD);
+        intakeServo.setPosition(0.0);
 
         bottomTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "bottomTouchSensor");
         topTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "topTouchSensor");
-
-        blueWobbleGoal.setPosition(0.0);
-        redWobbleGoal.setPosition(0.0);
-        ringServo.setPosition(0.0);
-        magazineServo.setPower(0.0);
-        intakeServo.setPosition(0.0);
 
     }
 
@@ -636,11 +644,11 @@ public class MechWarriorCode {
 
     public void shootLauncher() throws InterruptedException {
 
-        ringServo.setPosition(1);
+        ringServo.setPosition(1.0);
 
         Thread.sleep(250);
 
-        ringServo.setPosition(0);
+        ringServo.setPosition(0.0);
     }
 
     public void dropBlueWobbleGoal() {
@@ -652,16 +660,11 @@ public class MechWarriorCode {
     }
 
     public void intakeOn() {
-        intakeMotor.setPower(1);
-    }
-
-    public void launcherForHighGoal() {
-        leftLauncher.setPower(.8);
-        rightLauncher.setPower(.8);
+        intakeMotor.setPower(1.0);
     }
 
     public void intakeOff() {
-        intakeMotor.setPower(0);
+        intakeMotor.setPower(0.0);
     }
 
     public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
