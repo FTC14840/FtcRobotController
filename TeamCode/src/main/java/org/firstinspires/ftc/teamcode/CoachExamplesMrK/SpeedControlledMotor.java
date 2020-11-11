@@ -35,6 +35,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import static java.lang.Math.abs;
+
 /**
  * This OpMode is attempting to get a motor to run to a set velocity.
  * The code is structured as a LinearOpMode
@@ -91,41 +93,37 @@ public class SpeedControlledMotor extends LinearOpMode {
 // After three seconds, the target speed will change.
             //Start with the target velocity at 0.
             motor.setVelocity(zeroVelocity);
-            sleep(3000);
+            sleep(1000);
             actualVel = motor.getVelocity();
             telemetry.addData("Target Motor Velocity", "%5.2f", zeroVelocity);
             telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
             telemetry.update();
-//            sleep(2000);
+            sleep(2000);
+            telemetry.clear();
 
             //Set target velocity to current value of motorVelocity
             motor.setVelocity(motorVelocity);
-            sleep(3000);
+            sleep(1000);
             actualVel = motor.getVelocity();
             telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
             telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
             telemetry.update();
-//            sleep(2000);
+            sleep(2000);
+            telemetry.clear();
 
             //Flip the sign of target velocity
-            motorVelocity = -motorVelocity;
+/*            motorVelocity = -motorVelocity;
             motor.setVelocity(motorVelocity);
-            sleep(3000);
+            sleep(1000);
             actualVel = motor.getVelocity();
             telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
             telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
             telemetry.update();
- //           sleep(2000);
-
-            //Reduce the target velocity by 10%.
-            motorVelocity = 0.9*motorVelocity;
-            motor.setVelocity(motorVelocity);
-            sleep(3000);
-            actualVel = motor.getVelocity();
-            telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
-            telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
-            telemetry.update();
-//            sleep(2000);
+            sleep(2000);
+            telemetry.clear();
+*/
+            //Reduce the target velocity by 200.
+            motorVelocity = abs(motorVelocity) - 200;
 
             //From here the program will iterate back to the While(opModeisActive) statement and
             // set speed to zero, then the opposite of that last velocity, the 90% of the velocity.

@@ -39,7 +39,7 @@ public class JonathanAutoRightBlue extends LinearOpMode {
         //robot.stopTfod(this);
 
         //robot.signalBlueAlliance();
-
+        
         robot.launcherPowerUp(LAUNCHER_SPEED);
 
         /** Example Movements
