@@ -34,7 +34,7 @@ public class AutoRightBlueWithCruiseControl extends LinearOpMode {
 
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
-        robot.launcherPowerUp();
+        robot.launcherPowerUp(0);
         robot.raiseMagazine();
 
         /** Example Movements
