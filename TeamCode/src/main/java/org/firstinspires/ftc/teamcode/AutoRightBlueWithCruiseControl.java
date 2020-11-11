@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous (name ="AutoRightBlueWithCruiseControl")
 
-//@Disabled
+@Disabled
 
 public class AutoRightBlueWithCruiseControl extends LinearOpMode {
 
@@ -34,7 +35,7 @@ public class AutoRightBlueWithCruiseControl extends LinearOpMode {
 
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
-        robot.launcherPowerUp();
+        robot.launcherPowerUp(LAUNCHER_SPEED);
         robot.raiseMagazine();
 
         /** Example Movements
