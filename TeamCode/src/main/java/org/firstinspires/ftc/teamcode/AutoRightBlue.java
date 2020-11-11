@@ -5,13 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 @Autonomous (name ="AutoRightBlue")
 
-//@Disabled
-
 public class AutoRightBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double LAUNCHER_SPEED = 0.80;
+    final double LAUNCHER_SPEED = 0.80; // Speed for Powershot
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,11 +38,14 @@ public class AutoRightBlue extends LinearOpMode {
          // robot.gyroRight(.20, -90, 250);
          **/
 
-        robot.gyroForward(12, 1.0, 0,0);
-        robot.gyroRight(.50,-45,0);
-        robot.gyroForward(20,1.0,-45, 0);
-        robot.gyroLeft(.50, 0,0);
-        robot.gyroForward(60, 1.0,0,250);
+//        robot.gyroForward(12, 1.0, 0,0);
+//        robot.gyroRight(.50,-45,0);
+//        robot.gyroForward(20,1.0,-45, 0);
+//        robot.gyroLeft(.50, 0,0);
+//        robot.gyroForward(60, 1.0,0,250);
+
+        // Jonathan, your faster code will replace the code above
+
         robot.gyroLeftPowershot(.30,0,250);
         robot.shootLauncher();
         robot.gyroRightPowershot(.30,-5,250);
