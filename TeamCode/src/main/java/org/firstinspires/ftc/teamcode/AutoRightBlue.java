@@ -9,7 +9,7 @@ public class AutoRightBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double LAUNCHER_SPEED = 0.0; // Speed for Powershot
+    final double LAUNCHER_SPEED = .80; // Speed for Powershot
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -24,11 +24,6 @@ public class AutoRightBlue extends LinearOpMode {
 
         waitForStart();
 
-        robot.tfodRunningTelemetry();
-        robot.signalBlueAlliance();
-        robot.launcherPowerUp(LAUNCHER_SPEED);
-        robot.raiseMagazine();
-
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 250);
          // robot.gyroReverse(12, .20, 0, 250);
@@ -38,17 +33,11 @@ public class AutoRightBlue extends LinearOpMode {
          // robot.gyroRight(.20, -90, 250);
          **/
 
-//        robot.gyroForward(12, 1.0, 0,0);
-//        robot.gyroRight(.50,-45,0);
-//        robot.gyroForward(20,1.0,-45, 0);
-//        robot.gyroLeft(.50, 0,0);
-//        robot.gyroForward(60, 1.0,0,250);
         robot.tfodRunningTelemetry();
+        robot.signalBlueAlliance();
+        robot.raiseMagazine();
         robot.gyroForward(63,.6,-8,50);
-
-
-        // Jonathan, your faster code will replace the code above
-
+        robot.launcherPowerUp(LAUNCHER_SPEED);
         robot.gyroLeftPowershot(.30,0,250);
         robot.shootLauncher();
         robot.gyroRightPowershot(.30,-4,250);
@@ -56,7 +45,6 @@ public class AutoRightBlue extends LinearOpMode {
         robot.gyroRightPowershot(.30,-10,250);
         robot.shootLauncher();
         robot.signalBlueAlliance();
-
 
         if (robot.getTfodDetected() == "Quad") {
 
@@ -82,10 +70,7 @@ public class AutoRightBlue extends LinearOpMode {
             robot.gyroLeft(.50,70,0);
             robot.gyroForward(25, 1.0,70,0);
             robot.gyroRight(.50,0,0);
-
             robot.dropBlueWobbleGoal();
-
-
 
         }
 

@@ -450,7 +450,6 @@ public class MechWarriorCode {
         } else {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
-
     }
 
     public void startBlinkinRed() {
@@ -479,7 +478,6 @@ public class MechWarriorCode {
         } else {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
-
     }
 
     public boolean cruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
@@ -598,6 +596,19 @@ public class MechWarriorCode {
     }
 
     public void auxiliaryControls() {
+
+        if (botOpMode.gamepad2.a) {
+            intakeMotor.setPower(1.0);
+        }
+
+        if (botOpMode.gamepad2.b) {
+            intakeMotor.setPower(0.0);
+        }
+
+        if (botOpMode.gamepad2.x) {
+            intakeMotor.setPower(-1.0);
+        }
+
 
     }
 
