@@ -10,8 +10,6 @@ public class TeleOpBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double LAUNCHER_SPEED = 0.80;
-
     final double CRUISE_CONTROL_RANGE = 1500;
     final double CRUISE_CONTROL_OFFSET = 0;
     final double CRUISE_CONTROL_ANGLE = 0;
@@ -39,7 +37,7 @@ public class TeleOpBlue extends LinearOpMode {
 
         waitForStart();
 
-        robot.initAuxiliaryControls(LAUNCHER_SPEED);
+        robot.initAuxiliaryControls();
 
         while (opModeIsActive()) {
 

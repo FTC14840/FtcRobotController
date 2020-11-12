@@ -70,6 +70,9 @@ public class MechWarriorCode {
     private double driveLateral = 0;  // Positive is right
     private double driveYaw = 0;  // Positive is Counterclockwise
 
+    // Power setting for launcher
+    double launcherPower = 0.0;
+
     // Define global variables/fields for driver control
     private double speed = 1.0;
     private int direction = 1;
@@ -212,7 +215,7 @@ public class MechWarriorCode {
         redCam.setPosition(0.0);
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
-        ringServo.setDirection(Servo.Direction.FORWARD);
+        ringServo.setDirection(Servo.Direction.REVERSE);
         ringServo.setPosition(0.0);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
@@ -506,14 +509,37 @@ public class MechWarriorCode {
         return (closeEnough);
     }
 
-    public void manualDrive() {
+    public void manualDrive() throws InterruptedException {
         // Setting three motions to stick movements
         setAxial(-botOpMode.gamepad1.left_stick_y);
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
-        // Logic for speed control on button A
+        if (botOpMode.gamepad1.dpad_up && launcherPower <= 1.0) {
+            launcherPower = launcherPower + .001;
+        }
+
+        if (botOpMode.gamepad1.dpad_down && launcherPower >= 0.0) {
+            launcherPower = launcherPower - .001;
+        }
+
+        if (botOpMode.gamepad1.dpad_right) {
+            launcherPower = 0.80;
+        }
+
+        if (botOpMode.gamepad1.dpad_left) {
+            launcherPower = 0.0;
+        }
+
+        leftLauncher.setPower(launcherPower);
+        rightLauncher.setPower(launcherPower);
+
         if (botOpMode.gamepad1.a) {
+            shootLauncher();
+        }
+
+        // Logic for speed control on button A
+        if (botOpMode.gamepad1.x) {
             aButtonPad1 = true;
         } else if (aButtonPad1) {
             aButtonPad1 = false;
@@ -525,7 +551,7 @@ public class MechWarriorCode {
         }
 
         // Logic for direction control on button B
-        if (botOpMode.gamepad1.b) {
+        if (botOpMode.gamepad1.y) {
             bButtonPad1 = true;
         } else if (bButtonPad1) {
             bButtonPad1 = false;
@@ -584,7 +610,7 @@ public class MechWarriorCode {
         moveRobot();
     }
 
-    public void initAuxiliaryControls(double launcherSpeed) throws InterruptedException {
+    public void initAuxiliaryControls() throws InterruptedException {
         double position = .01;
         for (int i=0; i<100; i++) {
             intakeServo.setPosition(position);
@@ -592,10 +618,13 @@ public class MechWarriorCode {
             position = position + .01;
         }
 
-        intakeMotor.setPower(1.0);
+        intakeMotor.setPower(0.0);
+        leftLauncher.setPower(0.0);
+        rightLauncher.setPower(0.0);
+
     }
 
-    public void auxiliaryControls() {
+    public void auxiliaryControls() throws InterruptedException {
 
         if (botOpMode.gamepad2.a) {
             intakeMotor.setPower(1.0);
@@ -606,9 +635,31 @@ public class MechWarriorCode {
         }
 
         if (botOpMode.gamepad2.x) {
-            intakeMotor.setPower(-1.0);
+            intakeMotor.setPower(-0.50);
         }
 
+        if (botOpMode.gamepad2.left_bumper) {
+            intakeMotor.setPower(0.0);
+            intakeServo.setPosition(0.0);
+        }
+
+        if (botOpMode.gamepad2.right_bumper) {
+            intakeMotor.setPower(0.0);
+            intakeServo.setPosition(1.0);
+        }
+
+        if (botOpMode.gamepad2.right_bumper) {
+            intakeMotor.setPower(0.0);
+            intakeServo.setPosition(1.0);
+        }
+
+        if (botOpMode.gamepad2.dpad_up) {
+            raiseMagazine();
+        }
+
+        if (botOpMode.gamepad2.dpad_down) {
+            lowerMagazine();
+        }
 
     }
 
@@ -639,26 +690,32 @@ public class MechWarriorCode {
         }
     }
 
-    public void raiseMagazine() {
+    public void raiseMagazine() throws InterruptedException {
 
-        if (!topTouchSensor.isPressed()) {
-            magazineServo.setPower(1.0);
-        }
+        magazineServo.setPower(1.0);
+        Thread.sleep(4800);
+        magazineServo.setPower(.05);
 
-        if (topTouchSensor.isPressed()) {
-            magazineServo.setPower(0.0);
-        }
+//        if (!topTouchSensor.isPressed()) {
+//            magazineServo.setPower(1.0);
+//        }
+//
+//        if (topTouchSensor.isPressed()) {
+//            magazineServo.setPower(0.0);
+//        }
     }
 
-    public void lowerMagazine() {
+    public void lowerMagazine() throws InterruptedException {
 
-        if (!bottomTouchSensor.isPressed()) {
-            magazineServo.setPower(-1.0);
-        }
+        magazineServo.setPower(0.0);
 
-        if (bottomTouchSensor.isPressed()) {
-            magazineServo.setPower(0.0);
-        }
+//        if (!bottomTouchSensor.isPressed()) {
+//            magazineServo.setPower(-1.0);
+//        }
+//
+//        if (bottomTouchSensor.isPressed()) {
+//            magazineServo.setPower(0.0);
+//        }
     }
 
     public void shootLauncher() throws InterruptedException {
