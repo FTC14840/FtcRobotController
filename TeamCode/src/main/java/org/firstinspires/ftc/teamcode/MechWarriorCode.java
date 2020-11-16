@@ -660,7 +660,6 @@ public class MechWarriorCode {
         if (botOpMode.gamepad2.dpad_down) {
             lowerMagazine();
         }
-
     }
 
     /**
@@ -711,9 +710,7 @@ public class MechWarriorCode {
 
 //        if (!bottomTouchSensor.isPressed()) {
 //            magazineServo.setPower(-1.0);
-//        }
-//
-//        if (bottomTouchSensor.isPressed()) {
+//        } else {
 //            magazineServo.setPower(0.0);
 //        }
     }
