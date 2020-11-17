@@ -47,6 +47,7 @@ public class MechWarriorCode {
     private DcMotor frontRight; // 0
     private DcMotor backRight; // 1
     private DcMotor rightLauncher; // 2
+    private DcMotor magazineMotor; // 3
     private Servo redWobbleGoal; // 0
     private Servo redCam; // 1
     private Servo intakeServo; // 2
@@ -193,6 +194,12 @@ public class MechWarriorCode {
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeMotor.setPower(0.0);
+
+        magazineMotor = botOpMode.hardwareMap.get(DcMotor.class, "magazineMotor");
+        magazineMotor.setDirection(DcMotor.Direction.FORWARD);
+        magazineMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazineMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        magazineMotor.setPower(0.0);
 
         magazineServo = botOpMode.hardwareMap.get(CRServo.class,"magazineServo");
         magazineServo.setDirection(CRServo.Direction.FORWARD);
@@ -689,30 +696,31 @@ public class MechWarriorCode {
         }
     }
 
-    public void raiseMagazine() throws InterruptedException {
+    public void raiseMagazine() {
 
-        magazineServo.setPower(1.0);
-        Thread.sleep(4800);
-        magazineServo.setPower(.05);
-
-//        if (!topTouchSensor.isPressed()) {
-//            magazineServo.setPower(1.0);
-//        }
-//
-//        if (topTouchSensor.isPressed()) {
-//            magazineServo.setPower(0.0);
-//        }
+        magazineMotor.setTargetPosition(180);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(1.0);
+        while (magazineMotor.isBusy()) {
+            try {
+                manualDrive();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void lowerMagazine() throws InterruptedException {
-
-        magazineServo.setPower(0.0);
-
-//        if (!bottomTouchSensor.isPressed()) {
-//            magazineServo.setPower(-1.0);
-//        } else {
-//            magazineServo.setPower(0.0);
-//        }
+    public void lowerMagazine() {
+        magazineMotor.setTargetPosition(0);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(.30);
+        while (magazineMotor.isBusy()) {
+            try {
+                manualDrive();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void shootLauncher() throws InterruptedException {
