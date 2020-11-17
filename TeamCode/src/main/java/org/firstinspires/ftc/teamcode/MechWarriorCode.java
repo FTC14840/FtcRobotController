@@ -44,27 +44,24 @@ public class MechWarriorCode {
     private LinearOpMode botOpMode;
 
     // Right Control Hub
-    private DcMotor frontRight; // 0
-    private DcMotor backRight; // 1
-    private DcMotor rightLauncher; // 2
-    private DcMotor magazineMotor; // 3
-    private Servo redWobbleGoal; // 0
-    private Servo redCam; // 1
-    private Servo intakeServo; // 2
-    private Servo ringServo; // 3
-    // ledLights on 4
-    private CRServo magazineServo; // 5
+    private DcMotor frontRight;
+    private DcMotor backRight;
+    private DcMotor rightLauncher;
+    private DcMotor magazineMotor;
+    private Servo redWobbleGoal;
+    private Servo redCam;
+    private Servo intakeServo;
+    private Servo ringServo;
+    // ledLights
     // navx on IC2 Bus 0
-    TouchSensor bottomTouchSensor; // 0-1
-    TouchSensor topTouchSensor; // 2-3
 
     // Left Expansion Hub
-    private DcMotor frontLeft; // 0
-    private DcMotor backLeft; // 1
-    private DcMotor leftLauncher; // 2
-    private DcMotor intakeMotor; // 3
-    private Servo blueWobbleGoal; // 0
-    private Servo blueCam; // 1
+    private DcMotor frontLeft;
+    private DcMotor backLeft;
+    private DcMotor leftLauncher;
+    private DcMotor intakeMotor;
+    private Servo blueWobbleGoal;
+    private Servo blueCam;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -201,10 +198,6 @@ public class MechWarriorCode {
         magazineMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         magazineMotor.setPower(0.0);
 
-        magazineServo = botOpMode.hardwareMap.get(CRServo.class,"magazineServo");
-        magazineServo.setDirection(CRServo.Direction.FORWARD);
-        magazineServo.setPower(0.0);
-
         blueWobbleGoal = botOpMode.hardwareMap.get(Servo.class, "blueWobbleGoal");
         blueWobbleGoal.setDirection(Servo.Direction.FORWARD);
         blueWobbleGoal.setPosition(0.0);
@@ -228,10 +221,6 @@ public class MechWarriorCode {
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
         intakeServo.setDirection(Servo.Direction.REVERSE);
         intakeServo.setPosition(0.0);
-
-        bottomTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "bottomTouchSensor");
-        topTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "topTouchSensor");
-
     }
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {

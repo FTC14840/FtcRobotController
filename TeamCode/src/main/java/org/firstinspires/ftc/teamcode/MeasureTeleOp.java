@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="MeasureTeleOp")
 
-//@Disabled
+@Disabled
 
 public class MeasureTeleOp extends LinearOpMode {
 
