@@ -21,7 +21,8 @@ public class JonathanVelocityLauncher extends LinearOpMode {
     private DcMotorEx leftLauncher;
     private DcMotorEx rightLauncher;
 
-    double RPS = Math.abs(1780 / 60);
+    double RPM = 1780;
+    double RPS = Math.abs(RPM / 60);
     double TPS = Math.abs(RPS * 103.6);
     double launcherIncrement = Math.abs(TPS * .01);
 
