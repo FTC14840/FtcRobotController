@@ -40,7 +40,7 @@ public class JonathanAutoRightBlue extends LinearOpMode {
 
         //robot.signalBlueAlliance();
         
-        robot.launcherPowerUp(LAUNCHER_SPEED);
+        robot.launcherPowershot(LAUNCHER_SPEED);
 
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 500);

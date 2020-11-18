@@ -9,7 +9,7 @@ public class AutoRightBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double LAUNCHER_SPEED = .80; // Speed for Powershot
+    double launcherSpeed = .90; // Speed for Powershot
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,16 +35,18 @@ public class AutoRightBlue extends LinearOpMode {
 
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
+        robot.gyroForward(70,.6,-8,50);
+        robot.launcherPowershot(launcherSpeed);
         robot.raiseMagazine();
-        robot.gyroForward(63,.6,-8,50);
-        robot.launcherPowerUp(LAUNCHER_SPEED);
         robot.gyroLeftPowershot(.30,0,250);
         robot.shootLauncher();
         robot.gyroRightPowershot(.30,-4,250);
         robot.shootLauncher();
         robot.gyroRightPowershot(.30,-10,250);
         robot.shootLauncher();
+        Thread.sleep(1000);
         robot.signalBlueAlliance();
+        robot.launcherOff();
 
         if (robot.getTfodDetected() == "Quad") {
 
