@@ -528,12 +528,12 @@ public class MechWarriorCode {
         }
 
         if (botOpMode.gamepad1.dpad_down && launcherPower > 0.0) {
-            launcherPower = launcherPower - .01;
+            launcherPower = launcherPower - 0.01;
             Thread.sleep(200);
         }
 
         if (botOpMode.gamepad1.dpad_right) {
-            launcherPower = 1.0;
+            launcherPower = 0.82;
         }
 
         if (botOpMode.gamepad1.dpad_left) {
