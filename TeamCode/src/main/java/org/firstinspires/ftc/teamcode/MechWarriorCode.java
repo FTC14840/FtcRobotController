@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 // Imports
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -124,8 +125,10 @@ public class MechWarriorCode {
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
     // Gyro fields
-    IntegratingGyroscope gyro;
-    NavxMicroNavigationSensor navxMicro;
+//    IntegratingGyroscope gyro;
+//    NavxMicroNavigationSensor navxMicro;
+
+    BNO055IMU imu;
 
     RevBlinkinLedDriver ledLights;
     int blinkinTimer = 0;
@@ -406,17 +409,25 @@ public class MechWarriorCode {
 
     public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
-        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope) navxMicro;
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
 
-        while (navxMicro.isCalibrating()) {
-            botOpMode.telemetry.log().clear();
-            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
-            botOpMode.telemetry.update();
-        }
+        imu = botOpMode.hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
+//        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+//        gyro = (IntegratingGyroscope) navxMicro;
+//
+//        ElapsedTime timer = new ElapsedTime();
+//        timer.reset();
+//
+//        while (navxMicro.isCalibrating()) {
+//            botOpMode.telemetry.log().clear();
+//            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
+//            botOpMode.telemetry.update();
+//        }
     }
 
     /**
@@ -660,6 +671,21 @@ public class MechWarriorCode {
         }
     }
 
+    public void auxiliaryControlsOneDriver() throws InterruptedException {
+
+        if (botOpMode.gamepad1.left_bumper) {
+            intakePower = 1.0;
+            intakeMotor.setPower(intakePower);
+            lowerMagazine();
+        }
+
+        if (botOpMode.gamepad1.right_bumper) {
+            intakePower = 0.0;
+            intakeMotor.setPower(intakePower);
+            raiseMagazine();
+        }
+    }
+
     /**
      * Autonomous Methods
      **/
@@ -725,6 +751,13 @@ public class MechWarriorCode {
         }
     }
 
+
+    public void shootAutoLauncher() throws InterruptedException {
+        ringServo.setPosition(1.0);
+        Thread.sleep(500);
+        ringServo.setPosition(0.0);
+    }
+
     public void shootLauncher() throws InterruptedException {
         ringServo.setPosition(1.0);
         Thread.sleep(250);
@@ -758,7 +791,7 @@ public class MechWarriorCode {
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -781,7 +814,7 @@ public class MechWarriorCode {
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -810,7 +843,7 @@ public class MechWarriorCode {
             driveByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -834,7 +867,7 @@ public class MechWarriorCode {
             strafeByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -865,7 +898,7 @@ public class MechWarriorCode {
             strafeByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -892,7 +925,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle - angleTolerance - cutSpeed > gyroHeading) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
@@ -930,7 +963,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle + angleTolerance + cutSpeed < gyroHeading) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
@@ -970,7 +1003,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle - angleTolerance - cutSpeed > gyroHeading) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
@@ -1010,7 +1043,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle + angleTolerance + cutSpeed < gyroHeading) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
@@ -1102,7 +1135,10 @@ public class MechWarriorCode {
             runUsingEncoder();
         }
 
-        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroZ = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroY = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, DEGREES).secondAngle;
+        double gyroX = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, DEGREES).thirdAngle;
         double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
         double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
         double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
@@ -1111,10 +1147,13 @@ public class MechWarriorCode {
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Note", "--> Tap Y to reset encoders");
         botOpMode.telemetry.addData("Heading", "%.2f", gyroHeading);
-        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
-        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
-        botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-        botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        botOpMode.telemetry.addData("Z", "%.2f", gyroZ);
+        botOpMode.telemetry.addData("Y", "%.2f", gyroY);
+        botOpMode.telemetry.addData("X", "%.2f", gyroX);
+//        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
+//        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
+//        botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+//        botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
         //        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
         botOpMode.telemetry.update();
     }
