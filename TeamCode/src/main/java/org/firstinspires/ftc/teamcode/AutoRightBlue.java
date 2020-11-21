@@ -40,10 +40,10 @@ public class AutoRightBlue extends LinearOpMode {
         Thread.sleep(2000);
         robot.gyroRightPowershot(.30, 0.0,250);
         robot.shootAutoLauncher();
-        robot.gyroRightPowershot(.30, -4.0,250);
-        robot.launcherPowershot(0.86);
+        robot.gyroRightPowershot(.30, -3.0,250);
         robot.shootAutoLauncher();
-        robot.gyroRightPowershot(.30, -8.0,250);
+        robot.launcherPowershot(0.86);
+        robot.gyroRightPowershot(.30, -6.0,250);
         robot.shootAutoLauncher();
         Thread.sleep(1000);
         robot.signalBlueAlliance();
@@ -71,7 +71,7 @@ public class AutoRightBlue extends LinearOpMode {
 
         } else {
 
-            // Code for Zone A
+            // Code for Default Zone A
             robot.gyroLeft(.50,70,0);
             robot.gyroForward(30, 1.0,70,0);
             robot.gyroRightPowershot(.50,0,0);
@@ -81,7 +81,7 @@ public class AutoRightBlue extends LinearOpMode {
         }
 
         Thread.sleep(1000);
-        robot.lowerMagazine();
+        robot.initAuxiliaryControls();
 
     }
 }

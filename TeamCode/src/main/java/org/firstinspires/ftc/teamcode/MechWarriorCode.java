@@ -625,6 +625,7 @@ public class MechWarriorCode {
         leftLauncher.setPower(0.0);
         rightLauncher.setPower(0.0);
         ringServo.setPosition(0.0);
+        lowerMagazine();
 
         double position = .01;
         for (int i=0; i<90; i++) {
