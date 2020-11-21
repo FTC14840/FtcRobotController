@@ -10,16 +10,16 @@ public class TeleOpBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double CRUISE_CONTROL_RANGE = 1700;
+    final double CRUISE_CONTROL_RANGE = 1900;
     final double CRUISE_CONTROL_OFFSET = 0;
-    final double CRUISE_CONTROL_ANGLE = 0;
+    final double CRUISE_CONTROL_ANGLE = -2;
     final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
     final double CRUISE_CONTROL_LATERAL_GAIN = 0;
     final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
 
-    final double POWERSHOT_RANGE = 1700;
+    final double POWERSHOT_RANGE = 1900;
     final double POWERSHOT_OFFSET = 0;
-    final double POWERSHOT_ANGLE = -10;
+    final double POWERSHOT_ANGLE = -25;
     final double POWERSHOT_RANGE_AXIAL_GAIN = 0.0030;
     final double POWERSHOT_RANGE_LATERAL_GAIN = 0;
     final double POWERSHOT_RANGE_YAW_GAIN = 0.0400;

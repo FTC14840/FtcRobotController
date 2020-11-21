@@ -33,15 +33,17 @@ public class AutoRightBlue extends LinearOpMode {
 
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
-        robot.gyroForward(70,.60,-8,50);
+        robot.gyroForward(66,0.60,-30,50);
         robot.raiseMagazine();
         robot.shootLauncher();
-        robot.launcherPowershot(0.82);
-        robot.gyroRight(.30, 0.0,250);
+        robot.launcherPowershot(0.81);
+        Thread.sleep(2000);
+        robot.gyroRightPowershot(.30, 0.0,250);
         robot.shootAutoLauncher();
-        robot.gyroRightPowershot(.30, -5.0,250);
+        robot.gyroRightPowershot(.30, -4.0,250);
+        robot.launcherPowershot(0.86);
         robot.shootAutoLauncher();
-        robot.gyroRightPowershot(.30, -10.0,250);
+        robot.gyroRightPowershot(.30, -8.0,250);
         robot.shootAutoLauncher();
         Thread.sleep(1000);
         robot.signalBlueAlliance();
@@ -50,27 +52,30 @@ public class AutoRightBlue extends LinearOpMode {
         if (robot.getTfodDetected() == "Quad") {
 
             // Code for Zone C
-            robot.gyroLeft(.50,45,0);
-            robot.gyroForward(60, 1.0,45,0);
-            robot.gyroRight(.50,0,0);
+            robot.gyroLeft(.50,16,0);
+            robot.gyroForward(64, 1.0,16,0);
+            robot.gyroRightPowershot(.50,0,0);
             robot.dropBlueWobbleGoal();
-            robot.gyroReverse(60, 1.0,0,0);
+            Thread.sleep(1000);
+            robot.gyroReverse(45, 0.60,0,0);
 
         } else if (robot.getTfodDetected() == "Single") {
 
             // Code for Zone B
-            robot.gyroLeft(.50,60,0);
-            robot.gyroForward(20, 1.0,60,0);
-            robot.gyroRight(.50,0,0);
+            robot.gyroLeft(.50,0,0);
+            robot.gyroForward(30, 1.0,0,0);
+            robot.gyroRightPowershot(.50,0,0);
             robot.dropBlueWobbleGoal();
-            robot.gyroReverse(40, 1.0,0,0);
+            Thread.sleep(1000);
+            robot.gyroReverse(20, 0.60,0,0);
 
         } else {
 
             // Code for Zone A
             robot.gyroLeft(.50,70,0);
-            robot.gyroForward(25, 1.0,70,0);
-            robot.gyroRight(.50,0,0);
+            robot.gyroForward(30, 1.0,70,0);
+            robot.gyroRightPowershot(.50,0,0);
+            Thread.sleep(1000);
             robot.dropBlueWobbleGoal();
 
         }

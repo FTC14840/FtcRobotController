@@ -533,7 +533,7 @@ public class MechWarriorCode {
         }
 
         if (botOpMode.gamepad1.dpad_right) {
-            launcherPower = 0.82;
+            launcherPower = 0.86;
         }
 
         if (botOpMode.gamepad1.dpad_left) {
@@ -627,7 +627,7 @@ public class MechWarriorCode {
         ringServo.setPosition(0.0);
 
         double position = .01;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<90; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
@@ -726,7 +726,7 @@ public class MechWarriorCode {
 
     public void raiseMagazine() {
 
-        magazineMotor.setTargetPosition(180);
+        magazineMotor.setTargetPosition(218);
         magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         magazineMotor.setPower(1.0);
         while (magazineMotor.isBusy()) {
@@ -753,6 +753,10 @@ public class MechWarriorCode {
 
 
     public void shootAutoLauncher() throws InterruptedException {
+        ringServo.setPosition(1.0);
+        Thread.sleep(250);
+        ringServo.setPosition(0.80);
+        Thread.sleep(250);
         ringServo.setPosition(1.0);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
