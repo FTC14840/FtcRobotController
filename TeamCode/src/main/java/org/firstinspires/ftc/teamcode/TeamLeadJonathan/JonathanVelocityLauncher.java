@@ -21,9 +21,17 @@ public class JonathanVelocityLauncher extends LinearOpMode {
     private DcMotorEx leftLauncher;
     private DcMotorEx rightLauncher;
 
-    double RPM = 1780;
+    //Go builda 1620 RPM
+//    double RPM = 1780;
+//    double RPS = Math.abs(RPM / 60);
+//    double TPS = Math.abs(RPS * 103.6);
+
+    //Go builda 6000 RPM
+    double RPM = 6000;
     double RPS = Math.abs(RPM / 60);
-    double TPS = Math.abs(RPS * 103.6);
+    double TPS = Math.abs(RPS * 28);
+
+
     double launcherIncrement = Math.abs(TPS * .01);
 
     public void runOpMode() throws InterruptedException {
