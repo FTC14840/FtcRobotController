@@ -4,24 +4,22 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TeleOpShortBlue")
+@TeleOp(name="TeleOpBlue")
 
 public class TeleOpBlue extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double LAUNCHER_SPEED = 0.80;
-
-    final double CRUISE_CONTROL_RANGE = 1500;
+    final double CRUISE_CONTROL_RANGE = 1900;
     final double CRUISE_CONTROL_OFFSET = 0;
-    final double CRUISE_CONTROL_ANGLE = 0;
+    final double CRUISE_CONTROL_ANGLE = -2;
     final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
     final double CRUISE_CONTROL_LATERAL_GAIN = 0;
     final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
 
-    final double POWERSHOT_RANGE = 1500;
+    final double POWERSHOT_RANGE = 1900;
     final double POWERSHOT_OFFSET = 0;
-    final double POWERSHOT_ANGLE = -10;
+    final double POWERSHOT_ANGLE = -25;
     final double POWERSHOT_RANGE_AXIAL_GAIN = 0.0030;
     final double POWERSHOT_RANGE_LATERAL_GAIN = 0;
     final double POWERSHOT_RANGE_YAW_GAIN = 0.0400;
@@ -39,7 +37,7 @@ public class TeleOpBlue extends LinearOpMode {
 
         waitForStart();
 
-        robot.initAuxiliaryControls(LAUNCHER_SPEED);
+        robot.initAuxiliaryControls();
 
         while (opModeIsActive()) {
 

@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MechWarriorCode;
 
 @Autonomous (name ="JonathanAutoRightBlue")
 
-//@Disabled
+@Disabled
 
 public class JonathanAutoRightBlue extends LinearOpMode {
 
@@ -39,7 +40,7 @@ public class JonathanAutoRightBlue extends LinearOpMode {
 
         //robot.signalBlueAlliance();
         
-        robot.launcherPowerUp(LAUNCHER_SPEED);
+        robot.launcherPowershot(LAUNCHER_SPEED);
 
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 500);
@@ -63,8 +64,8 @@ public class JonathanAutoRightBlue extends LinearOpMode {
         } else {
 
             robot.tfodRunningTelemetry();
-            robot.gyroForward(45,.6,-28,50);
-            robot.gyroLeft(.5,14,0);
+            robot.gyroForward(45,.6,28,50);
+            robot.gyroRight(.5,14,0);
             robot.gyroReverse(4,.6,0,250);
 
 

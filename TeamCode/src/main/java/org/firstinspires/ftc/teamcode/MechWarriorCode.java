@@ -2,11 +2,13 @@
 package org.firstinspires.ftc.teamcode;
 
 // Imports
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -43,26 +45,27 @@ public class MechWarriorCode {
     private LinearOpMode botOpMode;
 
     // Right Control Hub
-    private DcMotor frontRight; // 0
-    private DcMotor backRight; // 1
-    private DcMotor rightLauncher; // 2
-    private Servo redWobbleGoal; // 0
-    private Servo redCam; // 1
-    private Servo intakeServo; // 2
-    private CRServo magazineServo; // 3
-    private Servo ringServo; // 4
-    // ledLights on ??
-    // navx on ??
-    TouchSensor bottomTouchSensor; // 0-1
-    TouchSensor topTouchSensor; // 2-3
+    private DcMotor frontRight;      // 0
+    private DcMotor backRight;       // 1
+    private DcMotor magazineMotor;   // 2
+    private DcMotor rightLauncher;   // 3
+    private Servo redWobbleGoal;     // 0
+    private Servo redCam;            // 1
+    private Servo ringServo;         // 2
+    private Servo intakeServo;       // 3
+    // ledLights on 5
+    // navx on IC2 Bus 0
 
     // Left Expansion Hub
-    private DcMotor frontLeft; // 0
-    private DcMotor backLeft; // 1
-    private DcMotor leftLauncher; // 2
-    private DcMotor intakeMotor; // 3
-    private Servo blueWobbleGoal; // 0
-    private Servo blueCam; // 1
+    private DcMotor intakeMotor;     // 0
+    private DcMotor leftLauncher;    // 1
+    private DcMotor frontLeft;       // 2
+    private DcMotor backLeft;        // 3
+    private Servo blueWobbleGoal;    // 0
+    private Servo blueCam;           // 1
+
+    private double launcherPower = 0.0;
+    private double intakePower = 0.0;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -122,8 +125,10 @@ public class MechWarriorCode {
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
     // Gyro fields
-    IntegratingGyroscope gyro;
-    NavxMicroNavigationSensor navxMicro;
+//    IntegratingGyroscope gyro;
+//    NavxMicroNavigationSensor navxMicro;
+
+    BNO055IMU imu;
 
     RevBlinkinLedDriver ledLights;
     int blinkinTimer = 0;
@@ -148,8 +153,6 @@ public class MechWarriorCode {
     public void initHardware(LinearOpMode opMode) throws InterruptedException {
 
         botOpMode = opMode;
-
-
 
         // Remind the driver to keep the bot still during the hardware init... Specifically for the gyro.
         botOpMode.telemetry.log().clear();
@@ -188,13 +191,15 @@ public class MechWarriorCode {
         rightLauncher.setPower(0.0);
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         intakeMotor.setPower(0.0);
 
-        magazineServo = botOpMode.hardwareMap.get(CRServo.class,"magazineServo");
-        magazineServo.setDirection(CRServo.Direction.FORWARD);
-        magazineServo.setPower(0.0);
+        magazineMotor = botOpMode.hardwareMap.get(DcMotor.class, "magazineMotor");
+        magazineMotor.setDirection(DcMotor.Direction.FORWARD);
+        magazineMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazineMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        magazineMotor.setPower(0.0);
 
         blueWobbleGoal = botOpMode.hardwareMap.get(Servo.class, "blueWobbleGoal");
         blueWobbleGoal.setDirection(Servo.Direction.FORWARD);
@@ -213,16 +218,12 @@ public class MechWarriorCode {
         redCam.setPosition(0.0);
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
-        ringServo.setDirection(Servo.Direction.FORWARD);
-        ringServo.setPosition(0.0);
+        ringServo.setDirection(Servo.Direction.REVERSE);
+        ringServo.setPosition(1.0);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
-        intakeServo.setDirection(Servo.Direction.FORWARD);
+        intakeServo.setDirection(Servo.Direction.REVERSE);
         intakeServo.setPosition(0.0);
-
-        bottomTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "bottomTouchSensor");
-        topTouchSensor = botOpMode.hardwareMap.get(TouchSensor.class, "topTouchSensor");
-
     }
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
@@ -248,43 +249,43 @@ public class MechWarriorCode {
         //parameters.vuforiaLicenseKey = VUFORIA_KEY;
         //parameters.cameraName = webcamName;
         //vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        vuforiaParameters.useExtendedTracking = false;
-        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        targets.get(0).setName("Blue Tower Goal Target");
-        targets.get(1).setName("Red Tower Goal Target");
-        targets.get(2).setName("Red Alliance Target");
-        targets.get(3).setName("Blue Alliance Target");
-        targets.get(4).setName("Front Wall Target");
+//        vuforiaParameters.useExtendedTracking = false;
+//        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+//        targets.get(0).setName("Blue Tower Goal Target");
+//        targets.get(1).setName("Red Tower Goal Target");
+//        targets.get(2).setName("Red Alliance Target");
+//        targets.get(3).setName("Blue Alliance Target");
+//        targets.get(4).setName("Front Wall Target");
+//
+//        allTrackables.addAll(targets);
+//        OpenGLMatrix targetOrientation = OpenGLMatrix
+//                .translation(0, 0, mmTargetHeight)
+//                .multiplied(Orientation.getRotationMatrix(
+//                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
+//                        AngleUnit.DEGREES, 90, 0, -90));
+//
+//        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+//        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
+//        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+//        final float PHONE_X_ROTATE = 90;
+//        final float PHONE_Y_ROTATE = -90;
+//        final float PHONE_Z_ROTATE = 0;
+//
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+//
+//        for (VuforiaTrackable trackable : allTrackables) {
+//            trackable.setLocation(targetOrientation);
+//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, vuforiaParameters.cameraDirection);
+//        }
+//
+//        if (targets != null) {
+//            targets.activate();
+//        }
 
-        allTrackables.addAll(targets);
-        OpenGLMatrix targetOrientation = OpenGLMatrix
-                .translation(0, 0, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(
-                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
-                        AngleUnit.DEGREES, 90, 0, -90));
-
-        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float PHONE_X_ROTATE = 90;
-        final float PHONE_Y_ROTATE = -90;
-        final float PHONE_Z_ROTATE = 0;
-
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
-
-        for (VuforiaTrackable trackable : allTrackables) {
-            trackable.setLocation(targetOrientation);
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, vuforiaParameters.cameraDirection);
-        }
-
-        if (targets != null) {
-            targets.activate();
-        }
-
-        stopAndResetEncoder();
-        runWithoutEncoder();
+//        stopAndResetEncoder();
+//        runWithoutEncoder();
     }
 
 //    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
@@ -338,9 +339,9 @@ public class MechWarriorCode {
         if (targets != null) {
             targets.activate();
         }
-
-        stopAndResetEncoder();
-        runWithoutEncoder();
+//
+//        stopAndResetEncoder();
+//        runWithoutEncoder();
     }
 
     OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w) {
@@ -408,17 +409,25 @@ public class MechWarriorCode {
 
     public void calibrateGyro(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
-        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope) navxMicro;
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json";
 
-        while (navxMicro.isCalibrating()) {
-            botOpMode.telemetry.log().clear();
-            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
-            botOpMode.telemetry.update();
-        }
+        imu = botOpMode.hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
+//        navxMicro = botOpMode.hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+//        gyro = (IntegratingGyroscope) navxMicro;
+//
+//        ElapsedTime timer = new ElapsedTime();
+//        timer.reset();
+//
+//        while (navxMicro.isCalibrating()) {
+//            botOpMode.telemetry.log().clear();
+//            botOpMode.telemetry.addData("Calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
+//            botOpMode.telemetry.update();
+//        }
     }
 
     /**
@@ -451,7 +460,6 @@ public class MechWarriorCode {
         } else {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
-
     }
 
     public void startBlinkinRed() {
@@ -480,7 +488,6 @@ public class MechWarriorCode {
         } else {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
-
     }
 
     public boolean cruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
@@ -509,14 +516,39 @@ public class MechWarriorCode {
         return (closeEnough);
     }
 
-    public void manualDrive() {
+    public void manualDrive() throws InterruptedException {
         // Setting three motions to stick movements
         setAxial(-botOpMode.gamepad1.left_stick_y);
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
-        // Logic for speed control on button A
+        if (botOpMode.gamepad1.dpad_up && launcherPower < 1.0) {
+            launcherPower = launcherPower + .01;
+            Thread.sleep(200);
+        }
+
+        if (botOpMode.gamepad1.dpad_down && launcherPower > 0.0) {
+            launcherPower = launcherPower - 0.01;
+            Thread.sleep(200);
+        }
+
+        if (botOpMode.gamepad1.dpad_right) {
+            launcherPower = 0.86;
+        }
+
+        if (botOpMode.gamepad1.dpad_left) {
+            launcherPower = 0.0;
+        }
+
+        leftLauncher.setPower(launcherPower);
+        rightLauncher.setPower(launcherPower);
+
         if (botOpMode.gamepad1.a) {
+            shootLauncher();
+        }
+
+        // Logic for speed control on button A
+        if (botOpMode.gamepad1.x) {
             aButtonPad1 = true;
         } else if (aButtonPad1) {
             aButtonPad1 = false;
@@ -528,7 +560,7 @@ public class MechWarriorCode {
         }
 
         // Logic for direction control on button B
-        if (botOpMode.gamepad1.b) {
+        if (botOpMode.gamepad1.y) {
             bButtonPad1 = true;
         } else if (bButtonPad1) {
             bButtonPad1 = false;
@@ -553,7 +585,7 @@ public class MechWarriorCode {
 
     // Calculations for the power to each motor
     public void moveRobot() {
-        // Vector addition and algebra for the power to each motor
+        // Vector addition and algebra for the pwer to each motor
         double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
         double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
@@ -587,12 +619,72 @@ public class MechWarriorCode {
         moveRobot();
     }
 
-    public void initAuxiliaryControls(double launcherSpeed) {
+    public void initAuxiliaryControls() throws InterruptedException {
+
+        intakeMotor.setPower(0.0);
+        leftLauncher.setPower(0.0);
+        rightLauncher.setPower(0.0);
+        ringServo.setPosition(0.0);
+        lowerMagazine();
+
+        double position = .01;
+        for (int i=0; i<90; i++) {
+            intakeServo.setPosition(position);
+            Thread.sleep(10);
+            position = position + .01;
+        }
+
+
 
     }
 
-    public void auxiliaryControls() {
+    public void auxiliaryControls() throws InterruptedException {
 
+        if (botOpMode.gamepad2.a && intakePower == 0.0) {
+            intakePower = 1.0;
+            intakeMotor.setPower(intakePower);
+        }
+
+        if (botOpMode.gamepad2.b) {
+            intakePower = 0.0;
+            intakeMotor.setPower(intakePower);
+        }
+
+        if (botOpMode.gamepad2.x && intakePower == 0.0) {
+            intakePower = -1.0;
+            intakeMotor.setPower(intakePower);
+        }
+
+        if (botOpMode.gamepad2.dpad_up) {
+            raiseMagazine();
+        }
+
+        if (botOpMode.gamepad2.dpad_down) {
+            lowerMagazine();
+        }
+
+        if (botOpMode.gamepad2.left_bumper) {
+            dropBlueWobbleGoal();
+        }
+
+        if (botOpMode.gamepad2.right_bumper) {
+            raiseBlueWobbleGoal();
+        }
+    }
+
+    public void auxiliaryControlsOneDriver() throws InterruptedException {
+
+        if (botOpMode.gamepad1.left_bumper) {
+            intakePower = 1.0;
+            intakeMotor.setPower(intakePower);
+            lowerMagazine();
+        }
+
+        if (botOpMode.gamepad1.right_bumper) {
+            intakePower = 0.0;
+            intakeMotor.setPower(intakePower);
+            raiseMagazine();
+        }
     }
 
     /**
@@ -607,10 +699,21 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
     }
 
-    public void launcherPowerUp(double LAUNCHER_SPEED) {
+    public void launcherPowershot(double speed) {
 
-        leftLauncher.setPower(LAUNCHER_SPEED);
-        rightLauncher.setPower(LAUNCHER_SPEED);
+        launcherPower = speed;
+
+        leftLauncher.setPower(launcherPower);
+        rightLauncher.setPower(launcherPower);
+
+    }
+
+    public void launcherOff () {
+
+        launcherPower = 0.0;
+
+        leftLauncher.setPower(launcherPower);
+        rightLauncher.setPower(launcherPower);
 
     }
 
@@ -624,40 +727,57 @@ public class MechWarriorCode {
 
     public void raiseMagazine() {
 
-        if (!topTouchSensor.isPressed()) {
-            magazineServo.setPower(1.0);
-        }
-
-        if (topTouchSensor.isPressed()) {
-            magazineServo.setPower(0.0);
+        magazineMotor.setTargetPosition(218);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(1.0);
+        while (magazineMotor.isBusy()) {
+            try {
+                manualDrive();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void lowerMagazine() {
-
-        if (!bottomTouchSensor.isPressed()) {
-            magazineServo.setPower(-1.0);
-        }
-
-        if (bottomTouchSensor.isPressed()) {
-            magazineServo.setPower(0.0);
+        magazineMotor.setTargetPosition(0);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(.30);
+        while (magazineMotor.isBusy()) {
+            try {
+                manualDrive();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void shootLauncher() throws InterruptedException {
 
+    public void shootAutoLauncher() throws InterruptedException {
         ringServo.setPosition(1.0);
-
         Thread.sleep(250);
+        ringServo.setPosition(0.80);
+        Thread.sleep(250);
+        ringServo.setPosition(1.0);
+        Thread.sleep(500);
+        ringServo.setPosition(0.0);
+    }
 
+    public void shootLauncher() throws InterruptedException {
+        ringServo.setPosition(1.0);
+        Thread.sleep(250);
         ringServo.setPosition(0.0);
     }
 
     public void dropBlueWobbleGoal() {
 
+        blueWobbleGoal.setPosition(1.0);
+
     }
 
-    public void dropRedWobbleGoal() {
+    public void raiseBlueWobbleGoal() {
+
+        blueWobbleGoal.setPosition(0.0);
 
     }
 
@@ -676,7 +796,7 @@ public class MechWarriorCode {
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -699,7 +819,7 @@ public class MechWarriorCode {
             driveByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -728,7 +848,7 @@ public class MechWarriorCode {
             driveByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -752,7 +872,7 @@ public class MechWarriorCode {
             strafeByInches(-distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -783,7 +903,7 @@ public class MechWarriorCode {
             strafeByInches(distance);
             runToPosition();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 double errorMultiple = 1.0;
                 double error = (errorMultiple * (gyroHeading - angle) / 100);
                 if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
@@ -810,7 +930,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle - angleTolerance - cutSpeed > gyroHeading) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
@@ -848,7 +968,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle + angleTolerance + cutSpeed < gyroHeading) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
@@ -888,7 +1008,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle - angleTolerance - cutSpeed > gyroHeading) {
                     frontLeft.setPower(power);
                     frontRight.setPower(-power);
@@ -928,7 +1048,7 @@ public class MechWarriorCode {
             stopAndResetEncoder();
             runUsingEncoder();
             while (botOpMode.opModeIsActive()) {
-                double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
                 if (angle + angleTolerance + cutSpeed < gyroHeading) {
                     frontLeft.setPower(-power);
                     frontRight.setPower(power);
@@ -1020,7 +1140,10 @@ public class MechWarriorCode {
             runUsingEncoder();
         }
 
-        double gyroHeading = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroZ = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        double gyroY = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, DEGREES).secondAngle;
+        double gyroX = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, DEGREES).thirdAngle;
         double frontLeftInches = frontLeft.getCurrentPosition() / TICKSTOINCHES;
         double frontRightInches = frontRight.getCurrentPosition() / TICKSTOINCHES;
         double backLeftInches = backLeft.getCurrentPosition() / TICKSTOINCHES;
@@ -1029,10 +1152,13 @@ public class MechWarriorCode {
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Note", "--> Tap Y to reset encoders");
         botOpMode.telemetry.addData("Heading", "%.2f", gyroHeading);
-        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
-        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
-        botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
-        botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
+        botOpMode.telemetry.addData("Z", "%.2f", gyroZ);
+        botOpMode.telemetry.addData("Y", "%.2f", gyroY);
+        botOpMode.telemetry.addData("X", "%.2f", gyroX);
+//        botOpMode.telemetry.addData("Inches", "FL: %2d, FR: %2d, BL: %2d, BR: %2d", -(int) frontLeftInches, -(int) frontRightInches, -(int) backLeftInches, -(int) backRightInches);
+//        botOpMode.telemetry.addData("Encoder", "FL: %2d,  FR: %2d, BL: %2d, BR: %2d", -frontLeft.getCurrentPosition(), -frontRight.getCurrentPosition(), -backLeft.getCurrentPosition(), -backRight.getCurrentPosition());
+//        botOpMode.telemetry.addData("Drive Power", "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", -frontLeft.getPower(), -frontRight.getPower(), -backLeft.getPower(), -backRight.getPower());
+//        botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
         //        botOpMode.telemetry.addData("Launcher Power", "LL: %.2f, RL: %.2f", -leftLauncher.getPower(), -rightLauncher.getPower());
         botOpMode.telemetry.update();
     }
@@ -1082,6 +1208,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", targetName);
+            botOpMode.telemetry.addData("LauncherPower", "%.2f", launcherPower);
             botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)", robotX, robotY, robotBearing);
             botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)", targetRange, targetBearing, relativeBearing);
             botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
@@ -1094,6 +1221,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", "- - - -");
+            botOpMode.telemetry.addData("LauncherPower", "%.2f", launcherPower);
             botOpMode.telemetry.update();
         }
     }

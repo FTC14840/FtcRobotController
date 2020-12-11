@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.CoachExamplesMrK;
+package org.firstinspires.ftc.teamcode.CoachExamplesMrBraun.VelocityControl;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -61,12 +61,10 @@ public class SpeedControlledMotor extends LinearOpMode {
 
     // Define class members
     DcMotorEx motor;
-    double motorVelocity = 3000;
+    double motorVelocity = 3000;  //Init velocity when velocity is divided by 2.
     double zeroVelocity = 0;
     double actualVel = 0;
-    int mode = 1;
-    int count = 0;
-    //String mode;
+    String mode;
 
     @Override
     public void runOpMode() {
@@ -89,31 +87,31 @@ public class SpeedControlledMotor extends LinearOpMode {
 
         // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {
-            if(mode == 0) {
+
 // This will turn the motor per the value of the motor Velocity variable.
 // Also, the value of the target velocity and the actual velocity will be displayed
 // After three seconds, the target speed will change.
-                //Start with the target velocity at 0.
-                motor.setVelocity(zeroVelocity);
-                sleep(1000);
-                actualVel = motor.getVelocity();
-                telemetry.addData("Target Motor Velocity", "%5.2f", zeroVelocity);
-                telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
-                telemetry.update();
-                sleep(2000);
-                telemetry.clear();
+            //Start with the target velocity at 0.
+            motor.setVelocity(zeroVelocity);
+            sleep(1000);
+            actualVel = motor.getVelocity();
+            telemetry.addData("Target Motor Velocity", "%5.2f", zeroVelocity);
+            telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
+            telemetry.update();
+            sleep(2000);
+            telemetry.clear();
 
-                //Set target velocity to current value of motorVelocity
-                motor.setVelocity(motorVelocity);
-                sleep(1000);
-                actualVel = motor.getVelocity();
-                telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
-                telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
-                telemetry.update();
-                sleep(2000);
-                telemetry.clear();
+            //Set target velocity to current value of motorVelocity
+            motor.setVelocity(motorVelocity);
+            sleep(1000);
+            actualVel = motor.getVelocity();
+            telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
+            telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
+            telemetry.update();
+            sleep(2000);
+            telemetry.clear();
 
-                //Flip the sign of target velocity
+            //Flip the sign of target velocity
 /*            motorVelocity = -motorVelocity;
             motor.setVelocity(motorVelocity);
             sleep(1000);
@@ -124,25 +122,9 @@ public class SpeedControlledMotor extends LinearOpMode {
             sleep(2000);
             telemetry.clear();
 */
-                //Reduce the target velocity by 200.
-                motorVelocity = abs(motorVelocity) - 200;
+            //Reduce the target velocity by 200.
+            motorVelocity = abs(motorVelocity) - 200;
 
-            }
-
-            if(mode == 1) {
-                motorVelocity = 2600;
-                motor.setVelocity(motorVelocity);
-                while (count < 10) {
-                    actualVel = motor.getVelocity();
-                    telemetry.addData("Target Motor Velocity", "%5.2f", motorVelocity);
-                    telemetry.addData("Actual Motor Velocity", "%5.2f", actualVel);
-                    telemetry.addData("Count =", count);
-                    telemetry.update();
-                    sleep(1000);
-                    telemetry.clear();
-                    count = count+1;
-                }
-            }
             //From here the program will iterate back to the While(opModeisActive) statement and
             // set speed to zero, then the opposite of that last velocity, the 90% of the velocity.
 

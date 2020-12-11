@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeamLeadJonathan;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,7 +12,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODE
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-
+@Disabled
 @TeleOp(name="Jonathan Velocity Test")
 
 
@@ -20,8 +21,17 @@ public class JonathanVelocityLauncher extends LinearOpMode {
     private DcMotorEx leftLauncher;
     private DcMotorEx rightLauncher;
 
-    double RPS = Math.abs(1780 / 60);
-    double TPS = Math.abs(RPS * 103.6);
+    //Go builda 1620 RPM
+//    double RPM = 1780;
+//    double RPS = Math.abs(RPM / 60);
+//    double TPS = Math.abs(RPS * 103.6);
+
+    //Go builda 6000 RPM
+    double RPM = 6000;
+    double RPS = Math.abs(RPM / 60);
+    double TPS = Math.abs(RPS * 28);
+
+
     double launcherIncrement = Math.abs(TPS * .01);
 
     public void runOpMode() throws InterruptedException {
