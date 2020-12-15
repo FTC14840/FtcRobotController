@@ -3,16 +3,10 @@ package org.firstinspires.ftc.teamcode;
 
 // Imports
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -48,17 +42,16 @@ public class MechWarriorCode {
     private DcMotor frontRight;      // 0
     private DcMotor backRight;       // 1
     private DcMotor magazineMotor;   // 2
-    private DcMotor rightLauncher;   // 3
+    private DcMotor launcher;        // 3
     private Servo redWobbleGoal;     // 0
     private Servo redCam;            // 1
     private Servo ringServo;         // 2
     private Servo intakeServo;       // 3
     // ledLights on 5
-    // navx on IC2 Bus 0
+    // imu on IC2 Bus 0
 
     // Left Expansion Hub
     private DcMotor intakeMotor;     // 0
-    private DcMotor leftLauncher;    // 1
     private DcMotor frontLeft;       // 2
     private DcMotor backLeft;        // 3
     private Servo blueWobbleGoal;    // 0
@@ -125,9 +118,6 @@ public class MechWarriorCode {
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
     // Gyro fields
-//    IntegratingGyroscope gyro;
-//    NavxMicroNavigationSensor navxMicro;
-
     BNO055IMU imu;
 
     RevBlinkinLedDriver ledLights;
@@ -181,14 +171,10 @@ public class MechWarriorCode {
         // Set all motor power to zero
         moveRobot(0, 0, 0);
 
-        leftLauncher = botOpMode.hardwareMap.get(DcMotor.class, "leftLauncher");
-        rightLauncher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
-        leftLauncher.setDirection(DcMotor.Direction.REVERSE);
-        rightLauncher.setDirection(DcMotor.Direction.REVERSE);
-        leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftLauncher.setPower(0.0);
-        rightLauncher.setPower(0.0);
+        launcher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
+        launcher.setDirection(DcMotor.Direction.REVERSE);
+        launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcher.setPower(0.0);
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -339,9 +325,6 @@ public class MechWarriorCode {
         if (targets != null) {
             targets.activate();
         }
-//
-//        stopAndResetEncoder();
-//        runWithoutEncoder();
     }
 
     OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w) {
@@ -522,31 +505,6 @@ public class MechWarriorCode {
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
-        if (botOpMode.gamepad1.dpad_up && launcherPower < 1.0) {
-            launcherPower = launcherPower + .01;
-            Thread.sleep(200);
-        }
-
-        if (botOpMode.gamepad1.dpad_down && launcherPower > 0.0) {
-            launcherPower = launcherPower - 0.01;
-            Thread.sleep(200);
-        }
-
-        if (botOpMode.gamepad1.dpad_right) {
-            launcherPower = 0.86;
-        }
-
-        if (botOpMode.gamepad1.dpad_left) {
-            launcherPower = 0.0;
-        }
-
-        leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
-
-        if (botOpMode.gamepad1.a) {
-            shootLauncher();
-        }
-
         // Logic for speed control on button A
         if (botOpMode.gamepad1.x) {
             aButtonPad1 = true;
@@ -622,10 +580,8 @@ public class MechWarriorCode {
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setPower(0.0);
-        leftLauncher.setPower(0.0);
-        rightLauncher.setPower(0.0);
+        launcher.setPower(0.0);
         ringServo.setPosition(0.0);
-        lowerMagazine();
 
         double position = .01;
         for (int i=0; i<90; i++) {
@@ -670,6 +626,30 @@ public class MechWarriorCode {
         if (botOpMode.gamepad2.right_bumper) {
             raiseBlueWobbleGoal();
         }
+
+        if (botOpMode.gamepad1.dpad_up && launcherPower < 1.0) {
+            launcherPower = launcherPower + .01;
+            Thread.sleep(200);
+        }
+
+        if (botOpMode.gamepad1.dpad_down && launcherPower > 0.0) {
+            launcherPower = launcherPower - 0.01;
+            Thread.sleep(200);
+        }
+
+        if (botOpMode.gamepad1.dpad_right) {
+            launcherPower = 0.86;
+        }
+
+        if (botOpMode.gamepad1.dpad_left) {
+            launcherPower = 0.0;
+        }
+
+        launcher.setPower(launcherPower);
+
+        if (botOpMode.gamepad1.a) {
+            shootLauncher();
+        }
     }
 
     public void auxiliaryControlsOneDriver() throws InterruptedException {
@@ -704,7 +684,7 @@ public class MechWarriorCode {
         launcherPower = speed;
 
         leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
+        launcher.setPower(launcherPower);
 
     }
 
@@ -713,7 +693,7 @@ public class MechWarriorCode {
         launcherPower = 0.0;
 
         leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
+        launcher.setPower(launcherPower);
 
     }
 
