@@ -6,6 +6,12 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+<<<<<<< HEAD
+=======
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -42,7 +48,11 @@ public class MechWarriorCode {
     private DcMotor frontRight;      // 0
     private DcMotor backRight;       // 1
     private DcMotor magazineMotor;   // 2
+<<<<<<< HEAD
     private DcMotor launcher;        // 3
+=======
+    private DcMotorEx botLauncher;   // 3
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
     private Servo redWobbleGoal;     // 0
     private Servo redCam;            // 1
     private Servo ringServo;         // 2
@@ -81,6 +91,12 @@ public class MechWarriorCode {
     private static final double GEARREDUCTION = 1.0; // Greater than 1.0; Less than 1.0 if geared up
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
+
+    // Launcher Velocity
+    double RPM = 6000;
+    double RPS = Math.abs(RPM / 60);
+    double TPS = Math.abs(RPS * 28);
+    double launcherIncrement = Math.abs(TPS * .01);
 
     // Vuforia fields
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -171,10 +187,19 @@ public class MechWarriorCode {
         // Set all motor power to zero
         moveRobot(0, 0, 0);
 
+<<<<<<< HEAD
         launcher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
         launcher.setDirection(DcMotor.Direction.REVERSE);
         launcher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         launcher.setPower(0.0);
+=======
+
+        botLauncher = botOpMode.hardwareMap.get(DcMotorEx.class, "botLauncher");
+        botLauncher.setDirection(DcMotor.Direction.REVERSE);
+        botLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        botLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        botLauncher.setPower(0.0);
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -505,6 +530,33 @@ public class MechWarriorCode {
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
+<<<<<<< HEAD
+=======
+        if (botOpMode.gamepad1.dpad_up){
+            botLauncher.setVelocity(botLauncher.getVelocity()+launcherIncrement);
+        }
+
+        if (botOpMode.gamepad1.dpad_down){
+            botLauncher.setVelocity(botLauncher.getVelocity()-launcherIncrement);
+        }
+
+        if (botOpMode.gamepad1.dpad_right) {
+            botLauncher.setPower(1);
+            botLauncher.setVelocity(TPS);
+        }
+
+        if (botOpMode.gamepad1.dpad_left) {
+            botLauncher.setPower(0);
+            botLauncher.setVelocity(0);
+
+        }
+
+
+        if (botOpMode.gamepad1.a) {
+            shootLauncher();
+        }
+
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
         // Logic for speed control on button A
         if (botOpMode.gamepad1.x) {
             aButtonPad1 = true;
@@ -580,7 +632,11 @@ public class MechWarriorCode {
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setPower(0.0);
+<<<<<<< HEAD
         launcher.setPower(0.0);
+=======
+        botLauncher.setPower(0.0);
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
         ringServo.setPosition(0.0);
 
         double position = .01;
@@ -596,17 +652,17 @@ public class MechWarriorCode {
 
     public void auxiliaryControls() throws InterruptedException {
 
-        if (botOpMode.gamepad2.a && intakePower == 0.0) {
+        if (botOpMode.gamepad1.a && intakePower == 0.0) {
             intakePower = 1.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad2.b) {
+        if (botOpMode.gamepad1.b) {
             intakePower = 0.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad2.x && intakePower == 0.0) {
+        if (botOpMode.gamepad1.x && intakePower == 0.0) {
             intakePower = -1.0;
             intakeMotor.setPower(intakePower);
         }
@@ -681,10 +737,13 @@ public class MechWarriorCode {
 
     public void launcherPowershot(double speed) {
 
-        launcherPower = speed;
 
+<<<<<<< HEAD
         leftLauncher.setPower(launcherPower);
         launcher.setPower(launcherPower);
+=======
+        botLauncher.setVelocity(TPS);
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
 
     }
 
@@ -692,8 +751,12 @@ public class MechWarriorCode {
 
         launcherPower = 0.0;
 
+<<<<<<< HEAD
         leftLauncher.setPower(launcherPower);
         launcher.setPower(launcherPower);
+=======
+        botLauncher.setVelocity(0);
+>>>>>>> 6579ee65c06d0fc9fd56971dcdb2851872f934ed
 
     }
 
@@ -1201,7 +1264,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", "- - - -");
-            botOpMode.telemetry.addData("LauncherPower", "%.2f", launcherPower);
+            botOpMode.telemetry.addData("LauncherPower", "%.2f", botLauncher.getVelocity());
             botOpMode.telemetry.update();
         }
     }
