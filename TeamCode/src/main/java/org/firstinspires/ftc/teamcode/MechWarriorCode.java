@@ -8,6 +8,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -48,7 +49,7 @@ public class MechWarriorCode {
     private DcMotor frontRight;      // 0
     private DcMotor backRight;       // 1
     private DcMotor magazineMotor;   // 2
-    private DcMotor rightLauncher;   // 3
+    private DcMotorEx botLauncher;   // 3
     private Servo redWobbleGoal;     // 0
     private Servo redCam;            // 1
     private Servo ringServo;         // 2
@@ -58,7 +59,6 @@ public class MechWarriorCode {
 
     // Left Expansion Hub
     private DcMotor intakeMotor;     // 0
-    private DcMotor leftLauncher;    // 1
     private DcMotor frontLeft;       // 2
     private DcMotor backLeft;        // 3
     private Servo blueWobbleGoal;    // 0
@@ -88,6 +88,12 @@ public class MechWarriorCode {
     private static final double GEARREDUCTION = 1.0; // Greater than 1.0; Less than 1.0 if geared up
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
+
+    // Launcher Velocity
+    double RPM = 6000;
+    double RPS = Math.abs(RPM / 60);
+    double TPS = Math.abs(RPS * 28);
+    double launcherIncrement = Math.abs(TPS * .01);
 
     // Vuforia fields
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -181,14 +187,12 @@ public class MechWarriorCode {
         // Set all motor power to zero
         moveRobot(0, 0, 0);
 
-        leftLauncher = botOpMode.hardwareMap.get(DcMotor.class, "leftLauncher");
-        rightLauncher = botOpMode.hardwareMap.get(DcMotor.class, "rightLauncher");
-        leftLauncher.setDirection(DcMotor.Direction.REVERSE);
-        rightLauncher.setDirection(DcMotor.Direction.REVERSE);
-        leftLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftLauncher.setPower(0.0);
-        rightLauncher.setPower(0.0);
+
+        botLauncher = botOpMode.hardwareMap.get(DcMotorEx.class, "botLauncher");
+        botLauncher.setDirection(DcMotor.Direction.REVERSE);
+        botLauncher.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        botLauncher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        botLauncher.setPower(0.0);
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -522,26 +526,25 @@ public class MechWarriorCode {
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
-        if (botOpMode.gamepad1.dpad_up && launcherPower < 1.0) {
-            launcherPower = launcherPower + .01;
-            Thread.sleep(200);
+        if (botOpMode.gamepad1.dpad_up){
+            botLauncher.setVelocity(botLauncher.getVelocity()+launcherIncrement);
         }
 
-        if (botOpMode.gamepad1.dpad_down && launcherPower > 0.0) {
-            launcherPower = launcherPower - 0.01;
-            Thread.sleep(200);
+        if (botOpMode.gamepad1.dpad_down){
+            botLauncher.setVelocity(botLauncher.getVelocity()-launcherIncrement);
         }
 
         if (botOpMode.gamepad1.dpad_right) {
-            launcherPower = 0.86;
+            botLauncher.setPower(1);
+            botLauncher.setVelocity(TPS);
         }
 
         if (botOpMode.gamepad1.dpad_left) {
-            launcherPower = 0.0;
+            botLauncher.setPower(0);
+            botLauncher.setVelocity(0);
+
         }
 
-        leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
 
         if (botOpMode.gamepad1.a) {
             shootLauncher();
@@ -622,8 +625,7 @@ public class MechWarriorCode {
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setPower(0.0);
-        leftLauncher.setPower(0.0);
-        rightLauncher.setPower(0.0);
+        botLauncher.setPower(0.0);
         ringServo.setPosition(0.0);
         lowerMagazine();
 
@@ -640,17 +642,17 @@ public class MechWarriorCode {
 
     public void auxiliaryControls() throws InterruptedException {
 
-        if (botOpMode.gamepad2.a && intakePower == 0.0) {
+        if (botOpMode.gamepad1.a && intakePower == 0.0) {
             intakePower = 1.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad2.b) {
+        if (botOpMode.gamepad1.b) {
             intakePower = 0.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad2.x && intakePower == 0.0) {
+        if (botOpMode.gamepad1.x && intakePower == 0.0) {
             intakePower = -1.0;
             intakeMotor.setPower(intakePower);
         }
@@ -701,10 +703,8 @@ public class MechWarriorCode {
 
     public void launcherPowershot(double speed) {
 
-        launcherPower = speed;
 
-        leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
+        botLauncher.setVelocity(TPS);
 
     }
 
@@ -712,8 +712,7 @@ public class MechWarriorCode {
 
         launcherPower = 0.0;
 
-        leftLauncher.setPower(launcherPower);
-        rightLauncher.setPower(launcherPower);
+        botLauncher.setVelocity(0);
 
     }
 
@@ -1221,7 +1220,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
             botOpMode.telemetry.addData("Visible", "- - - -");
-            botOpMode.telemetry.addData("LauncherPower", "%.2f", launcherPower);
+            botOpMode.telemetry.addData("LauncherPower", "%.2f", botLauncher.getVelocity());
             botOpMode.telemetry.update();
         }
     }
