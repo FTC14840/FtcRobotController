@@ -43,7 +43,7 @@ public class MechWarriorCode {
     private DcMotor frontRight;      // 0
     private DcMotor backRight;       // 1
     private DcMotor magazineMotor;   // 2
-    private DcMotor launcher;        // 3
+    private DcMotorEx launcher;      // 3
     private Servo redWobbleGoal;     // 0
     private Servo redCam;            // 1
     private Servo ringServo;         // 2
@@ -58,17 +58,18 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherPower = 0.0;
-    private double launcherPowerIncrement = .01;
+    private double launcherVelocity = 980.0; //Increments of 20 for Velocity
+    private double launcherPowershotVelocity = 920.0;
+    private double launcherVelocityIncrement = 20;
     private double intakePower = 0.0;
     private int magazineTargetPosition = 200;
 
     // Launcher Velocity
-    double RPM = 6000;
-    double RPS = Math.abs(RPM / 60);
-    double TPS = Math.abs(RPS * 28);
-    double launcherVelocity = TPS * .32;
-    double launcherIncrement = Math.abs(TPS * .01);
+//    double RPM = 6000; // 6000 Max
+//    double RPS = Math.abs(RPM / 60);
+//    double TPS = Math.abs(RPS * 28);
+//    double launcherVelocity = Math.abs(TPS * .32);
+//    double launcherIncrement = Math.abs(TPS * .01);
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -181,7 +182,7 @@ public class MechWarriorCode {
         // Set all motor power to zero
         moveRobot(0, 0, 0);
 
-        launcher = botOpMode.hardwareMap.get(DcMotor.class, "launcher");
+        launcher = botOpMode.hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setDirection(DcMotorEx.Direction.REVERSE);
         launcher.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         launcher.setPower(0.0);
@@ -516,27 +517,33 @@ public class MechWarriorCode {
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
         if (botOpMode.gamepad1.dpad_up){
-            launcher.setPower(launcher.getPower() + launcherPowerIncrement);
-//            launcher.setVelocity(launcher.getVelocity()+launcherIncrement);
+            //launcher.setPower(launcher.getPower() + launcherPowerIncrement);
+            launcherVelocity = launcher.getVelocity() + launcherVelocityIncrement;
+            launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad1.dpad_down){
-            launcher.setPower(launcher.getPower() - launcherPowerIncrement);
-//            launcher.setVelocity(launcher.getVelocity()-launcherIncrement);
+            //launcher.setPower(launcher.getPower() - launcherPowerIncrement);
+            launcherVelocity = launcher.getVelocity() - launcherVelocityIncrement;
+            launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad1.dpad_right) {
-            launcher.setPower(launcherPower);
-            //launcher.setVelocity(launcherVelocity);
+            //launcher.setPower(launcherPower);
+            launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad1.dpad_left) {
-            launcher.setPower(0);
-            //launcher.setVelocity(0);
+            //launcher.setPower(0);
+            launcher.setVelocity(0);
 
         }
 
-        if (botOpMode.gamepad1.a) {
+        if (botOpMode.gamepad1.a && botOpMode.gamepad1.right_trigger < 1.0 && launcher.getVelocity() == launcherVelocity) {
+            shootLauncher();
+        }
+
+        if (botOpMode.gamepad1.a && botOpMode.gamepad1.right_trigger == 1.0 && launcher.getVelocity() == launcherPowershotVelocity) {
             shootLauncher();
         }
 
@@ -643,6 +650,15 @@ public class MechWarriorCode {
             intakeMotor.setPower(intakePower);
         }
 
+        if (botOpMode.gamepad2.a) {
+            launcher.setVelocity(launcherVelocity);
+        }
+
+        if (botOpMode.gamepad2.b) {
+            launcherVelocity = launcherPowershotVelocity;
+            launcher.setVelocity(launcherVelocity);
+        }
+
         if (botOpMode.gamepad2.dpad_up) {
             raiseMagazine();
         }
@@ -670,6 +686,8 @@ public class MechWarriorCode {
         if (botOpMode.gamepad2.right_bumper) {
             raiseBlueWobbleGoal();
         }
+
+
     }
 
     /**
@@ -686,14 +704,13 @@ public class MechWarriorCode {
 
     public void launcherPowershot(double speed) {
 
-        launcher.setPower(launcherPower);
+        launcher.setVelocity(900);
 
     }
 
     public void launcherOff () {
 
-        launcherPower = 0.0;
-        launcher.setPower(launcherPower);
+        launcher.setPower(0.0);
 
     }
 
@@ -1188,8 +1205,10 @@ public class MechWarriorCode {
             // Display the current visible target name, robot info, target info, and required robot action.
             botOpMode.telemetry.log().clear();
             botOpMode.telemetry.addData(">", "Press Left Bumper to track target");
-            botOpMode.telemetry.addData("Visible", targetName);
-            botOpMode.telemetry.addData("LauncherPower", "%.2f", launcherPower);
+            botOpMode.telemetry.addData("Magazine Target Position", "%2d", magazineTargetPosition);
+            botOpMode.telemetry.addData("Magazine Current Position", "%2d", magazineMotor.getCurrentPosition());
+            botOpMode.telemetry.addData("Launcher Power", launcher.getPower());
+            botOpMode.telemetry.addData("Launcher Velocity", "%.2f", launcher.getVelocity());
             botOpMode.telemetry.addData("Robot", "[X]:[Y] (B) [%5.0fmm]:[%5.0fmm] (%4.0f°)", robotX, robotY, robotBearing);
             botOpMode.telemetry.addData("Target", "[R] (B):(RB) [%5.0fmm] (%4.0f°):(%4.0f°)", targetRange, targetBearing, relativeBearing);
             botOpMode.telemetry.addData("- Turn    ", "%s %4.0f°", relativeBearing < 0 ? ">>> CW " : "<<< CCW", Math.abs(relativeBearing));
@@ -1205,7 +1224,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.addData("Magazine Target Position", "%2d", magazineTargetPosition);
             botOpMode.telemetry.addData("Magazine Current Position", "%2d", magazineMotor.getCurrentPosition());
             botOpMode.telemetry.addData("Launcher Power", launcher.getPower());
-            //botOpMode.telemetry.addData("Launcher Velocity", "%.2f", launcher.getVelocity());
+            botOpMode.telemetry.addData("Launcher Velocity", "%.2f", launcher.getVelocity());
             botOpMode.telemetry.update();
         }
     }
