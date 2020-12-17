@@ -88,6 +88,7 @@ public class MechWarriorCode {
     double RPM = 6000;
     double RPS = Math.abs(RPM / 60);
     double TPS = Math.abs(RPS * 28);
+    double launcherVelocity = TPS * .32;
     double launcherIncrement = Math.abs(TPS * .01);
 
     // Vuforia fields
@@ -522,12 +523,12 @@ public class MechWarriorCode {
         }
 
         if (botOpMode.gamepad1.dpad_right) {
-            launcher.setPower(1);
-            launcher.setVelocity(TPS);
+            //launcher.setPower(1);
+            launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad1.dpad_left) {
-            launcher.setPower(0);
+            //launcher.setPower(0);
             launcher.setVelocity(0);
 
         }
@@ -537,24 +538,24 @@ public class MechWarriorCode {
         }
 
         // Logic for speed control on button A
-        if (botOpMode.gamepad1.x) {
-            aButtonPad1 = true;
-        } else if (aButtonPad1) {
-            aButtonPad1 = false;
-            if (speed == LOWSPEED) {
-                speed = HIGHSPEED;
-            } else {
-                speed = LOWSPEED;
-            }
-        }
+//        if (botOpMode.gamepad1.x) {
+//            aButtonPad1 = true;
+//        } else if (aButtonPad1) {
+//            aButtonPad1 = false;
+//            if (speed == LOWSPEED) {
+//                speed = HIGHSPEED;
+//            } else {
+//                speed = LOWSPEED;
+//            }
+//        }
 
         // Logic for direction control on button B
-        if (botOpMode.gamepad1.y) {
-            bButtonPad1 = true;
-        } else if (bButtonPad1) {
-            bButtonPad1 = false;
-            direction = -direction;
-        }
+//        if (botOpMode.gamepad1.y) {
+//            bButtonPad1 = true;
+//        } else if (bButtonPad1) {
+//            bButtonPad1 = false;
+//            direction = -direction;
+//        }
     }
 
     // Clipping motor power for axial motion
@@ -624,17 +625,17 @@ public class MechWarriorCode {
 
     public void auxiliaryControls() throws InterruptedException {
 
-        if (botOpMode.gamepad1.a && intakePower == 0.0) {
+        if (botOpMode.gamepad1.x && intakePower == 0.0) {
             intakePower = 1.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad1.b) {
+        if (botOpMode.gamepad1.y) {
             intakePower = 0.0;
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad1.x && intakePower == 0.0) {
+        if (botOpMode.gamepad1.b && intakePower == 0.0) {
             intakePower = -1.0;
             intakeMotor.setPower(intakePower);
         }
