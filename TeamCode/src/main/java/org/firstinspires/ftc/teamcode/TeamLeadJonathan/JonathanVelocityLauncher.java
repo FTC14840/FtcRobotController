@@ -12,7 +12,7 @@ import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_WITHOUT_ENCODE
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.STOP_AND_RESET_ENCODER;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-// @Disabled
+ @Disabled
 @TeleOp(name="Jonathan Velocity Test")
 
 //total rpm for launcher configuration is 5,340rpms
