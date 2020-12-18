@@ -626,7 +626,7 @@ public class MechWarriorCode {
         ringServo.setPosition(0.0);
 
         double position = .01;
-        for (int i=0; i<90; i++) {
+        for (int i=0; i<95; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
