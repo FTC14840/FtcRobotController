@@ -58,7 +58,8 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 980.0; //Increments of 20 for Velocity
+    private double launcherVelocity = 980.0; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 980.0;
     private double launcherPowershotVelocity = 920.0;
     private double launcherVelocityIncrement = 20;
     private double intakePower = 0.0;
@@ -516,37 +517,6 @@ public class MechWarriorCode {
         setLateral(botOpMode.gamepad1.left_stick_x);
         setYaw(-botOpMode.gamepad1.right_stick_x);
 
-        if (botOpMode.gamepad1.dpad_up){
-            //launcher.setPower(launcher.getPower() + launcherPowerIncrement);
-            launcherVelocity = launcher.getVelocity() + launcherVelocityIncrement;
-            launcher.setVelocity(launcherVelocity);
-        }
-
-        if (botOpMode.gamepad1.dpad_down){
-            //launcher.setPower(launcher.getPower() - launcherPowerIncrement);
-            launcherVelocity = launcher.getVelocity() - launcherVelocityIncrement;
-            launcher.setVelocity(launcherVelocity);
-        }
-
-        if (botOpMode.gamepad1.dpad_right) {
-            //launcher.setPower(launcherPower);
-            launcher.setVelocity(launcherVelocity);
-        }
-
-        if (botOpMode.gamepad1.dpad_left) {
-            //launcher.setPower(0);
-            launcher.setVelocity(0);
-
-        }
-
-        if (botOpMode.gamepad1.a && botOpMode.gamepad1.right_trigger < 1.0 && launcher.getVelocity() == launcherVelocity) {
-            shootLauncher();
-        }
-
-        if (botOpMode.gamepad1.a && botOpMode.gamepad1.right_trigger == 1.0 && launcher.getVelocity() == launcherPowershotVelocity) {
-            shootLauncher();
-        }
-
         // Logic for speed control on button A
 //        if (botOpMode.gamepad1.x) {
 //            aButtonPad1 = true;
@@ -632,8 +602,8 @@ public class MechWarriorCode {
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setPower(0.0);
-        launcher.setPower(0.0);
         ringServo.setPosition(0.0);
+        launcher.setVelocity(launcherVelocity);
 
         double position = .01;
         for (int i=0; i<95; i++) {
@@ -660,12 +630,38 @@ public class MechWarriorCode {
             intakeMotor.setPower(intakePower);
         }
 
-        if (botOpMode.gamepad2.a) {
+        if (botOpMode.gamepad1.dpad_up){
+            //launcher.setPower(launcher.getPower() + launcherPowerIncrement);
+            launcherVelocity = launcher.getVelocity() + launcherVelocityIncrement;
             launcher.setVelocity(launcherVelocity);
         }
 
-        if (botOpMode.gamepad2.b) {
+        if (botOpMode.gamepad1.dpad_down){
+            //launcher.setPower(launcher.getPower() - launcherPowerIncrement);
+            launcherVelocity = launcher.getVelocity() - launcherVelocityIncrement;
+            launcher.setVelocity(launcherVelocity);
+        }
+
+        if (botOpMode.gamepad1.dpad_right) {
+            //launcher.setPower(launcherPower);
+            launcher.setVelocity(launcherVelocity);
+        }
+
+        if (botOpMode.gamepad1.dpad_left) {
+            //launcher.setPower(0);
+            launcher.setVelocity(0);
+
+        }
+
+        if (botOpMode.gamepad1.a && launcher.getVelocity() == launcherVelocity) {
+            shootLauncher();
+        }
+
+        if (botOpMode.gamepad1.right_trigger == 1.0) {
             launcherVelocity = launcherPowershotVelocity;
+            launcher.setVelocity(launcherPowershotVelocity);
+        } else {
+            launcherVelocity = launcherHighGoalVelocity;
             launcher.setVelocity(launcherVelocity);
         }
 
@@ -690,7 +686,7 @@ public class MechWarriorCode {
         }
 
         if (botOpMode.gamepad2.left_bumper) {
-            dropBlueWobbleGoal();
+            pickupBlueWobbleGoal();
         }
 
         if (botOpMode.gamepad2.right_bumper) {
@@ -708,10 +704,17 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
     }
 
-    public void launcherPowershot(double velocity) {
+    public void launcherPowershot(double velocity) throws InterruptedException {
 
         launcher.setVelocity(velocity);
 
+        while (botOpMode.opModeIsActive()) {
+            Thread.sleep(100);
+            if (launcher.getVelocity() == velocity) {
+                shootAutoLauncher();
+                break;
+            }
+        }
     }
 
     public void launcherOff () {
@@ -759,6 +762,8 @@ public class MechWarriorCode {
 
     public void prepareLauncher() throws InterruptedException {
         ringServo.setPosition(0.0);
+        launcher.setVelocity(launcherVelocity);
+        Thread.sleep(3000);
     }
 
     public void dropBlueWobbleGoal() {
@@ -767,6 +772,14 @@ public class MechWarriorCode {
         redWobbleGoal.setPosition(1.0);
 
     }
+
+    public void pickupBlueWobbleGoal() {
+
+        blueWobbleGoal.setPosition(.55);
+        redWobbleGoal.setPosition(.55);
+
+    }
+
 
     public void raiseBlueWobbleGoal() {
 
@@ -889,8 +902,8 @@ public class MechWarriorCode {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
             int cutSpeed = 20;
-            int angleTolerance = 3;
-            int cyckeTime = 250;
+            int angleTolerance = 5;
+            int cycleTime = 250;
             driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
@@ -906,13 +919,13 @@ public class MechWarriorCode {
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else if (angle + angleTolerance < gyroHeading) {
                     frontLeft.setPower(-halfPower);
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -927,8 +940,8 @@ public class MechWarriorCode {
         if (botOpMode.opModeIsActive()) {
             double halfPower = power/2;
             int cutSpeed = 20;
-            int angleTolerance = 3;
-            int cyckeTime = 250;
+            int angleTolerance = 5;
+            int cycleTime = 250;
             driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
@@ -944,13 +957,13 @@ public class MechWarriorCode {
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else if (angle - angleTolerance > gyroHeading) {
                     frontLeft.setPower(halfPower);
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
@@ -968,7 +981,7 @@ public class MechWarriorCode {
             double halfPower = power/2;
             int cutSpeed = 20;
             int angleTolerance = 1;
-            int cyckeTime = 250;
+            int cycleTime = 250;
             driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
@@ -984,13 +997,13 @@ public class MechWarriorCode {
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else if (angle + angleTolerance < gyroHeading) {
                     frontLeft.setPower(-halfPower);
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else {
                     stopDriving();
                     ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
@@ -1007,8 +1020,8 @@ public class MechWarriorCode {
             Thread.sleep(pause);
             double halfPower = power/2;
             int cutSpeed = 20;
-            int angleTolerance = 1;
-            int cyckeTime = 250;
+            int angleTolerance = 2;
+            int cycleTime = 250;
             driveBreak();
             stopAndResetEncoder();
             runUsingEncoder();
@@ -1024,13 +1037,13 @@ public class MechWarriorCode {
                     frontRight.setPower(halfPower);
                     backLeft.setPower(-halfPower);
                     backRight.setPower(halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else if (angle - angleTolerance > gyroHeading) {
                     frontLeft.setPower(halfPower);
                     frontRight.setPower(-halfPower);
                     backLeft.setPower(halfPower);
                     backRight.setPower(-halfPower);
-                    Thread.sleep(cyckeTime);
+                    Thread.sleep(cycleTime);
                 } else {
                     stopDriving();
                     ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
