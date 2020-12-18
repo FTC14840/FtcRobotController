@@ -619,6 +619,16 @@ public class MechWarriorCode {
         moveRobot();
     }
 
+    public void shootLauncher() throws InterruptedException {
+        ringServo.setPosition(1.0);
+//        Thread.sleep(250);
+//        ringServo.setPosition(0.80);
+//        Thread.sleep(250);
+//        ringServo.setPosition(1.0);
+//        Thread.sleep(500);
+        ringServo.setPosition(0.0);
+    }
+
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setPower(0.0);
@@ -698,13 +708,9 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
     }
 
-    public void signalRedAlliance() {
-        ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-    }
+    public void launcherPowershot(double velocity) {
 
-    public void launcherPowershot(double speed) {
-
-        launcher.setVelocity(900);
+        launcher.setVelocity(velocity);
 
     }
 
@@ -712,14 +718,6 @@ public class MechWarriorCode {
 
         launcher.setPower(0.0);
 
-    }
-
-    public boolean readyToShoot(double powershotRange) {
-        if (Math.abs(powershotRange) < 10 && Math.abs(relativeBearing) < 1) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public void raiseMagazine() {
@@ -751,17 +749,15 @@ public class MechWarriorCode {
 
     public void shootAutoLauncher() throws InterruptedException {
         ringServo.setPosition(1.0);
-        Thread.sleep(250);
-        ringServo.setPosition(0.80);
-        Thread.sleep(250);
-        ringServo.setPosition(1.0);
+//        Thread.sleep(250);
+//        ringServo.setPosition(0.80);
+//        Thread.sleep(250);
+//        ringServo.setPosition(1.0);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
     }
 
-    public void shootLauncher() throws InterruptedException {
-        ringServo.setPosition(1.0);
-        Thread.sleep(250);
+    public void prepareLauncher() throws InterruptedException {
         ringServo.setPosition(0.0);
     }
 
@@ -777,14 +773,6 @@ public class MechWarriorCode {
         blueWobbleGoal.setPosition(0.0);
         redWobbleGoal.setPosition(0.0);
 
-    }
-
-    public void intakeOn() {
-        intakeMotor.setPower(1.0);
-    }
-
-    public void intakeOff() {
-        intakeMotor.setPower(0.0);
     }
 
     public void gyroForward(int distance, double power, double angle, int pause) throws InterruptedException {
@@ -805,27 +793,6 @@ public class MechWarriorCode {
                 } else {
                     stopDriving();
                     Thread.sleep(pause);
-                    break;
-                }
-            }
-        }
-    }
-
-    public void gyroForwardFloat(int distance, double power, double angle) throws InterruptedException {
-        if (botOpMode.opModeIsActive()) {
-            driveFloat();
-            driveByInches(distance);
-            runToPosition();
-            while (botOpMode.opModeIsActive()) {
-                double gyroHeading = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-                double errorMultiple = 1.0;
-                double error = (errorMultiple * (gyroHeading - angle) / 100);
-                if (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) {
-                    frontLeft.setPower(power + error);
-                    frontRight.setPower(power - error);
-                    backLeft.setPower(power + error);
-                    backRight.setPower(power - error);
-                } else {
                     break;
                 }
             }
