@@ -591,11 +591,7 @@ public class MechWarriorCode {
 
     public void shootLauncher() throws InterruptedException {
         ringServo.setPosition(1.0);
-//        Thread.sleep(250);
-//        ringServo.setPosition(0.80);
-//        Thread.sleep(250);
-//        ringServo.setPosition(1.0);
-//        Thread.sleep(500);
+        Thread.sleep(500);
         ringServo.setPosition(0.0);
     }
 
@@ -659,8 +655,10 @@ public class MechWarriorCode {
 
         if (botOpMode.gamepad1.right_trigger == 1.0) {
             launcherVelocity = launcherPowershotVelocity;
-            launcher.setVelocity(launcherPowershotVelocity);
-        } else {
+            launcher.setVelocity(launcherVelocity);
+        }
+
+        if (botOpMode.gamepad1.right_trigger == 0.0) {
             launcherVelocity = launcherHighGoalVelocity;
             launcher.setVelocity(launcherVelocity);
         }
