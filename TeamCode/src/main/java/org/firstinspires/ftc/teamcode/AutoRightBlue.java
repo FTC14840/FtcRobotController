@@ -35,14 +35,13 @@ public class AutoRightBlue extends LinearOpMode {
         robot.signalBlueAlliance();
         robot.gyroForward(66,0.60,-30,50);
         robot.raiseMagazine();
-        robot.shootLauncher();
-        robot.launcherPowershot(0.81);
+        robot.prepareLauncher();
+        robot.launcherPowershot(940);
         Thread.sleep(2000);
         robot.gyroRightPowershot(.30, 0.0,250);
         robot.shootAutoLauncher();
         robot.gyroRightPowershot(.30, -3.0,250);
         robot.shootAutoLauncher();
-        robot.launcherPowershot(0.86);
         robot.gyroRightPowershot(.30, -6.0,250);
         robot.shootAutoLauncher();
         Thread.sleep(1000);
