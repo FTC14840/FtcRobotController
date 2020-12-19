@@ -59,7 +59,7 @@ public class MechWarriorCode {
     private Servo blueCam;           // 1
 
     private double launcherVelocity = 980.0; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 980.0;
+    private double launcherHighGoalVelocity = 960.0;
     private double launcherPowershotVelocity = 920.0;
     private double launcherVelocityIncrement = 20;
     private double intakePower = 0.0;
@@ -208,7 +208,7 @@ public class MechWarriorCode {
         blueCam.setPosition(0.0);
 
         redWobbleGoal = botOpMode.hardwareMap.get(Servo.class, "redWobbleGoal");
-        redWobbleGoal.setDirection(Servo.Direction.FORWARD);
+        redWobbleGoal.setDirection(Servo.Direction.REVERSE);
         redWobbleGoal.setPosition(0.0);
 
         redCam = botOpMode.hardwareMap.get(Servo.class, "redCam");
@@ -590,9 +590,11 @@ public class MechWarriorCode {
     }
 
     public void shootLauncher() throws InterruptedException {
-        ringServo.setPosition(1.0);
-        Thread.sleep(500);
-        ringServo.setPosition(0.0);
+        if(magazineMotor.getCurrentPosition() == magazineTargetPosition) {
+            ringServo.setPosition(1.0);
+            Thread.sleep(500);
+            ringServo.setPosition(0.0);
+        }
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
@@ -602,7 +604,7 @@ public class MechWarriorCode {
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
-        for (int i=0; i<95; i++) {
+        for (int i=0; i<100; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
@@ -614,16 +616,19 @@ public class MechWarriorCode {
         if (botOpMode.gamepad1.x && intakePower == 0.0) {
             intakePower = 1.0;
             intakeMotor.setPower(intakePower);
+            lowerMagazine();;
         }
 
         if (botOpMode.gamepad1.y) {
             intakePower = 0.0;
             intakeMotor.setPower(intakePower);
+            raiseMagazine();
         }
 
         if (botOpMode.gamepad1.b && intakePower == 0.0) {
             intakePower = -1.0;
             intakeMotor.setPower(intakePower);
+            lowerMagazine();
         }
 
         if (botOpMode.gamepad1.dpad_up){
@@ -640,12 +645,14 @@ public class MechWarriorCode {
 
         if (botOpMode.gamepad1.dpad_right) {
             //launcher.setPower(launcherPower);
+            launcherVelocity = launcherHighGoalVelocity;
             launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad1.dpad_left) {
             //launcher.setPower(0);
-            launcher.setVelocity(0);
+            launcherVelocity = 0.0;
+            launcher.setVelocity(launcherVelocity);
 
         }
 
@@ -653,32 +660,18 @@ public class MechWarriorCode {
             shootLauncher();
         }
 
-        if (botOpMode.gamepad1.right_trigger == 1.0) {
+        if (botOpMode.gamepad1.left_trigger == 1.0) {
             launcherVelocity = launcherPowershotVelocity;
             launcher.setVelocity(launcherVelocity);
         }
 
-        if (botOpMode.gamepad1.right_trigger == 0.0) {
+        if (botOpMode.gamepad1.left_trigger == 0.0) {
             launcherVelocity = launcherHighGoalVelocity;
             launcher.setVelocity(launcherVelocity);
         }
 
         if (botOpMode.gamepad2.dpad_up) {
-            raiseMagazine();
-        }
-
-        if (botOpMode.gamepad2.dpad_down) {
-            lowerMagazine();
-        }
-
-        if (botOpMode.gamepad2.dpad_right) {
-            magazineTargetPosition ++;
-            Thread.sleep(200);
-            raiseMagazine();
-        }
-
-        if (botOpMode.gamepad2.dpad_left) {
-            magazineTargetPosition --;
+            magazineTargetPosition++;
             Thread.sleep(200);
             raiseMagazine();
         }
@@ -773,8 +766,8 @@ public class MechWarriorCode {
 
     public void pickupBlueWobbleGoal() {
 
-        blueWobbleGoal.setPosition(.55);
-        redWobbleGoal.setPosition(.55);
+        blueWobbleGoal.setPosition(.50);
+        redWobbleGoal.setPosition(.50);
 
     }
 
