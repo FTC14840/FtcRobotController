@@ -63,7 +63,7 @@ public class MechWarriorCode {
     private double launcherPowershotVelocity = 920.0;
     private double launcherVelocityIncrement = 20;
     private double intakePower = 0.0;
-    private int magazineTargetPosition = 200;
+    private int magazineTargetPosition = 205;
 
     // Launcher Velocity
 //    double RPM = 6000; // 6000 Max
@@ -590,11 +590,9 @@ public class MechWarriorCode {
     }
 
     public void shootLauncher() throws InterruptedException {
-        if(magazineMotor.getCurrentPosition() == magazineTargetPosition) {
-            ringServo.setPosition(1.0);
-            Thread.sleep(500);
-            ringServo.setPosition(0.0);
-        }
+        ringServo.setPosition(1.0);
+        Thread.sleep(500);
+        ringServo.setPosition(0.0);
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
@@ -604,7 +602,7 @@ public class MechWarriorCode {
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<98; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
@@ -656,7 +654,7 @@ public class MechWarriorCode {
 
         }
 
-        if (botOpMode.gamepad1.a && launcher.getVelocity() == launcherVelocity) {
+        if (botOpMode.gamepad1.a) {
             shootLauncher();
         }
 
@@ -726,6 +724,7 @@ public class MechWarriorCode {
                 e.printStackTrace();
             }
         }
+        ringServo.setPosition(0.0);
     }
 
     public void lowerMagazine() {
@@ -752,7 +751,6 @@ public class MechWarriorCode {
     }
 
     public void prepareLauncher() throws InterruptedException {
-        ringServo.setPosition(0.0);
         launcher.setVelocity(launcherVelocity);
         Thread.sleep(3000);
     }
@@ -766,8 +764,8 @@ public class MechWarriorCode {
 
     public void pickupBlueWobbleGoal() {
 
-        blueWobbleGoal.setPosition(.50);
-        redWobbleGoal.setPosition(.50);
+        blueWobbleGoal.setPosition(.40);
+        redWobbleGoal.setPosition(.40);
 
     }
 

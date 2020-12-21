@@ -33,23 +33,23 @@ public class AutoRightBlue extends LinearOpMode {
 
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
+        robot.prepareLauncher();
         robot.gyroForward(62,0.60,-10,50);
         robot.raiseMagazine();
-        robot.prepareLauncher();
         robot.gyroRightPowershot(.30, 0.0,250);
-        robot.launcherPowershot(900);
-        robot.gyroRightPowershot(.30, -4.0,250);
-        robot.launcherPowershot(900);
-        robot.gyroRightPowershot(.30, -8.0,250);
-        robot.launcherPowershot(900);
+        robot.launcherPowershot(960);
+        robot.gyroRightPowershot(.30, -6.0,250);
+        robot.launcherPowershot(960);
+        robot.gyroRightPowershot(.30, -3.0,250);
+        robot.launcherPowershot(960);
         robot.signalBlueAlliance();
         robot.launcherOff();
 
         if (robot.getTfodDetected() == "Quad") {
 
             // Code for Zone C
-            robot.gyroLeft(.50,16,0);
-            robot.gyroForward(54, 1.0,16,0);
+            robot.gyroLeft(.50,20,0);
+            robot.gyroForward(54, 1.0,20,0);
             robot.gyroRightPowershot(.50,0,0);
             robot.dropBlueWobbleGoal();
             Thread.sleep(1000);
