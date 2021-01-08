@@ -59,18 +59,19 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 880; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 880;
+    private double launcherVelocity = 920; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 920;
     private double launcherPowershotVelocity = 860;
     private double launcherVelocityIncrement = 20;
 
-    double kP = 200.0;
-    double kI = 20.0;
-    double kD = 2.0;
+    double kP = 800;
+    double kI = 80.00;
+    double kD = 8.0;
     double F = 15.0;
+    int shotSpeed = 2000;
 
     private double intakePower = 0.0;
-    private int magazineTargetPosition = 200;
+    private int magazineTargetPosition = 205;
 
     // Launcher Velocity
 //    double RPM = 6000; // 6000 Max
@@ -602,7 +603,7 @@ public class MechWarriorCode {
         ringServo.setPosition(.40);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
-        //Thread.sleep(1500);
+        Thread.sleep(shotSpeed);
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
@@ -664,9 +665,7 @@ public class MechWarriorCode {
 //
 //        }
 
-        if (botOpMode.gamepad1.a && magazineMotor.getCurrentPosition() > 100 &&
-                launcher.getVelocity() > (launcherVelocity - 20) &&
-                launcher.getVelocity() < (launcherVelocity + 20)) {
+        if (botOpMode.gamepad1.a && magazineMotor.getCurrentPosition() > 100 && launcher.getVelocity() == launcherVelocity) {
             shootLauncher();
         }
 
