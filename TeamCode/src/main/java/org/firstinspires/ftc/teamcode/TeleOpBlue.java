@@ -30,9 +30,11 @@ public class TeleOpBlue extends LinearOpMode {
         robot.initHardware(this);
         robot.initVisionTracking(this);
         robot.calibrateGyro(this);
+        robot.magazineSetup(.02, 2000);
 
         while (!isStarted()) {
             robot.initTelemetry();
+
         }
 
         waitForStart();

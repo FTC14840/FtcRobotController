@@ -28,6 +28,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
@@ -58,12 +59,18 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 980.0; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 960.0;
-    private double launcherPowershotVelocity = 920.0;
+    private double launcherVelocity = 880; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 880;
+    private double launcherPowershotVelocity = 860;
     private double launcherVelocityIncrement = 20;
+
+    double kP = 200.0;
+    double kI = 20.0;
+    double kD = 2.0;
+    double F = 15.0;
+
     private double intakePower = 0.0;
-    private int magazineTargetPosition = 205;
+    private int magazineTargetPosition = 200;
 
     // Launcher Velocity
 //    double RPM = 6000; // 6000 Max
@@ -186,6 +193,8 @@ public class MechWarriorCode {
         launcher = botOpMode.hardwareMap.get(DcMotorEx.class, "launcher");
         launcher.setDirection(DcMotorEx.Direction.REVERSE);
         launcher.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        launcher.setVelocityPIDFCoefficients(kP,kI,kD,F);
+        launcher.setPositionPIDFCoefficients(5.0);
         launcher.setPower(0.0);
 
         intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
@@ -217,7 +226,7 @@ public class MechWarriorCode {
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
         ringServo.setDirection(Servo.Direction.REVERSE);
-        ringServo.setPosition(1.0);
+        ringServo.setPosition(.40);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
         intakeServo.setDirection(Servo.Direction.REVERSE);
@@ -590,9 +599,10 @@ public class MechWarriorCode {
     }
 
     public void shootLauncher() throws InterruptedException {
-        ringServo.setPosition(1.0);
+        ringServo.setPosition(.40);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
+        //Thread.sleep(1500);
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
@@ -602,7 +612,7 @@ public class MechWarriorCode {
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
-        for (int i=0; i<98; i++) {
+        for (int i=0; i<100; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
@@ -629,32 +639,34 @@ public class MechWarriorCode {
             lowerMagazine();
         }
 
-        if (botOpMode.gamepad1.dpad_up){
-            //launcher.setPower(launcher.getPower() + launcherPowerIncrement);
-            launcherVelocity = launcher.getVelocity() + launcherVelocityIncrement;
-            launcher.setVelocity(launcherVelocity);
-        }
+//        if (botOpMode.gamepad1.dpad_up){
+//            //launcher.setPower(launcher.getPower() + launcherPowerIncrement);
+//            launcherVelocity = launcher.getVelocity() + launcherVelocityIncrement;
+//            launcher.setVelocity(launcherVelocity);
+//        }
+//
+//        if (botOpMode.gamepad1.dpad_down){
+//            //launcher.setPower(launcher.getPower() - launcherPowerIncrement);
+//            launcherVelocity = launcher.getVelocity() - launcherVelocityIncrement;
+//            launcher.setVelocity(launcherVelocity);
+//        }
+//
+//        if (botOpMode.gamepad1.dpad_right) {
+//            //launcher.setPower(launcherPower);
+//            launcherVelocity = launcherHighGoalVelocity;
+//            launcher.setVelocity(launcherVelocity);
+//        }
+//
+//        if (botOpMode.gamepad1.dpad_left) {
+//            //launcher.setPower(0);
+//            launcherVelocity = 0.0;
+//            launcher.setVelocity(launcherVelocity);
+//
+//        }
 
-        if (botOpMode.gamepad1.dpad_down){
-            //launcher.setPower(launcher.getPower() - launcherPowerIncrement);
-            launcherVelocity = launcher.getVelocity() - launcherVelocityIncrement;
-            launcher.setVelocity(launcherVelocity);
-        }
-
-        if (botOpMode.gamepad1.dpad_right) {
-            //launcher.setPower(launcherPower);
-            launcherVelocity = launcherHighGoalVelocity;
-            launcher.setVelocity(launcherVelocity);
-        }
-
-        if (botOpMode.gamepad1.dpad_left) {
-            //launcher.setPower(0);
-            launcherVelocity = 0.0;
-            launcher.setVelocity(launcherVelocity);
-
-        }
-
-        if (botOpMode.gamepad1.a) {
+        if (botOpMode.gamepad1.a && magazineMotor.getCurrentPosition() > 100 &&
+                launcher.getVelocity() > (launcherVelocity - 20) &&
+                launcher.getVelocity() < (launcherVelocity + 20)) {
             shootLauncher();
         }
 
@@ -666,6 +678,21 @@ public class MechWarriorCode {
         if (botOpMode.gamepad1.left_trigger == 0.0) {
             launcherVelocity = launcherHighGoalVelocity;
             launcher.setVelocity(launcherVelocity);
+        }
+
+        if (botOpMode.gamepad2.x && intakePower == 0.0) {
+            intakePower = 1.0;
+            intakeMotor.setPower(intakePower);
+        }
+
+        if (botOpMode.gamepad2.y) {
+            intakePower = 0.0;
+            intakeMotor.setPower(intakePower);
+        }
+
+        if (botOpMode.gamepad2.b && intakePower == 0.0) {
+            intakePower = -1.0;
+            intakeMotor.setPower(intakePower);
         }
 
         if (botOpMode.gamepad2.dpad_up) {
@@ -710,6 +737,18 @@ public class MechWarriorCode {
 
         launcher.setPower(0.0);
 
+    }
+
+    public void magazineSetup(double power, int time) throws InterruptedException {
+
+        magazineMotor.setTargetPosition(magazineTargetPosition);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(power);
+        Thread.sleep(time);
+        magazineMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        magazineMotor.setTargetPosition(0);
+        magazineMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        magazineMotor.setPower(0);
     }
 
     public void raiseMagazine() {
@@ -1062,10 +1101,10 @@ public class MechWarriorCode {
     }
 
     public void runUsingEncoder() {
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(RUN_USING_ENCODER);
+        frontRight.setMode(RUN_USING_ENCODER);
+        backLeft.setMode(RUN_USING_ENCODER);
+        backRight.setMode(RUN_USING_ENCODER);
     }
 
     public void runWithoutEncoder() {
