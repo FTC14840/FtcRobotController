@@ -61,7 +61,7 @@ public class MechWarriorCode {
 
     private double launcherVelocity = 920; //Starting Velocity in Increments of 20
     private double launcherHighGoalVelocity = 920;
-    private double launcherPowershotVelocity = 860;
+    private double launcherPowershotVelocity = 880;
     private double launcherVelocityIncrement = 20;
 
     double kP = 800;
@@ -72,13 +72,6 @@ public class MechWarriorCode {
 
     private double intakePower = 0.0;
     private int magazineTargetPosition = 205;
-
-    // Launcher Velocity
-//    double RPM = 6000; // 6000 Max
-//    double RPS = Math.abs(RPM / 60);
-//    double TPS = Math.abs(RPS * 28);
-//    double launcherVelocity = Math.abs(TPS * .32);
-//    double launcherIncrement = Math.abs(TPS * .01);
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -779,11 +772,7 @@ public class MechWarriorCode {
     }
 
     public void shootAutoLauncher() throws InterruptedException {
-        ringServo.setPosition(1.0);
-//        Thread.sleep(250);
-//        ringServo.setPosition(0.80);
-//        Thread.sleep(250);
-//        ringServo.setPosition(1.0);
+        ringServo.setPosition(.40);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
     }
