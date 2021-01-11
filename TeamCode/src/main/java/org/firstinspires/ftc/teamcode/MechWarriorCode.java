@@ -64,11 +64,11 @@ public class MechWarriorCode {
     private double launcherPowershotVelocity = 880;
     private double launcherVelocityIncrement = 20;
 
-    double kP = 800;
-    double kI = 80.00;
-    double kD = 8.0;
+    double kP = 700;
+    double kI = 70.00;
+    double kD = 7.0;[]
     double F = 15.0;
-    int shotSpeed = 2000;
+    int shotSpeed = 1000;
 
     private double intakePower = 0.0;
     private int magazineTargetPosition = 205;
@@ -593,10 +593,11 @@ public class MechWarriorCode {
     }
 
     public void shootLauncher() throws InterruptedException {
+        Thread.sleep(shotSpeed);
         ringServo.setPosition(.40);
         Thread.sleep(500);
         ringServo.setPosition(0.0);
-        Thread.sleep(shotSpeed);
+
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
@@ -712,12 +713,12 @@ public class MechWarriorCode {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
     }
 
-    public void launcherPowershot(double velocity) throws InterruptedException {
+    public void launcherAutoPowershot(double velocity) throws InterruptedException {
 
         launcher.setVelocity(velocity);
 
         while (botOpMode.opModeIsActive()) {
-            Thread.sleep(100);
+            Thread.sleep(500);
             if (launcher.getVelocity() == velocity) {
                 shootAutoLauncher();
                 break;
@@ -777,8 +778,8 @@ public class MechWarriorCode {
         ringServo.setPosition(0.0);
     }
 
-    public void prepareLauncher() throws InterruptedException {
-        launcher.setVelocity(launcherVelocity);
+    public void prepareLauncher(double launcherAutoVelocity) throws InterruptedException {
+        launcher.setVelocity(launcherAutoVelocity);
         Thread.sleep(3000);
     }
 
@@ -791,8 +792,8 @@ public class MechWarriorCode {
 
     public void pickupBlueWobbleGoal() {
 
-        blueWobbleGoal.setPosition(.40);
-        redWobbleGoal.setPosition(.40);
+        blueWobbleGoal.setPosition(.60);
+        redWobbleGoal.setPosition(.60);
 
     }
 

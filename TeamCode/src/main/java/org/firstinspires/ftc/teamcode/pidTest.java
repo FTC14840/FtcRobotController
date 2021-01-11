@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp
-//@Disabled
+@Disabled
 
 public class pidTest extends LinearOpMode {
     DcMotorEx motor;
