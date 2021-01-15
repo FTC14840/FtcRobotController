@@ -53,24 +53,28 @@ public class MechWarriorCode {
     // imu on IC2 Bus 0
 
     // Left Expansion Hub
-    private DcMotor intakeMotor;     // 0
+    private DcMotorEx intakeMotor;     // 0
     private DcMotor frontLeft;       // 2
     private DcMotor backLeft;        // 3
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 920; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 920;
-    private double launcherPowershotVelocity = 880;
+    private double launcherVelocity = 840; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 840;
+    private double launcherPowershotVelocity = 800;
     private double launcherVelocityIncrement = 20;
 
-    double kP = 700;
-    double kI = 70.00;
-    double kD = 7.0;[]
+    double kP = 800.0;
+    double kI = 80.0;
+    double kD = 8.0;
     double F = 15.0;
-    int shotSpeed = 1000;
+    int shotSpeed = 500;
 
-    private double intakePower = 0.0;
+    private double intakeVelocity = 800;
+    double intakeKP = 800.0;
+    double intakeKI = 80.0;
+    double intakeKD = 8.0;
+    double intakeF = 15.0;
     private int magazineTargetPosition = 205;
 
     // Define global variables/fields for three axis motion
@@ -191,10 +195,12 @@ public class MechWarriorCode {
         launcher.setPositionPIDFCoefficients(5.0);
         launcher.setPower(0.0);
 
-        intakeMotor = botOpMode.hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor = botOpMode.hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        intakeMotor.setPower(0.0);
+        launcher.setVelocityPIDFCoefficients(intakeKP,intakeKI,intakeKD,intakeF);
+        launcher.setPositionPIDFCoefficients(5.0);
+        intakeMotor.setVelocity(0.0);
 
         magazineMotor = botOpMode.hardwareMap.get(DcMotor.class, "magazineMotor");
         magazineMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -439,11 +445,11 @@ public class MechWarriorCode {
             blinkinTimer = 1;
         }
 
-        if(targetName == "Blue Tower Goal Target"  && botOpMode.time < 80) {
+        if(targetName == "Blue Tower Goal Target"  && botOpMode.time < 70) {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 80 && botOpMode.time < 90){
+        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 70 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
-        } else if(botOpMode.time >= 80 && botOpMode.time < 90){
+        } else if(botOpMode.time >= 70 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
         } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 90 && botOpMode.time < 110){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
@@ -467,11 +473,11 @@ public class MechWarriorCode {
             blinkinTimer = 1;
         }
 
-        if(targetName == "Red Tower Goal Target"  && botOpMode.time < 80) {
+        if(targetName == "Red Tower Goal Target"  && botOpMode.time < 70) {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 80 && botOpMode.time < 90){
+        } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 70 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_RED);
-        } else if(botOpMode.time >= 80 && botOpMode.time < 90){
+        } else if(botOpMode.time >= 70 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
         } else if(targetName == "Red Tower Goal Target"  && botOpMode.time >= 90 && botOpMode.time < 110){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
@@ -594,15 +600,21 @@ public class MechWarriorCode {
 
     public void shootLauncher() throws InterruptedException {
         Thread.sleep(shotSpeed);
-        ringServo.setPosition(.40);
-        Thread.sleep(500);
-        ringServo.setPosition(0.0);
-
+        if (launcherVelocity == launcher.getVelocity()) {
+            Thread.sleep(shotSpeed);
+            while (launcherVelocity == launcher.getVelocity()) {
+                Thread.sleep(shotSpeed);
+                ringServo.setPosition(.40);
+                Thread.sleep(shotSpeed);
+                ringServo.setPosition(0.0);
+                break;
+            }
+        }
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
 
-        intakeMotor.setPower(0.0);
+        intakeMotor.setVelocity(0.0);
         ringServo.setPosition(0.0);
         launcher.setVelocity(launcherVelocity);
 
@@ -616,21 +628,18 @@ public class MechWarriorCode {
 
     public void auxiliaryControls() throws InterruptedException {
 
-        if (botOpMode.gamepad1.x && intakePower == 0.0) {
-            intakePower = 1.0;
-            intakeMotor.setPower(intakePower);
-            lowerMagazine();;
+        if (botOpMode.gamepad1.x && intakeMotor.getVelocity() == 0.0) {
+            intakeMotor.setVelocity(intakeVelocity);
+            lowerMagazine();
         }
 
         if (botOpMode.gamepad1.y) {
-            intakePower = 0.0;
-            intakeMotor.setPower(intakePower);
+            intakeMotor.setVelocity(0.0);
             raiseMagazine();
         }
 
-        if (botOpMode.gamepad1.b && intakePower == 0.0) {
-            intakePower = -1.0;
-            intakeMotor.setPower(intakePower);
+        if (botOpMode.gamepad1.b && intakeMotor.getVelocity() == 0.0) {
+            intakeMotor.setVelocity(-intakeVelocity);
             lowerMagazine();
         }
 
@@ -673,25 +682,16 @@ public class MechWarriorCode {
             launcher.setVelocity(launcherVelocity);
         }
 
-        if (botOpMode.gamepad2.x && intakePower == 0.0) {
-            intakePower = 1.0;
-            intakeMotor.setPower(intakePower);
+        if (botOpMode.gamepad2.x && intakeMotor.getVelocity() == 0.0) {
+            intakeMotor.setVelocity(intakeVelocity);
         }
 
         if (botOpMode.gamepad2.y) {
-            intakePower = 0.0;
-            intakeMotor.setPower(intakePower);
+            intakeMotor.setVelocity(0.0);
         }
 
-        if (botOpMode.gamepad2.b && intakePower == 0.0) {
-            intakePower = -1.0;
-            intakeMotor.setPower(intakePower);
-        }
-
-        if (botOpMode.gamepad2.dpad_up) {
-            magazineTargetPosition++;
-            Thread.sleep(200);
-            raiseMagazine();
+        if (botOpMode.gamepad2.b && intakeMotor.getVelocity() == 0.0) {
+            intakeMotor.setVelocity(-intakeVelocity);
         }
 
         if (botOpMode.gamepad2.left_bumper) {
@@ -701,8 +701,6 @@ public class MechWarriorCode {
         if (botOpMode.gamepad2.right_bumper) {
             raiseBlueWobbleGoal();
         }
-
-
     }
 
     /**
