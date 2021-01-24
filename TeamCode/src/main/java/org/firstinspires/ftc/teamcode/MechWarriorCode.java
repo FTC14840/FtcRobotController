@@ -59,23 +59,21 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 840; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 840;
-    private double launcherPowershotVelocity = 800;
+    private double launcherVelocity = 820; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 820;
+    private double launcherPowershotVelocity = 780;
     private double launcherVelocityIncrement = 20;
 
     double kP = 800.0;
     double kI = 80.0;
     double kD = 8.0;
     double F = 15.0;
-    int shotSpeed = 500;
+    int shotSpeed = 600;
 
     private double intakeVelocity = 800;
-    double intakeKP = 800.0;
-    double intakeKI = 80.0;
-    double intakeKD = 8.0;
-    double intakeF = 15.0;
-    private int magazineTargetPosition = 205;
+    private int magazineTargetPosition = 200;
+    private double ringServoOpen = .08;
+    private double ringServoClose = .50;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -198,8 +196,6 @@ public class MechWarriorCode {
         intakeMotor = botOpMode.hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        launcher.setVelocityPIDFCoefficients(intakeKP,intakeKI,intakeKD,intakeF);
-        launcher.setPositionPIDFCoefficients(5.0);
         intakeMotor.setVelocity(0.0);
 
         magazineMotor = botOpMode.hardwareMap.get(DcMotor.class, "magazineMotor");
@@ -226,7 +222,7 @@ public class MechWarriorCode {
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
         ringServo.setDirection(Servo.Direction.REVERSE);
-        ringServo.setPosition(.40);
+        ringServo.setPosition(ringServoClose);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
         intakeServo.setDirection(Servo.Direction.REVERSE);
@@ -445,11 +441,11 @@ public class MechWarriorCode {
             blinkinTimer = 1;
         }
 
-        if(targetName == "Blue Tower Goal Target"  && botOpMode.time < 70) {
+        if(targetName == "Blue Tower Goal Target"  && botOpMode.time < 80) {
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 70 && botOpMode.time < 90){
+        } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 80 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.HEARTBEAT_BLUE);
-        } else if(botOpMode.time >= 70 && botOpMode.time < 90){
+        } else if(botOpMode.time >= 80 && botOpMode.time < 90){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP2_HEARTBEAT_MEDIUM);
         } else if(targetName == "Blue Tower Goal Target"  && botOpMode.time >= 90 && botOpMode.time < 110){
             ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
@@ -599,23 +595,17 @@ public class MechWarriorCode {
     }
 
     public void shootLauncher() throws InterruptedException {
-        Thread.sleep(shotSpeed);
         if (launcherVelocity == launcher.getVelocity()) {
+            ringServo.setPosition(ringServoClose);
             Thread.sleep(shotSpeed);
-            while (launcherVelocity == launcher.getVelocity()) {
-                Thread.sleep(shotSpeed);
-                ringServo.setPosition(.40);
-                Thread.sleep(shotSpeed);
-                ringServo.setPosition(0.0);
-                break;
-            }
+            ringServo.setPosition(ringServoOpen);
         }
     }
 
     public void initAuxiliaryControls() throws InterruptedException {
 
         intakeMotor.setVelocity(0.0);
-        ringServo.setPosition(0.0);
+        ringServo.setPosition(ringServoOpen);
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
@@ -716,7 +706,6 @@ public class MechWarriorCode {
         launcher.setVelocity(velocity);
 
         while (botOpMode.opModeIsActive()) {
-            Thread.sleep(500);
             if (launcher.getVelocity() == velocity) {
                 shootAutoLauncher();
                 break;
@@ -754,7 +743,7 @@ public class MechWarriorCode {
                 e.printStackTrace();
             }
         }
-        ringServo.setPosition(0.0);
+        ringServo.setPosition(ringServoOpen);
     }
 
     public void lowerMagazine() {
@@ -771,14 +760,13 @@ public class MechWarriorCode {
     }
 
     public void shootAutoLauncher() throws InterruptedException {
-        ringServo.setPosition(.40);
-        Thread.sleep(500);
-        ringServo.setPosition(0.0);
+        ringServo.setPosition(ringServoClose);
+        Thread.sleep(700);
+        ringServo.setPosition(ringServoOpen);
     }
 
     public void prepareLauncher(double launcherAutoVelocity) throws InterruptedException {
         launcher.setVelocity(launcherAutoVelocity);
-        Thread.sleep(3000);
     }
 
     public void dropBlueWobbleGoal() {
@@ -995,7 +983,7 @@ public class MechWarriorCode {
             Thread.sleep(pause);
             double halfPower = power/2;
             int cutSpeed = 20;
-            int angleTolerance = 1;
+            int angleTolerance = 3;
             int cycleTime = 250;
             driveBreak();
             stopAndResetEncoder();
