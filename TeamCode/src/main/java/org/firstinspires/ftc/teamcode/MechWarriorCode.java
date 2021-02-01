@@ -89,7 +89,8 @@ public class MechWarriorCode {
     // Constants for driver control
     private static final double HIGHSPEED = 1.0;
     private static final double LOWSPEED = 0.75;
-    private static final double TURNSENSITIVITY = 1.5;
+    private static final double TURNSENSITIVITY = 2;
+    private static final double STRAFESENSITIVITY = 2;
 
     // Tick to inches conversion
     private static final double TICKS = 537.6; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
@@ -563,8 +564,8 @@ public class MechWarriorCode {
         // Vector addition and algebra for the pwer to each motor
         double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
-        double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        double moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        double moveBackLeft = speed * (direction * ((-driveAxial - (driveLateral * STRAFESENSITIVITY))) + (driveYaw * TURNSENSITIVITY));
+        double moveBackRight = speed * (direction * ((-driveAxial + (driveLateral * STRAFESENSITIVITY))) - (driveYaw * TURNSENSITIVITY));
 
         // Normalize all motor speeds so no value exceeds 100% power.
         double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
@@ -609,7 +610,7 @@ public class MechWarriorCode {
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<90; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
