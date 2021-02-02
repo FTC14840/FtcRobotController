@@ -293,9 +293,9 @@ public class MechWarriorCode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         //TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters();
         tfodParameters.minResultConfidence = 0.6f;
-        tfodCurrentGame = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfodCurrentGame.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfodCurrentGame.setZoom(1.0, 1.78);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+        tfod.setZoom(1.0, 1.78);
         if (tfod != null) {
             tfod.activate();
         }
