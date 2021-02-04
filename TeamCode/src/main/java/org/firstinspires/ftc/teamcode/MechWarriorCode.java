@@ -61,9 +61,9 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 820; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 820;
-    private double launcherPowershotVelocity = 780;
+    private double launcherVelocity = 840; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 840;
+    private double launcherPowershotVelocity = 800;
     private double launcherVelocityIncrement = 20;
 
     double kP = 800.0;
@@ -74,8 +74,9 @@ public class MechWarriorCode {
 
     private double intakeVelocity = 800;
     private int magazineTargetPosition = 200;
+    private double ringServoStart = .42;
     private double ringServoOpen = .05;
-    private double ringServoClose = .44;
+    private double ringServoClose = .50;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -106,8 +107,6 @@ public class MechWarriorCode {
     private OpenGLMatrix lastLocation = null;
     private VuforiaLocalizer vuforia = null;
     private TFObjectDetector tfod = null;
-    private TfodCurrentGame tfodCurrentGame = null;
-    //private TfodBase tfodbase = null;
     private VuforiaTrackables targets;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final String VUFORIA_KEY = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
@@ -148,6 +147,8 @@ public class MechWarriorCode {
 
     RevBlinkinLedDriver ledLights;
     int blinkinTimer = 0;
+
+    int autoShotTimer = 0;
 
     /* Constructor for Cruise Control */
     public MechWarriorCode() {
@@ -233,14 +234,14 @@ public class MechWarriorCode {
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
         ringServo.setDirection(Servo.Direction.REVERSE);
-        ringServo.setPosition(ringServoClose);
+        ringServo.setPosition(ringServoStart);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
         intakeServo.setDirection(Servo.Direction.REVERSE);
         intakeServo.setPosition(0.0);
     }
 
-    public void initVisionAndTfod(LinearOpMode opMode) throws InterruptedException {
+    public void initTfod(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
         //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
@@ -283,106 +284,36 @@ public class MechWarriorCode {
             targets.activate();
         }
 
-        //botOpMode = opMode;
-        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        //VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        //vuforiaParameters.vuforiaLicenseKey = VUFORIA_KEY;
-        //vuforiaParameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        //vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
         int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        //TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters();
         tfodParameters.minResultConfidence = 0.6f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
         tfod.setZoom(1.0, 1.78);
+
         if (tfod != null) {
             tfod.activate();
         }
 
     }
 
-    public void deactivateTfod (LinearOpMode opMode) throws InterruptedException {
-        botOpMode = opMode;
-        tfodCurrentGame.close();
-    }
+    public void activateVision (LinearOpMode opMode) throws InterruptedException {
 
-    public void initTfod(LinearOpMode opMode) throws InterruptedException {
-        botOpMode = opMode;
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        vuforiaParameters.vuforiaLicenseKey = VUFORIA_KEY;
-        vuforiaParameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
-        int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.7f;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-        tfod.setZoom(1.0, 1.78);
-        if (tfod != null) {
-            tfod.activate();
+        tfod.deactivate();
+
+        if (targets != null) {
+            targets.activate();
         }
 
-        //webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        //parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        //parameters.cameraName = webcamName;
-        //vuforia = ClassFactory.getInstance().createVuforia(parameters);
-//        vuforiaParameters.useExtendedTracking = false;
-//        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-//        targets.get(0).setName("Blue Tower Goal Target");
-//        targets.get(1).setName("Red Tower Goal Target");
-//        targets.get(2).setName("Red Alliance Target");
-//        targets.get(3).setName("Blue Alliance Target");
-//        targets.get(4).setName("Front Wall Target");
-//
-//        allTrackables.addAll(targets);
-//        OpenGLMatrix targetOrientation = OpenGLMatrix
-//                .translation(0, 0, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
-//                        AngleUnit.DEGREES, 90, 0, -90));
-//
-//        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-//        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-//        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
-//        final float PHONE_X_ROTATE = 90;
-//        final float PHONE_Y_ROTATE = -90;
-//        final float PHONE_Z_ROTATE = 0;
-//
-//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
-//
-//        for (VuforiaTrackable trackable : allTrackables) {
-//            trackable.setLocation(targetOrientation);
-//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, vuforiaParameters.cameraDirection);
-//        }
-//
-//        if (targets != null) {
-//            targets.activate();
-//        }
-
-//        stopAndResetEncoder();
-//        runWithoutEncoder();
     }
-
-//    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
-//        botOpMode = opMode;
-//        tfod.deactivate();
-//        tfod.shutdown();
-//    }
-
 
 
     // This method is from the cruise control example and sets the targets relative to the bot.
     public void initVisionTracking(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = webcamName;
         parameters.useExtendedTracking = false;
@@ -773,6 +704,13 @@ public class MechWarriorCode {
     /**
      * Autonomous Methods
      **/
+
+    public void autoTimer () {
+        if (autoShotTimer == 0) {
+            botOpMode.resetStartTime();
+            autoShotTimer = 1;
+        }
+    }
 
     public boolean autoCruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
                                  double cruiseControlAxialGain, double cruiseControlLateralGain, double cruiseControlYawGain) {

@@ -9,14 +9,14 @@ public class AutoRightBlueTestCruiseControl extends LinearOpMode {
 
     MechWarriorCode robot = new MechWarriorCode();
 
-    final double CRUISE_CONTROL_RANGE = 1900;
+    final double CRUISE_CONTROL_RANGE = 2000;
     final double CRUISE_CONTROL_OFFSET = 0;
     final double CRUISE_CONTROL_ANGLE = 5;
     final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
     final double CRUISE_CONTROL_LATERAL_GAIN = 0;
     final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
 
-    final double POWERSHOT_RANGE = 1900;
+    final double POWERSHOT_RANGE = 2000;
     final double POWERSHOT_OFFSET = 0;
     final double POWERSHOT_ANGLE = -12;
     final double POWERSHOT_RANGE_AXIAL_GAIN = 0.0030;
@@ -37,8 +37,7 @@ public class AutoRightBlueTestCruiseControl extends LinearOpMode {
 
         waitForStart();
 
-        robot.deactivateTfod(this);
-        robot.initVisionTracking(this);
+        robot.activateVision(this);
 
         /** Example Movements
          // robot.gyroForward(12, .20, 0, 250);
@@ -51,13 +50,13 @@ public class AutoRightBlueTestCruiseControl extends LinearOpMode {
 
         //robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
-        robot.prepareLauncher(740);
+        robot.prepareLauncher(820);
         robot.gyroForward(63,0.60,-30,0);
         robot.gyroLeft(.30,5,0);
         robot.raiseMagazine();
         Thread.sleep(250);
         robot.cruiseControlTelemetry();
-        while (robot.targetsAreVisible() && opModeIsActive()) {
+        while (robot.targetsAreVisible() && opModeIsActive() && time < 20) {
             robot.cruiseControl(CRUISE_CONTROL_RANGE, CRUISE_CONTROL_OFFSET, CRUISE_CONTROL_ANGLE,
                     CRUISE_CONTROL_AXIAL_GAIN, CRUISE_CONTROL_LATERAL_GAIN, CRUISE_CONTROL_YAW_GAIN);
             robot.moveRobot();
@@ -66,6 +65,7 @@ public class AutoRightBlueTestCruiseControl extends LinearOpMode {
                 break;
             }
         }
+        robot.moveRobot(0,0,0);
         robot.launcherAutoPowershot(820);
         robot.launcherAutoPowershot(820);
         robot.launcherAutoPowershot(820);
