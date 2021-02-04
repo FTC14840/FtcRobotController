@@ -244,7 +244,6 @@ public class MechWarriorCode {
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = webcamName;
