@@ -24,6 +24,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.external.tfod.TfodBase;
+import org.firstinspires.ftc.robotcore.external.tfod.TfodCurrentGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +61,9 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 820; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 820;
-    private double launcherPowershotVelocity = 780;
+    private double launcherVelocity = 840; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 840;
+    private double launcherPowershotVelocity = 800;
     private double launcherVelocityIncrement = 20;
 
     double kP = 800.0;
@@ -72,7 +74,8 @@ public class MechWarriorCode {
 
     private double intakeVelocity = 800;
     private int magazineTargetPosition = 200;
-    private double ringServoOpen = .08;
+    private double ringServoStart = .42;
+    private double ringServoOpen = .05;
     private double ringServoClose = .50;
 
     // Define global variables/fields for three axis motion
@@ -89,7 +92,8 @@ public class MechWarriorCode {
     // Constants for driver control
     private static final double HIGHSPEED = 1.0;
     private static final double LOWSPEED = 0.75;
-    private static final double TURNSENSITIVITY = 1.5;
+    private static final double TURNSENSITIVITY = 2;
+    private static final double STRAFESENSITIVITY = 2;
 
     // Tick to inches conversion
     private static final double TICKS = 537.6; // goBulda = 537.6, AndyMark = 1120, Tetrix = 1440
@@ -120,9 +124,11 @@ public class MechWarriorCode {
         return tfodDetected;
     }
 
+
+    private boolean closeEnough = false;
     private static final int MAX_TARGETS = 5;
-    private static final double ON_AXIS = 5;
-    private static final double CLOSE_ENOUGH = 10;
+    private static final double ON_AXIS = 10;
+    private static final double CLOSE_ENOUGH = 30;
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
@@ -132,11 +138,17 @@ public class MechWarriorCode {
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
+    public boolean getCloseEnough() {
+        return closeEnough;
+    }
+
     // Gyro fields
     BNO055IMU imu;
 
     RevBlinkinLedDriver ledLights;
     int blinkinTimer = 0;
+
+    int autoShotTimer = 0;
 
     /* Constructor for Cruise Control */
     public MechWarriorCode() {
@@ -222,7 +234,7 @@ public class MechWarriorCode {
 
         ringServo = botOpMode.hardwareMap.get(Servo.class,"ringServo");
         ringServo.setDirection(Servo.Direction.REVERSE);
-        ringServo.setPosition(ringServoClose);
+        ringServo.setPosition(ringServoStart);
 
         intakeServo = botOpMode.hardwareMap.get(Servo.class,"intakeServo");
         intakeServo.setDirection(Servo.Direction.REVERSE);
@@ -231,80 +243,76 @@ public class MechWarriorCode {
 
     public void initTfod(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters vuforiaParameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        vuforiaParameters.vuforiaLicenseKey = VUFORIA_KEY;
-        vuforiaParameters.cameraName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        vuforia = ClassFactory.getInstance().createVuforia(vuforiaParameters);
+        webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = webcamName;
+        parameters.useExtendedTracking = false;
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
+        targets.get(0).setName("Blue Tower Goal Target");
+        targets.get(1).setName("Red Tower Goal Target");
+        targets.get(2).setName("Red Alliance Target");
+        targets.get(3).setName("Blue Alliance Target");
+        targets.get(4).setName("Front Wall Target");
+
+        allTrackables.addAll(targets);
+        OpenGLMatrix targetOrientation = OpenGLMatrix
+                .translation(0, 0, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
+                        AngleUnit.DEGREES, 90, 0, -90));
+
+        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
+        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
+        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float PHONE_X_ROTATE = 90;
+        final float PHONE_Y_ROTATE = -90;
+        final float PHONE_Z_ROTATE = 0;
+
+        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+
+        for (VuforiaTrackable trackable : allTrackables) {
+            trackable.setLocation(targetOrientation);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+        }
+
+        if (targets != null) {
+            targets.activate();
+        }
+
         int tfodMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.7f;
+        tfodParameters.minResultConfidence = 0.6f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
         tfod.setZoom(1.0, 1.78);
+
         if (tfod != null) {
             tfod.activate();
         }
 
-        //webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        //VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        //parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        //parameters.cameraName = webcamName;
-        //vuforia = ClassFactory.getInstance().createVuforia(parameters);
-//        vuforiaParameters.useExtendedTracking = false;
-//        targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-//        targets.get(0).setName("Blue Tower Goal Target");
-//        targets.get(1).setName("Red Tower Goal Target");
-//        targets.get(2).setName("Red Alliance Target");
-//        targets.get(3).setName("Blue Alliance Target");
-//        targets.get(4).setName("Front Wall Target");
-//
-//        allTrackables.addAll(targets);
-//        OpenGLMatrix targetOrientation = OpenGLMatrix
-//                .translation(0, 0, mmTargetHeight)
-//                .multiplied(Orientation.getRotationMatrix(
-//                        AxesReference.EXTRINSIC, AxesOrder.XYZ,
-//                        AngleUnit.DEGREES, 90, 0, -90));
-//
-//        final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
-//        final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-//        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
-//        final float PHONE_X_ROTATE = 90;
-//        final float PHONE_Y_ROTATE = -90;
-//        final float PHONE_Z_ROTATE = 0;
-//
-//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
-//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
-//
-//        for (VuforiaTrackable trackable : allTrackables) {
-//            trackable.setLocation(targetOrientation);
-//            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, vuforiaParameters.cameraDirection);
-//        }
-//
-//        if (targets != null) {
-//            targets.activate();
-//        }
-
-//        stopAndResetEncoder();
-//        runWithoutEncoder();
     }
 
-//    public void stopTfod(LinearOpMode opMode) throws InterruptedException {
-//        botOpMode = opMode;
-//        tfod.deactivate();
-//        tfod.shutdown();
-//    }
+    public void activateVision (LinearOpMode opMode) throws InterruptedException {
 
+        tfod.deactivate();
+
+        if (targets != null) {
+            targets.activate();
+        }
+
+    }
 
 
     // This method is from the cruise control example and sets the targets relative to the bot.
     public void initVisionTracking(LinearOpMode opMode) throws InterruptedException {
         botOpMode = opMode;
         webcamName = botOpMode.hardwareMap.get(WebcamName.class, "Webcam 1");
-        int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        //int cameraMonitorViewId = botOpMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", botOpMode.hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
         parameters.cameraName = webcamName;
         parameters.useExtendedTracking = false;
@@ -492,7 +500,6 @@ public class MechWarriorCode {
 
     public boolean cruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
                                  double cruiseControlAxialGain, double cruiseControlLateralGain, double cruiseControlYawGain) {
-        boolean closeEnough;
         double Y = ((relativeBearing + cruisecontrolAngle) * cruiseControlYawGain);
         double L = ((robotY + cruiseControlOffet) * cruiseControlLateralGain);
         double A = (-(robotX + cruiseControlRange) * cruiseControlAxialGain);
@@ -563,8 +570,8 @@ public class MechWarriorCode {
         // Vector addition and algebra for the pwer to each motor
         double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
         double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
-        double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        double moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        double moveBackLeft = speed * (direction * ((-driveAxial - (driveLateral * STRAFESENSITIVITY))) + (driveYaw * TURNSENSITIVITY));
+        double moveBackRight = speed * (direction * ((-driveAxial + (driveLateral * STRAFESENSITIVITY))) - (driveYaw * TURNSENSITIVITY));
 
         // Normalize all motor speeds so no value exceeds 100% power.
         double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
@@ -609,7 +616,7 @@ public class MechWarriorCode {
         launcher.setVelocity(launcherVelocity);
 
         double position = .01;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<90; i++) {
             intakeServo.setPosition(position);
             Thread.sleep(10);
             position = position + .01;
@@ -697,6 +704,26 @@ public class MechWarriorCode {
      * Autonomous Methods
      **/
 
+    public void autoTimer () {
+        if (autoShotTimer == 0) {
+            botOpMode.resetStartTime();
+            autoShotTimer = 1;
+        }
+    }
+
+    public boolean autoCruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
+                                 double cruiseControlAxialGain, double cruiseControlLateralGain, double cruiseControlYawGain) {
+        boolean closeEnough;
+        double Y = ((relativeBearing + cruisecontrolAngle) * cruiseControlYawGain);
+        double L = ((robotY + cruiseControlOffet) * cruiseControlLateralGain);
+        double A = (-(robotX + cruiseControlRange) * cruiseControlAxialGain);
+        setYaw(Y);
+        setAxial(A);
+        setLateral(L);
+        closeEnough = ((Math.abs(robotX + cruiseControlRange) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
+        return (closeEnough);
+    }
+
     public void signalBlueAlliance() {
         ledLights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
     }
@@ -763,6 +790,7 @@ public class MechWarriorCode {
         ringServo.setPosition(ringServoClose);
         Thread.sleep(700);
         ringServo.setPosition(ringServoOpen);
+        Thread.sleep(700);
     }
 
     public void prepareLauncher(double launcherAutoVelocity) throws InterruptedException {
