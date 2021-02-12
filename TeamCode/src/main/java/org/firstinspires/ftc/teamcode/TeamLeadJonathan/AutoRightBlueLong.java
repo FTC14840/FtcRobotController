@@ -42,13 +42,16 @@ public class AutoRightBlueLong extends LinearOpMode {
 
             // Code for Zone C
             robot.prepareLauncher(900);
-            robot.gyroForward(24, 0.70, 25, 0);
+            robot.gyroForward(25, 0.70, 25, 0);
             robot.moveRobot(0,0,0);
-            robot.gyroLeft(.30,6,0);
-            robot.gyroRight(.30,6,0);
+            robot.gyroLeft(.30,3,0);
+            robot.gyroRight(.30,3,0);
             robot.moveRobot(0,0,0);
             robot.dropBlueWobbleGoal();
+            robot.autoIntakeOn();
             robot.autoLowerIntake(.85);
+            Thread.sleep(500);
+            robot.autoIntakeOff();
             robot.raiseMagazine();
             robot.launcherAutoPowershot(900);
             Thread.sleep(250);
@@ -74,12 +77,15 @@ public class AutoRightBlueLong extends LinearOpMode {
 
             // Code for Zone B
             robot.prepareLauncher(900);
-            robot.gyroForward(24, 0.70, 25, 0);
+            robot.gyroForward(26, 0.70, 25, 0);
             robot.moveRobot(0,0,0);
-            robot.gyroLeft(.25,6,0);
-            robot.gyroRight(.25,6,0);
+            robot.gyroLeft(.30,3,0);
+            robot.gyroRight(.30,3,0);
             robot.moveRobot(0,0,0);
+            robot.autoIntakeOn();
             robot.autoLowerIntake(.95);
+            Thread.sleep(500);
+            robot.autoIntakeOff();
             robot.raiseMagazine();
             robot.launcherAutoPowershot(900);
             Thread.sleep(250);
@@ -96,7 +102,7 @@ public class AutoRightBlueLong extends LinearOpMode {
             Thread.sleep(250);
             robot.launcherAutoPowershot(900);
             robot.gyroRight(.40,-10,0);
-            robot.gyroForward(65,.70, -10,0);
+            robot.gyroForward(64,.70, -10,0);
             robot.dropBlueWobbleGoal();
             robot.gyroLeft(.40,20,0);
             robot.gyroReverse(10,.70,20,0);
@@ -109,11 +115,11 @@ public class AutoRightBlueLong extends LinearOpMode {
             robot.prepareLauncher(820);
             robot.gyroForward(60, .50, 5, 0);
             robot.moveRobot(0,0,0);
-            robot.gyroLeft(.25,5,0);
-            robot.gyroRight(.25,5,0);
+            robot.gyroLeft(.25,4,0);
+            robot.gyroRight(.25,4,0);
             robot.moveRobot(0,0,0);
             robot.raiseMagazine();
-            Thread.sleep(10000);
+            Thread.sleep(11000);
             robot.launcherAutoPowershot(820);
             Thread.sleep(1000);
             robot.launcherAutoPowershot(820);
