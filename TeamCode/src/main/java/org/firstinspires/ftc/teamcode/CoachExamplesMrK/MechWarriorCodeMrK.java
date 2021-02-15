@@ -132,6 +132,9 @@ public class MechWarriorCodeMrK {
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
+    private int targetTestID = 0;
+
+
     // Gyro fields
     BNO055IMU imu;
 
@@ -372,7 +375,7 @@ public class MechWarriorCodeMrK {
     public boolean targetsAreVisible() {
 
         // This method cycles through the targets until it finds one.
-        int targetTestID = 0;
+        targetTestID = 0;
         while ((targetTestID < MAX_TARGETS) && !targetIsVisible(targetTestID)) {
             targetTestID++;
         }
@@ -1197,6 +1200,15 @@ public class MechWarriorCodeMrK {
     public void tfodRunningTelemetry() {
         botOpMode.telemetry.log().clear();
         botOpMode.telemetry.addData("Running", getTfodDetected() + " Program");
+        botOpMode.telemetry.update();
+    }
+
+    public void jdkTelemetry() {
+        botOpMode.telemetry.log().clear();
+        if(targetFound) {botOpMode.telemetry.addData(">","Success!!");}
+        else {botOpMode.telemetry.addData(">","Fail!!");}
+        botOpMode.telemetry.addData("Target", targetName);
+        botOpMode.telemetry.addData("# targets searched for", targetTestID);
         botOpMode.telemetry.update();
     }
 

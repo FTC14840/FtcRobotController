@@ -39,7 +39,19 @@ public class AutoRightBlueMrK extends LinearOpMode {
          // robot.gyroRight(.20, -90, 250);
          **/
 //
-        robot.tfodRunningTelemetry();
+        //robot.tfodRunningTelemetry();
+        sleep(3000);
+        int count = 0;
+        while (count < 30) {
+            if (robot.targetsAreVisible()) {
+            robot.jdkTelemetry();
+        } else {
+            robot.jdkTelemetry();
+        }
+        sleep(5000);
+        count++;
+    }
+
 //        robot.signalBlueAlliance();
 //        robot.prepareLauncher(740);
 //        robot.gyroForward(63,0.60,-30,0);
