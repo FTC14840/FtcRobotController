@@ -97,6 +97,13 @@ public class MechWarriorCodeMrK {
     private static final double WHEELDIAMETERINCHES = 4.0;
     private static final double TICKSTOINCHES = (TICKS * GEARREDUCTION) / (Math.PI * WHEELDIAMETERINCHES);
 
+    private boolean closeEnough = false;
+    private double closeX = 0;
+    private double closeY = 0;
+
+    public boolean getCloseEnough() {
+        return closeEnough;
+    }
     // Vuforia fields
     List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
     WebcamName webcamName = null;
@@ -127,12 +134,20 @@ public class MechWarriorCodeMrK {
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
     private double robotY;         // Y displacement from target center
+    private double robotZ;         // Y displacement from target center
     private double robotBearing;   // Robot's rotation around the Z axis (CCW is positive)
     private double targetRange;    // Range from robot's center to target in mm
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
     private int targetTestID = 0;
+
+    double moveFrontLeft = 0;
+    double moveFrontRight = 0;
+    double moveBackLeft = 0;
+    double moveBackRight = 0;
+
+    private int locationFound = 0;
 
 
     // Gyro fields
@@ -330,7 +345,9 @@ public class MechWarriorCodeMrK {
         parameters.useExtendedTracking = false;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        targets.get(0).setName("Blue Tower Goal Target");
+        VuforiaTrackable blueTowerGoalTarget = targets.get(0);
+        blueTowerGoalTarget.setName("Blue Tower Goal Target");
+        //targets.get(0).setName("Blue Tower Goal Target");
         targets.get(1).setName("Red Tower Goal Target");
         targets.get(2).setName("Red Alliance Target");
         targets.get(3).setName("Blue Alliance Target");
@@ -342,7 +359,9 @@ public class MechWarriorCodeMrK {
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.XYZ,
                         AngleUnit.DEGREES, 90, 0, -90));
-
+        blueTowerGoalTarget.setLocation(OpenGLMatrix
+                .translation(halfField, quadField, mmTargetHeight)
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
         final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
         final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
         final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
@@ -387,7 +406,7 @@ public class MechWarriorCodeMrK {
         VuforiaTrackable target = targets.get(targetId);
         VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) target.getListener();
         OpenGLMatrix location = null;
-
+        locationFound = 0;
         // If we have a target, look for an updated robot position
         if ((target != null) && (listener != null) && listener.isVisible()) {
             targetFound = true;
@@ -396,7 +415,7 @@ public class MechWarriorCodeMrK {
             // If we have an updated robot location, update all the relevant tracking information
             location = listener.getUpdatedRobotLocation();
             if (location != null) {
-
+                locationFound = 1;
                 // Create a translation and rotation vector for the robot.
                 VectorF trans = location.getTranslation();
                 Orientation rot = Orientation.getOrientation(location, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
@@ -404,6 +423,7 @@ public class MechWarriorCodeMrK {
                 // Robot position is defined by the standard Matrix translation (x and y)
                 robotX = trans.get(0);
                 robotY = trans.get(1);
+                robotZ = trans.get(2);
 
                 // Robot bearing (in +vc CCW cartesian system) is defined by the standard Matrix z rotation
                 robotBearing = rot.thirdAngle;
@@ -519,6 +539,8 @@ public class MechWarriorCodeMrK {
         setYaw(Y);
         setAxial(A);
         setLateral(L);
+        closeX = Math.abs(robotX + cruiseControlRange);
+        closeY = Math.abs(robotY);
         closeEnough = ((Math.abs(robotX + cruiseControlRange) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
         return (closeEnough);
     }
@@ -581,10 +603,10 @@ public class MechWarriorCodeMrK {
     // Calculations for the power to each motor
     public void moveRobot() {
         // Vector addition and algebra for the pwer to each motor
-        double moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        double moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
-        double moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        double moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
 
         // Normalize all motor speeds so no value exceeds 100% power.
         double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
@@ -600,10 +622,10 @@ public class MechWarriorCodeMrK {
         }
 
         // Set drive motor power based on calculations
-        frontLeft.setPower(moveFrontLeft);
-        frontRight.setPower(moveFrontRight);
-        backLeft.setPower(moveBackLeft);
-        backRight.setPower(moveBackRight);
+ //      frontLeft.setPower(moveFrontLeft);
+ //       frontRight.setPower(moveFrontRight);
+ //       backLeft.setPower(moveBackLeft);
+ //       backRight.setPower(moveBackRight);
     }
 
     // Overloaded Method to set all three motions and move the robot
@@ -1207,8 +1229,16 @@ public class MechWarriorCodeMrK {
         botOpMode.telemetry.log().clear();
         if(targetFound) {botOpMode.telemetry.addData(">","Success!!");}
         else {botOpMode.telemetry.addData(">","Fail!!");}
-        botOpMode.telemetry.addData("Target", targetName);
-        botOpMode.telemetry.addData("# targets searched for", targetTestID);
+        //botOpMode.telemetry.addData("Target", targetName);
+        //botOpMode.telemetry.addData("# targets searched for", targetTestID);
+        botOpMode.telemetry.addData("Location Found",locationFound);
+        botOpMode.telemetry.addData("Close X", "%.2f",closeX);
+        botOpMode.telemetry.addData("Close Y", "%.2f",closeY);
+        botOpMode.telemetry.addData("Robot", "[X]:[Y]:[Z] (B) [%5.0fmm]:[%5.0fmm]:[%5.0fmm] (%4.0f°)", robotX, robotY, robotZ, robotBearing);
+        botOpMode.telemetry.addData("Front Left", "%.2f",moveFrontLeft);
+        botOpMode.telemetry.addData("Front Right", "%.2f",moveFrontRight);
+        botOpMode.telemetry.addData("Back Left", "%.2f",moveBackLeft);
+        botOpMode.telemetry.addData("Back Right", "%.2f",moveBackRight);
         botOpMode.telemetry.update();
     }
 
