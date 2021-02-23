@@ -7,11 +7,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.MechWarriorCode;
 
 @Autonomous (name ="AutoRightBlueMrK")
-@Disabled
+//@Disabled
 
 public class AutoRightBlueMrK extends LinearOpMode {
 
     MechWarriorCodeMrK robot = new MechWarriorCodeMrK();
+    final double CRUISE_CONTROL_RANGE = 2000;
+    final double CRUISE_CONTROL_OFFSET = 0;
+    final double CRUISE_CONTROL_ANGLE = 5;
+    final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
+    final double CRUISE_CONTROL_LATERAL_GAIN = 0;
+    final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,6 +49,50 @@ public class AutoRightBlueMrK extends LinearOpMode {
          **/
 //
         robot.tfodRunningTelemetry();
+        sleep(3000);
+/*        int count = 0;
+        while (count < 30) {
+            if (robot.targetsAreVisible()) {
+            robot.jdkTelemetry();
+        } else {
+            robot.jdkTelemetry();
+        }
+        sleep(5000);
+        count++;
+    }
+ */
+        //     robot.cruiseControlTelemetry();
+
+        //     while (robot.targetsAreVisible() && opModeIsActive() && time < 20) {
+  //      int count = 0;
+ //       while (count < 30) {
+            while (robot.targetsAreVisible() && opModeIsActive()) {
+                robot.cruiseControl(CRUISE_CONTROL_RANGE, CRUISE_CONTROL_OFFSET, CRUISE_CONTROL_ANGLE,
+                        CRUISE_CONTROL_AXIAL_GAIN, CRUISE_CONTROL_LATERAL_GAIN, CRUISE_CONTROL_YAW_GAIN);
+                robot.moveRobot();
+                //        robot.cruiseControlTelemetry();
+                robot.jdkTelemetry();
+                sleep(5000);
+                if (robot.getCloseEnough()) {
+                    break;
+                }
+            }
+            robot.jdkTelemetry();
+            sleep(5000);
+
+  //          sleep(5000);
+  //          count++;
+  //      }
+    }
+}
+
+//        robot.moveRobot(0,0,0);
+//        robot.launcherAutoPowershot(820);
+//        robot.launcherAutoPowershot(820);
+//        robot.launcherAutoPowershot(820);
+//        robot.signalBlueAlliance();
+            //robot.launcherOff();
+            //       Thread.sleep(30000);
 //        robot.signalBlueAlliance();
 //        robot.prepareLauncher(740);
 //        robot.gyroForward(63,0.60,-30,0);
@@ -91,5 +142,3 @@ public class AutoRightBlueMrK extends LinearOpMode {
         Thread.sleep(1000);
         robot.initAuxiliaryControls();
 */
-    }
-}
