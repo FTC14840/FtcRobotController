@@ -124,11 +124,17 @@ public class MechWarriorCode {
     }
 
 
+    //private boolean close = false;
     private boolean closeEnough = false;
-    private boolean autoCloseEnough = false;
+
+    public boolean getCloseEnough() {
+        return closeEnough;
+    }
+
     private static final int MAX_TARGETS = 5;
     private static final double ON_AXIS = 10;
-    private static final double CLOSE_ENOUGH = 30;
+    private static final double CLOSE_ENOUGH = 10;
+
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
@@ -138,11 +144,7 @@ public class MechWarriorCode {
     private double targetBearing;  // Heading of the target , relative to the robot's unrotated center
     private double relativeBearing;// Heading to the target from the robot's current bearing.
 
-    private double Close;
 
-    public boolean getAutoCloseEnough() {
-        return autoCloseEnough;
-    }
 
     // Gyro fields
     BNO055IMU imu;
@@ -1259,7 +1261,7 @@ public class MechWarriorCode {
             botOpMode.telemetry.addData("- Strafe  ", "%s %5.0fmm", robotY < 0 ? "LEFT" : "RIGHT", Math.abs(robotY));
             botOpMode.telemetry.addData("- Distance", "%5.0fmm", Math.abs(robotX));
             botOpMode.telemetry.addData("Axes  ", "A[%+5.2f], L[%+5.2f], Y[%+5.2f]", driveAxial, driveLateral, driveYaw);
-            botOpMode.telemetry.addData("Close Enough","%5.0f", Close);
+            //botOpMode.telemetry.addData("Close Enough","%5.0f", Close);
             botOpMode.telemetry.update();
 
         } else {
