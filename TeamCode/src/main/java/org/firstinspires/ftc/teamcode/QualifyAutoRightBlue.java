@@ -65,11 +65,17 @@ public class QualifyAutoRightBlue extends LinearOpMode {
         robot.tfodRunningTelemetry();
         robot.signalBlueAlliance();
         robot.prepareLauncher(820);
+        //robot.cruiseControlTelemetry();
         robot.gyroForward(63,.80,-30,0);
+        //robot.cruiseControlTelemetry();
         robot.raiseMagazine();
+        //robot.cruiseControlTelemetry();
         robot.gyroLeft(.30,13.5,0);
+        robot.cruiseControlTelemetry();
+        Thread.sleep(2000);
+        robot.cruiseControlTelemetry();
 
-        while (robot.targetsAreVisible()) {
+        while (robot.targetsAreVisible() && opModeIsActive()) {
             robot.cruiseControl(CRUISE_CONTROL_RANGE, CRUISE_CONTROL_OFFSET, CRUISE_CONTROL_ANGLE,
                         CRUISE_CONTROL_AXIAL_GAIN, CRUISE_CONTROL_LATERAL_GAIN, CRUISE_CONTROL_YAW_GAIN);
             robot.moveRobot();
