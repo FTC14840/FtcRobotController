@@ -60,8 +60,8 @@ public class MechWarriorCode {
     private Servo blueWobbleGoal;    // 0
     private Servo blueCam;           // 1
 
-    private double launcherVelocity = 860; //Starting Velocity in Increments of 20
-    private double launcherHighGoalVelocity = 860;
+    private double launcherVelocity = 820; //Starting Velocity in Increments of 20
+    private double launcherHighGoalVelocity = 820;
     private double launcherPowershotVelocity = 800;
     private double launcherVelocityIncrement = 20;
 
@@ -73,9 +73,9 @@ public class MechWarriorCode {
 
     private double intakePower = 1.0;
     private int magazineTargetPosition = 200;
-    private double ringServoStart = .42;
-    private double ringServoOpen = .05;
-    private double ringServoClose = .50;
+    private double ringServoStart = 0.40;
+    private double ringServoOpen = 0.12;
+    private double ringServoClose = 0.52;
 
     // Define global variables/fields for three axis motion
     private double driveAxial = 0;  // Positive is forward
@@ -125,6 +125,7 @@ public class MechWarriorCode {
 
 
     private boolean closeEnough = false;
+    private boolean autoCloseEnough = false;
     private static final int MAX_TARGETS = 5;
     private static final double ON_AXIS = 10;
     private static final double CLOSE_ENOUGH = 30;
@@ -139,8 +140,8 @@ public class MechWarriorCode {
 
     private double Close;
 
-    public boolean getCloseEnough() {
-        return closeEnough;
+    public boolean getAutoCloseEnough() {
+        return autoCloseEnough;
     }
 
     // Gyro fields
@@ -513,7 +514,7 @@ public class MechWarriorCode {
         setYaw(Y);
         setAxial(A);
         setLateral(L);
-        Close = Math.abs(robotX + cruiseControlRange);
+        //Close = Math.abs(robotX + cruiseControlRange);
         closeEnough = ((Math.abs(robotX + cruiseControlRange) < CLOSE_ENOUGH) && (Math.abs(robotY) < ON_AXIS));
         return (closeEnough);
     }
@@ -646,7 +647,7 @@ public class MechWarriorCode {
         if (botOpMode.gamepad1.y) {
             intakeMotor.setPower(0.0);
             raiseMagazine();
-            intakeServo.setPosition(0.70);
+            intakeServo.setPosition(0.0);
         }
 
         if (botOpMode.gamepad1.b && intakeMotor.getPower() == 0.0) {
@@ -819,9 +820,9 @@ public class MechWarriorCode {
 
     public void shootAutoLauncher() throws InterruptedException {
         ringServo.setPosition(ringServoClose);
-        Thread.sleep(700);
+        Thread.sleep(1000);
         ringServo.setPosition(ringServoOpen);
-        Thread.sleep(700);
+        Thread.sleep(1000);
     }
 
     public void prepareLauncher(double launcherAutoVelocity) throws InterruptedException {
