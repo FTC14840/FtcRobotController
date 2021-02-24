@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.MechWarriorCode;
 public class AutoRightBlueMrK extends LinearOpMode {
 
     MechWarriorCodeMrK robot = new MechWarriorCodeMrK();
-    final double CRUISE_CONTROL_RANGE = 2000;
+    final double CRUISE_CONTROL_RANGE = 1200;
     final double CRUISE_CONTROL_OFFSET = 0;
-    final double CRUISE_CONTROL_ANGLE = 5;
+    final double CRUISE_CONTROL_ANGLE = 0;
     final double CRUISE_CONTROL_AXIAL_GAIN = 0.0030;
     final double CRUISE_CONTROL_LATERAL_GAIN = 0;
     final double CRUISE_CONTROL_YAW_GAIN = 0.0400;
