@@ -133,7 +133,7 @@ public class MechWarriorCode {
 
     private static final int MAX_TARGETS = 5;
     private static final double ON_AXIS = 10;
-    private static final double CLOSE_ENOUGH = 10;
+    private static final double CLOSE_ENOUGH = 60;
 
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
@@ -649,7 +649,7 @@ public class MechWarriorCode {
         if (botOpMode.gamepad1.y) {
             intakeMotor.setPower(0.0);
             raiseMagazine();
-            intakeServo.setPosition(0.0);
+            intakeServo.setPosition(0.20);
         }
 
         if (botOpMode.gamepad1.b && intakeMotor.getPower() == 0.0) {
