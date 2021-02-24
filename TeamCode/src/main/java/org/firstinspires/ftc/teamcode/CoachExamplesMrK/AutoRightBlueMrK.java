@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.MechWarriorCode;
 
 @Autonomous (name ="AutoRightBlueMrK")
-//@Disabled
+@Disabled
 
 public class AutoRightBlueMrK extends LinearOpMode {
 
