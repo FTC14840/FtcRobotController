@@ -31,6 +31,7 @@ import java.util.List;
 import static com.qualcomm.robotcore.hardware.DcMotor.RunMode.RUN_USING_ENCODER;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
@@ -113,7 +114,7 @@ public class MechWarriorCodeMrK {
     private VuforiaTrackables targets;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final String VUFORIA_KEY = "ATqulq//////AAABmfYPXE+z1EORrVmv4Ppo3CcPktGk5mvdMnvPi9/T3DMYGc2mju8KUyG9gAB7pKlb9k9SZnM0YSq1JUZ6trE1ZKmMU8z5QPuhA/b6/Enb+XVGwmjrRjhMfNtUNgiZDhtsUvxr9fQP4HVjTzlz4pv0z3MeWZmkAgIN8T8YM0EFWrW4ODqYQmZjB0Nri2KKVM9dlOZ5udPfTZ9YvMgrCyxxG7O8P84AvwCAyXxzxelL4OfGnbygs0V60CQHx51gqrki613PT/9D1Q1io5+UbN6xAQ26AdYOTmADgJUGlfC2eMyqls4qAIoOj+pcJbm5ryF5yW9pEGHmvor1c9HlCFwhKxiaxw+cTu8AEaAdNuR65i/p";
-    private static final float mmPerInch = 25.4f;
+     private static final float mmPerInch = 25.4f;
     private static final float mmTargetHeight = (6) * mmPerInch;
     private static final float halfField = 72 * mmPerInch;
     private static final float quadField = 36 * mmPerInch;
@@ -128,8 +129,8 @@ public class MechWarriorCodeMrK {
     }
 
     private static final int MAX_TARGETS = 5;
-    private static final double ON_AXIS = 5;
-    private static final double CLOSE_ENOUGH = 10;
+    private static final double ON_AXIS = 50;//was 3
+    private static final double CLOSE_ENOUGH = 50;//was 10
     private boolean targetFound;    // set to true if Vuforia is currently tracking a target
     private String targetName;     // Name of the currently tracked target
     private double robotX;         // X displacement from target center
@@ -345,33 +346,40 @@ public class MechWarriorCodeMrK {
         parameters.useExtendedTracking = false;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
         targets = vuforia.loadTrackablesFromAsset("UltimateGoal");
-        VuforiaTrackable blueTowerGoalTarget = targets.get(0);
-        blueTowerGoalTarget.setName("Blue Tower Goal Target");
-        //targets.get(0).setName("Blue Tower Goal Target");
+ //       VuforiaTrackable blueTowerGoalTarget = targets.get(0);
+ //       blueTowerGoalTarget.setName("Blue Tower Goal Target");
+        targets.get(0).setName("Blue Tower Goal Target");
         targets.get(1).setName("Red Tower Goal Target");
         targets.get(2).setName("Red Alliance Target");
         targets.get(3).setName("Blue Alliance Target");
         targets.get(4).setName("Front Wall Target");
 
         allTrackables.addAll(targets);
+     //The extended statement just below looks suspect in the translation area with dx=dy=0.
+     //In reality, since we only care about one target, this causes the readings given to be directly relative to the one target.
         OpenGLMatrix targetOrientation = OpenGLMatrix
                 .translation(0, 0, mmTargetHeight)
                 .multiplied(Orientation.getRotationMatrix(
                         AxesReference.EXTRINSIC, AxesOrder.XYZ,
                         AngleUnit.DEGREES, 90, 0, -90));
-        blueTowerGoalTarget.setLocation(OpenGLMatrix
-                .translation(halfField, quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+ //       blueTowerGoalTarget.setLocation(OpenGLMatrix
+ //               .translation(halfField, quadField, mmTargetHeight)
+ //               .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
         final float CAMERA_FORWARD_DISPLACEMENT = 9.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot-center
         final float CAMERA_LEFT_DISPLACEMENT = -.50f;     // eg: Camera is ON the robot's center line
-        final float CAMERA_VERTICAL_DISPLACEMENT = 6.25f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float PHONE_X_ROTATE = 90;
+        final float CAMERA_VERTICAL_DISPLACEMENT = 12f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float PHONE_X_ROTATE = 0;
         final float PHONE_Y_ROTATE = -90;
         final float PHONE_Z_ROTATE = 0;
 
+//        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+//                .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
+//                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+
+        //Try YZX.  The answers make more sense, but still differs from the sample progam significantly.  Why?
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, PHONE_X_ROTATE, PHONE_Y_ROTATE, PHONE_Z_ROTATE));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, PHONE_Y_ROTATE, PHONE_Z_ROTATE, PHONE_X_ROTATE));
 
         for (VuforiaTrackable trackable : allTrackables) {
             trackable.setLocation(targetOrientation);
@@ -435,7 +443,7 @@ public class MechWarriorCodeMrK {
                 targetBearing = Math.toDegrees(-Math.asin(robotY / targetRange));
 
                 // Target relative bearing is the target Heading relative to the direction the robot is pointing.
-                relativeBearing = targetBearing - robotBearing + 90;
+                relativeBearing = targetBearing - robotBearing + 0;  //the last number was 90
             }
             targetFound = true;
         } else {
@@ -532,7 +540,7 @@ public class MechWarriorCodeMrK {
 
     public boolean cruiseControl(double cruiseControlRange, double cruiseControlOffet, double cruisecontrolAngle,
                                  double cruiseControlAxialGain, double cruiseControlLateralGain, double cruiseControlYawGain) {
-        boolean closeEnough;
+        //boolean closeEnough;  //already defined as a private variable.  Does it cause a problem here?  It seems to.
         double Y = ((relativeBearing + cruisecontrolAngle) * cruiseControlYawGain);
         double L = ((robotY + cruiseControlOffet) * cruiseControlLateralGain);
         double A = (-(robotX + cruiseControlRange) * cruiseControlAxialGain);
@@ -545,6 +553,32 @@ public class MechWarriorCodeMrK {
         return (closeEnough);
     }
 
+    public void moveRobot() {
+        // Vector addition and algebra for the pwer to each motor
+        moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
+        moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
+        moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
+
+        // Normalize all motor speeds so no value exceeds 100% power.
+        double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
+        max = Math.max(max, Math.abs(moveBackLeft));
+        max = Math.max(max, Math.abs(moveBackRight));
+
+        // Proportional logic to reduce all motors to the highest value
+        if (max > 1.0) {
+            moveFrontLeft /= max;
+            moveFrontRight /= max;
+            moveBackLeft /= max;
+            moveBackRight /= max;
+        }
+
+        // Set drive motor power based on calculations
+        //      frontLeft.setPower(moveFrontLeft);
+        //       frontRight.setPower(moveFrontRight);
+        //       backLeft.setPower(moveBackLeft);
+        //       backRight.setPower(moveBackRight);
+    }
     public boolean powerShot(double powerShotRange, double powershotOffset, double powershotAngle,
                                  double powerShotAxialGain, double powershotLateralGain,double powershotYawGain) {
         boolean closeEnough;
@@ -601,32 +635,7 @@ public class MechWarriorCodeMrK {
     }
 
     // Calculations for the power to each motor
-    public void moveRobot() {
-        // Vector addition and algebra for the pwer to each motor
-        moveFrontLeft = speed * (direction * ((-driveAxial) + (driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        moveFrontRight = speed * (direction * ((-driveAxial - driveLateral)) - (driveYaw * TURNSENSITIVITY));
-        moveBackLeft = speed * (direction * ((-driveAxial - driveLateral)) + (driveYaw * TURNSENSITIVITY));
-        moveBackRight = speed * (direction * ((-driveAxial + driveLateral)) - (driveYaw * TURNSENSITIVITY));
 
-        // Normalize all motor speeds so no value exceeds 100% power.
-        double max = Math.max(Math.abs(moveFrontLeft), Math.abs(moveFrontRight));
-        max = Math.max(max, Math.abs(moveBackLeft));
-        max = Math.max(max, Math.abs(moveBackRight));
-
-        // Proportional logic to reduce all motors to the highest value
-        if (max > 1.0) {
-            moveFrontLeft /= max;
-            moveFrontRight /= max;
-            moveBackLeft /= max;
-            moveBackRight /= max;
-        }
-
-        // Set drive motor power based on calculations
- //      frontLeft.setPower(moveFrontLeft);
- //       frontRight.setPower(moveFrontRight);
- //       backLeft.setPower(moveBackLeft);
- //       backRight.setPower(moveBackRight);
-    }
 
     // Overloaded Method to set all three motions and move the robot
     public void moveRobot(double axial, double lateral, double yaw) {
